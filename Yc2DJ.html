@@ -102,7 +102,7 @@
         // Game variables
         let playerScore = 0;
         let aiScore = 0;
-        const ballSpeed = 0.05;  // Set constant ball speed
+        let ballSpeed = 0.05;
         let ballDirectionX = 1;
         let ballDirectionY = 0;
         let isGameOver = false;
@@ -124,60 +124,34 @@
             523.25  // C5
         ];
 
-        // Corresponding chord pairs
-        const chords = [
-            [261.63, 329.63], // C4-E4
-            [293.66, 349.23], // D4-F4
-            [329.63, 392.00], // E4-G4
-            [349.23, 440.00], // F4-A4
-            [392.00, 493.88], // G4-B4
-            [440.00, 523.25], // A4-C5
-            [493.88, 261.63], // B4-C4 (Assuming repeating with low C)
-            [523.25, 261.63]  // C5-C4
-        ];
+        let oscillator = null;
+        let gainNode = null;
 
-        let currentChordInterval = null;
-        let currentNoteIndex = -1;
+        function createOscillator() {
+            oscillator = audioContext.createOscillator();
+            gainNode = audioContext.createGain();
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+        }
 
-        function playChordBasedOnY(y, isEdge) {
+        function playNoteBasedOnY(y, isEdge) {
+            // Inverse index for top and bottom edges
             const index = isEdge
                 ? Math.floor((y + 2) * (notes.length / 4))
                 : notes.length - 1 - Math.floor((y + 2) * (notes.length / 4));
-
-            const chordIndex = Math.min(Math.max(index, 0), notes.length - 1);
-            if (chordIndex !== currentNoteIndex) {
-                currentNoteIndex = chordIndex;
-                playChord(chords[chordIndex]);
-            }
+            const frequency = notes[Math.min(Math.max(index, 0), notes.length - 1)];
+            playNoteWithFrequency(frequency);
         }
 
-        function playChord(chord) {
-            stopCurrentChord(); // Stop the current chord before playing a new one
-
-            let noteIndex = 0;  // Index to toggle between the two notes of the chord
-
-            currentChordInterval = setInterval(() => {
-                if (noteIndex >= chord.length) noteIndex = 0;
-
-                const oscillator = audioContext.createOscillator();
-                const gainNode = audioContext.createGain();
-                oscillator.connect(gainNode);
-                gainNode.connect(audioContext.destination);
-
-                oscillator.frequency.setValueAtTime(chord[noteIndex], audioContext.currentTime);
-                oscillator.start();
-                gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5); // Short decay time
-                oscillator.stop(audioContext.currentTime + 0.5);
-
-                noteIndex++;
-            }, 500);  // Switch note every 0.5 seconds
-        }
-
-        function stopCurrentChord() {
-            if (currentChordInterval !== null) {
-                clearInterval(currentChordInterval);
-                currentChordInterval = null;
+        function playNoteWithFrequency(frequency) {
+            if (oscillator) {
+                oscillator.stop();
             }
+            createOscillator();
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.00001, audioContext.currentTime + 0.5); // Short decay time
+            oscillator.stop(audioContext.currentTime + 0.5);
         }
 
         // Handle user interaction to resume AudioContext
@@ -284,7 +258,7 @@
                 // Ball collision with top and bottom
                 if (Math.abs(ball.position.y) > 2) {
                     ballDirectionY *= -1;
-                    playChordBasedOnY(ball.position.y, true);
+                    playNoteBasedOnY(ball.position.y, true);
                 }
 
                 // Move player paddle
@@ -302,12 +276,14 @@
                 if (ball.position.x <= -3.9 && Math.abs(ball.position.y - playerPaddle.position.y) < 0.5) {
                     ballDirectionX *= -1;
                     ballDirectionY = Math.sin(playerHitDirection);
-                    playChordBasedOnY(playerPaddle.position.y, false);
+                    ballSpeed += 0.001;
+                    playNoteBasedOnY(playerPaddle.position.y, false);
                 }
                 if (ball.position.x >= 3.9 && Math.abs(ball.position.y - aiPaddle.position.y) < 0.5) {
                     ballDirectionX *= -1;
                     ballDirectionY = 0; // AI always hits the ball straight back
-                    playChordBasedOnY(aiPaddle.position.y, false);
+                    ballSpeed += 0.001;
+                    playNoteBasedOnY(aiPaddle.position.y, false);
                 }
 
                 // Scoring
@@ -341,19 +317,19 @@
 
         function resetBall(playSound = true) {
             ball.position.set(0, 0, 0);
+            ballSpeed = 0.05;
             ballDirectionX *= -1;
             ballDirectionY = 0; // Reset ball direction to straight
 
             if (playSound) {
                 // Only play sound if playSound flag is true
-                playChordBasedOnY(0, false); // Play a default chord (C4-E4) as an example
+                playNoteWithFrequency(440); // Play a default note (A4) as an example
             }
         }
 
         function endGame() {
             isGameOver = true;
             isGameStarted = false;
-            stopCurrentChord(); // Stop any ongoing chord when the game ends
             const gameOverDiv = document.getElementById('gameOver');
             const resultDiv = document.getElementById('result');
             gameOverDiv.style.display = 'block';
