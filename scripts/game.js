@@ -1,6 +1,10 @@
+import PongAI from './ai.js';
+import Leaderboard from './leaderboard.js';
+
 let scene, camera, renderer, paddle1, paddle2, ball, room;
 let player1Score = 0, player2Score = 0;
 let gameMode = '';
+let ai, leaderboard;
 
 function init() {
     scene = new THREE.Scene();
@@ -40,6 +44,9 @@ function init() {
     scene.add(light);
 
     camera.position.z = 400;
+
+    ai = new PongAI(paddle2);
+    leaderboard = new Leaderboard();
 
     initAudio();
     resetBall();
@@ -89,8 +96,7 @@ function animate() {
 
     // AI paddle movement (only in single player mode)
     if (gameMode === 'singlePlayer') {
-        paddle2.position.y += (ball.position.y - paddle2.position.y) * 0.1;
-        paddle2.position.y = Math.max(Math.min(paddle2.position.y, 250), -250);
+        ai.update(ball.position);
     }
 
     renderer.render(scene, camera);
@@ -107,6 +113,8 @@ function endGame() {
     const winner = player1Score >= 5 ? "Player 1" : "Player 2";
     document.getElementById('result').innerText = `${winner} wins!`;
     document.getElementById('gameOver').style.display = 'block';
+    document.getElementById('nicknameInput').style.display = 'block';
+    document.getElementById('playAgain').style.display = 'none';
 }
 
 function onMouseMove(event) {
@@ -125,15 +133,6 @@ function onKeyDown(event) {
         if (key === 'arrowup' && paddle2.position.y < 250) paddle2.position.y += 10;
         if (key === 'arrowdown' && paddle2.position.y > -250) paddle2.position.y -= 10;
     }
-}
-
-function showGameOver(result) {
-    document.getElementById('result').innerText = result;
-    document.getElementById('gameOver').style.display = 'block';
-}
-
-function hideGameOver() {
-    document.getElementById('gameOver').style.display = 'none';
 }
 
 function startGame(mode) {
@@ -157,6 +156,26 @@ function resetGame() {
     resetBall();
     paddle1.position.y = 0;
     paddle2.position.y = 0;
+    document.getElementById('playAgain').style.display = 'inline-block';
+}
+
+function hideGameOver() {
+    document.getElementById('gameOver').style.display = 'none';
+}
+
+function saveScore() {
+    const nickname = document.getElementById('nickname').value;
+    const score = Math.max(player1Score, player2Score);
+    leaderboard.saveScore(nickname, score);
+    showLeaderboard();
+}
+
+function showLeaderboard() {
+    document.getElementById('startMenu').style.display = 'none';
+    document.getElementById('gameUI').style.display = 'none';
+    document.getElementById('leaderboard').style.display = 'block';
+    
+    leaderboard.displayLeaderboard();
 }
 
 document.getElementById('singlePlayerBtn').addEventListener('click', () => startGame('singlePlayer'));
@@ -164,6 +183,12 @@ document.getElementById('multiPlayerBtn').addEventListener('click', () => startG
 document.getElementById('playAgain').addEventListener('click', resetGame);
 document.getElementById('backToMenu').addEventListener('click', () => {
     document.getElementById('gameUI').style.display = 'none';
+    document.getElementById('startMenu').style.display = 'block';
+});
+document.getElementById('saveScore').addEventListener('click', saveScore);
+document.getElementById('showLeaderboardBtn').addEventListener('click', showLeaderboard);
+document.getElementById('backToMenuFromLeaderboard').addEventListener('click', () => {
+    document.getElementById('leaderboard').style.display = 'none';
     document.getElementById('startMenu').style.display = 'block';
 });
 
