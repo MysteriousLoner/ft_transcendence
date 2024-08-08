@@ -50,19 +50,19 @@ let ballDirectionY = 0;
 let ballSpeed = 0.025;
 let isGameRunning = false;
 let isGamePaused = false;
-const travelTime = 300; // Fixed travel time in seconds
+const travelTime = 200; // Fixed travel time in seconds
 
 let playerPaddleMovingUp = false;
 let playerPaddleMovingDown = false;
 let playerHitDirection = 0;
-const maxHitAngle = Math.PI / 4; // Maximum angle for the hit direction
+const maxHitAngle = Math.PI / 2; // Maximum angle for the hit direction
 
 let playerHitDirectionLeft = false;
 let playerHitDirectionRight = false;
 
 // Add a dotted line for the hit direction
 const hitLineMaterial = new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.1, gapSize: 0.1 });
-const hitLineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]);
+const hitLineGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(2, 0, 0)]);
 const hitDirectionLine = new THREE.Line(hitLineGeometry, hitLineMaterial);
 hitDirectionLine.computeLineDistances(); // Required for dotted lines
 playerPaddle.add(hitDirectionLine);
@@ -171,6 +171,7 @@ function updateHitDirection() {
     if (playerHitDirectionRight) {
         playerHitDirection = Math.min(playerHitDirection + 0.05, maxHitAngle); // Limit the angle
     }
+    // console.log(playerHitDirection);
 }
 
 function movePaddle() {
@@ -242,21 +243,27 @@ function calculateTravelDistance() {
 }
 
 function moveBall() {
+    if (playerHitDirection >= 0)
+        ballDirectionY = Math.abs(ballDirectionY);
+    else if (playerHitDirection < 0)
+        ballDirectionY *= -1;
+    console.log("direction: " + ballDirectionY);
+    console.log("hit: " + playerHitDirection);
     ball.position.x += ballSpeed * ballDirectionX;
     ball.position.y += ballSpeed * ballDirectionY;
-
+    
     // Ball collision with top and bottom
     if (Math.abs(ball.position.y) > 2) {
         ballDirectionY *= -1;
     }
-
+    
     // Ball collision with player paddle
     if (ball.position.x <= -3.9 && Math.abs(ball.position.y - playerPaddle.position.y) < 0.5) {
         ballDirectionX *= -1;
         ballDirectionY = Math.sin(playerHitDirection);
-        // Reset ball speed
-        const distance = calculateTravelDistance();
-        ballSpeed = calculateSpeed(distance, travelTime);
+    // Reset ball speed
+    const distance = calculateTravelDistance();
+    ballSpeed = calculateSpeed(distance, travelTime);
     }
 
     // Ball collision with AI paddle
