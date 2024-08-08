@@ -12,5 +12,4 @@ class PongAI {
     }
 }
 
-// Export the AI class
 export default PongAI;

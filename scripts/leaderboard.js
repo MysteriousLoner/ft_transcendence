@@ -31,5 +31,4 @@ class Leaderboard {
     }
 }
 
-// Export the Leaderboard class
 export default Leaderboard;

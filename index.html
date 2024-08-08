@@ -13,6 +13,7 @@
         <div class="d-grid gap-2 col-6 mx-auto">
             <button id="singlePlayerBtn" class="btn btn-primary btn-lg">Single Player vs AI</button>
             <button id="multiPlayerBtn" class="btn btn-success btn-lg">Two Players</button>
+            <button id="tournamentBtn" class="btn btn-warning btn-lg">Tournament</button>
             <button id="showLeaderboardBtn" class="btn btn-info btn-lg">Show Leaderboard</button>
         </div>
     </div>
@@ -43,12 +44,19 @@
         </table>
         <button id="backToMenuFromLeaderboard" class="btn btn-secondary">Back to Menu</button>
     </div>
+    <div id="tournamentSetup" class="container mt-5" style="display: none;">
+        <!-- Tournament setup form will be inserted here -->
+    </div>
+    <div id="bracketDisplay" style="display: none;">
+        <!-- 3D tournament brackets will be displayed here -->
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="scripts/audio.js"></script>
     <script src="scripts/ai.js" type="module"></script>
     <script src="scripts/leaderboard.js" type="module"></script>
+    <script src="scripts/tournament.js" type="module"></script>
     <script src="scripts/game.js" type="module"></script>
 </body>
 </html>
