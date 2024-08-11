@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Page with HTML Background</title>
+	<link rel="stylesheet" href="./index.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+	<link rel="stylesheet" href="./navbar/nav.css" />
+	<title>42PONG</title>
+</head>
+
+<body>
+	<iframe src="./matrix/matrix.html"></iframe>
+
+	<div class="navbar2">
+		<nav class="navbar">
+
+			<div class="profile-dropdown">
+				<div onclick="toggle()" class="profile-dropdown-btn">
+					<div class="profile-img">
+						<i class="fa-solid fa-circle"></i>
+					</div>
+
+					<span>PLAYER
+						<i class="fa-solid fa-angle-down"></i>
+					</span>
+				</div>
+
+				<ul class="profile-dropdown-list">
+					<li class="profile-dropdown-list-item">
+						<a href="#">
+							<i class="fa-regular fa-user"></i>
+							EDIT PROFILE
+						</a>
+					</li>
+
+					<li class="profile-dropdown-list-item">
+						<a href="#">
+							<i class="fa-regular fa-envelope"></i>
+							INBOX
+						</a>
+					</li>
+
+					<li class="profile-dropdown-list-item">
+						<a href="#">
+							<i class="fa-solid fa-chart-line"></i>
+							SETTINGS
+						</a>
+					</li>
+
+					<li class="profile-dropdown-list-item">
+						<a href="#">
+							<i class="fa-solid fa-sliders"></i>
+							HELP
+						</a>
+					</li>
+
+					<li class="profile-dropdown-list-item">
+						<a href="#">
+							<i class="fa-regular fa-circle-question"></i>
+							LOG OUT
+						</a>
+					</li>
+
+				</ul>
+			</div>
+		</nav>
+	</div>
+
+	<script src="./navbar/nav.js"></script>
+
+	<div class="center">
+		<h1 class="title">42PONG</h1>
+		<div class="selection">
+			<button class="btn">PLAY</button>
+		</div>
+	</div>
+</body>
+
+</html>
