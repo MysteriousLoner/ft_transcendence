@@ -1,19 +1,28 @@
 // inputHandler.js
-export default function setupInputHandlers(paddle) {
+export default async function setupInputHandlers(paddle) {
     document.addEventListener('keydown', (event) => {
-        switch(event.code) {
-            case 'ArrowUp':
-                paddle.updatePosition(0, 0.1, 0); // Move up
-                break;
-            case 'ArrowDown':
-                paddle.updatePosition(0, -0.1, 0); // Move down
-                break;
-            case 'ArrowLeft':
-                paddle.updatePosition(-0.1, 0, 0); // Move left
-                break;
-            case 'ArrowRight':
-                paddle.updatePosition(0.1, 0, 0); // Move right
-                break;
+        if (event.key === 'w') {
+            paddle.isMovingUp = true;
+        } else if (event.key === 's') {
+            paddle.isMovingDown = true;
+        } else if (event.key === 'a') {
+            paddle.isAimingUp = true;
+        } else if (event.key === 'd') {
+            paddle.isAimingDown = true;
+        } else if (event.key === 'Escape') {
+            togglePause();
+        }
+    });
+
+    document.addEventListener('keyup', (event) => {
+        if (event.key === 'w') {
+            paddle.isMovingUp = false;
+        } else if (event.key === 's') {
+            paddle.isMovingDown = false;
+        } else if (event.key === 'a') {
+            paddle.isAimingUp = false;
+        } else if (event.key === 'd') {
+            paddle.isAimingDown = false;
         }
     });
 }
