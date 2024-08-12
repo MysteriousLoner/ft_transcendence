@@ -10,13 +10,16 @@
 </head>
 
 <body>
+	<!-- background -->
 	<iframe src="./matrix/matrix.html"></iframe>
 
+
+	<!-- dropdown icon -->
 	<div class="navbar2">
 		<nav class="navbar">
 
 			<div class="profile-dropdown">
-				<div onclick="toggle()" class="profile-dropdown-btn">
+				<div id="btnAudio" onclick="toggle()" class="profile-dropdown-btn">
 					<div class="profile-img">
 						<i class="fa-solid fa-circle"></i>
 					</div>
@@ -36,22 +39,15 @@
 
 					<li class="profile-dropdown-list-item">
 						<a href="#">
-							<i class="fa-regular fa-envelope"></i>
-							INBOX
-						</a>
-					</li>
-
-					<li class="profile-dropdown-list-item">
-						<a href="#">
 							<i class="fa-solid fa-chart-line"></i>
-							SETTINGS
+							STATS
 						</a>
 					</li>
 
 					<li class="profile-dropdown-list-item">
 						<a href="#">
 							<i class="fa-solid fa-sliders"></i>
-							HELP
+							SETTINGS
 						</a>
 					</li>
 
@@ -66,15 +62,22 @@
 			</div>
 		</nav>
 	</div>
-
 	<script src="./navbar/nav.js"></script>
+
 
 	<div class="center">
 		<h1 class="title">42PONG</h1>
 		<div class="selection">
-			<button class="btn">PLAY</button>
+			<button class="btn" id="btnAudio">PLAY</button>
 		</div>
 	</div>
 </body>
 
+<audio id="PongSong">
+	<source src="./songs/epic_pong_song.mp3" type="audio/mp3">
+  Your browser does not support the audio element.
+  </audio>
+
+  <!-- script for auto playing songs on all browers -->
+  <script src="./songs/index_song.js"></script>
 </html>

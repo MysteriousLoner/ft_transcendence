@@ -3,6 +3,11 @@
 	src: url('./fonts/Many\ Years\ Higher.ttf');
 }
 
+* {
+	audio::-webkit-media-controls {
+        display: none;
+    }
+}
 
 body {
 	font-family: 'Scifi';
