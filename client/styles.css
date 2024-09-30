@@ -1,56 +1,40 @@
-body {
+body, html {
     margin: 0;
-    overflow: hidden;
-    background-color: black;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+    background-color: #000; /* Ensures background is black */
 }
 
-#score {
+#menuOverlay {
     position: absolute;
-    top: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-family: Arial, sans-serif;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+#menuContent {
+    text-align: center;
+}
+
+#startButton, #retryButton {
+    padding: 10px 20px;
     font-size: 20px;
-    display: none;
-}
-
-#startButton {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    padding: 10px 20px;
-    font-size: 18px;
     cursor: pointer;
-}
-
-#instructions {
-    position: absolute;
-    top: 60%;
-    left: 50%;
-    transform: translateX(-50%);
-    color: white;
-    font-family: Arial, sans-serif;
-    font-size: 18px;
-    text-align: center;
-}
-
-#gameOver {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-family: Arial, sans-serif;
-    font-size: 30px;
-    text-align: center;
-    display: none;
-}
-
-#retryButton {
     margin-top: 20px;
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
+}
+
+#gameOver, #pauseMenu {
+    text-align: center;
 }
