@@ -7,22 +7,14 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div id="score" style="display: none;">Player: 0 | AI: 0</div>
-    <button id="startButton">Start Game</button>
-    <div id="instructions">
-        <p>Use 'W' to move up and 'S' to move down.</p>
-        <p>Move the mouse to change the hit direction.</p>
-        <p>Press 'Escape' to pause the game.</p>
-    </div>
-    <div id="gameOver" style="display: none;">
-        <div id="result"></div>
-        <button id="retryButton">Play Again</button>
-    </div>
-    <div id="pauseMenu" style="display: none;">
-        <p>Game Paused</p>
-        <p>Press 'Escape' to resume</p>
-    </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="script.js"></script>
+    <script type="importmap">
+        {
+          "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.167.1/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.167.1/examples/jsm/"
+          }
+        }
+    </script>
+    <script type="module" src="js-dev/main.js"></script>
 </body>
 </html>
