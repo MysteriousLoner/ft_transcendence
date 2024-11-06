@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<form action="" method="post">{% csrf_token %}
+<input type="email" name="email" required autofocus>
+<input type="text" name="username" required>
+<input type="password" name="password1" required>
+<input type="password" name="password2" required>
+{% for field in registration_form %}
+    <p>
+        {% for error in field.errors %}
+            <p style="color: red">{{error}}</p>
+        {% endfor %}
+    </p>
+{% endfor %}
+{% if registration_form.non_field_errors %}
+    <div style="color: red">
+        <p>{{registration_form.non_field_errors}}</p>
+    </div>
+{% endif %}
+
+<button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
+</form>
+
+{% endblock content %}
