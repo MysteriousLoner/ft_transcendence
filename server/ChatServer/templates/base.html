@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatServer</title>
+</head>
+    <!-- Header -->
+    {% include 'snippets/header.html' %}
+
+    <!-- Body -->
+    <style type="text/css">
+        .main {
+            min-height: 100vh;
+            height: 100%;
+        }
+    </style>
+    <div class="main">
+        {% block content %}
+        {% endblock content %}
+    </div>
+
+    <!-- Footer -->
+    {% include 'snippets/footer.html' %}
+</body>
+</html>

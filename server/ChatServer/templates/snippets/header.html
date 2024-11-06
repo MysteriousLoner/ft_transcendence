@@ -1,0 +1,20 @@
+<style type="text/css">
+    .profile-image {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 2px solid black;
+        background: red;
+    }
+
+    .profile-image img {
+        width: 100%;
+        height: auto;
+        object-fit: cover;
+    }
+</style>
+
+<div class="profile-image">
+    <img src="{{request.user.profile_image.url}}" alt="Default profile image">
+</div>
