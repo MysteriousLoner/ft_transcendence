@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>LOGIN</title>
+    <link rel="stylesheet" href="./login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+
+    <body>
+        <!--background-->
+        <iframe src="./matrix/matrix.html"></iframe>
+
+        <!--navigation bar-->
+        <div class="nav">
+            <container>
+            <div class = "single player">
+                <!-- <h2><header class = "nav-header nav">SINGLEPLAYER</header></h2> -->
+                <img class="image" src="images/singleplayer.png" width="200" height="200">
+                <li><button class="btn" role="button">HUMAN</button></li>
+                <li><button class="btn" role="button">BOT</button></li>
+            </div>
+            </container>
+            <container>
+            <div class = "multi player">
+                <!-- <h2><header class = "nav-header nav">MULTIPLAYER</header></h2> -->
+                <img class="image" src="images/multiplayer.png" width="200" height="200">
+                <li><button class="btn" role="button">LOCAL</button></li>
+                <li><button class="btn" role="button">ONLINE</button></li>
+            </div>
+            </container>
+        </div>
+    </body>
+</head>
+
+<audio id="PongSong">
+	<source src="./songs/epic_pong_song.mp3" type="audio/mp3">
+  Your browser does not support the audio element.
+  </audio>
+
+  <!-- script for auto playing songs on all browers -->
+  <script src="./songs/index_song.js"></script>
+</html>

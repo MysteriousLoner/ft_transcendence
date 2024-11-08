@@ -1,0 +1,66 @@
+@font-face {
+	font-family: 'Scifi';
+	src: url('./fonts/Many\ Years\ Higher.ttf');
+}
+
+iframe {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border: none;
+	z-index: -1;
+}
+
+.nav-header {
+    font-family:'Scifi';
+    font-weight:bold;
+    font-size:larger;
+    color:white;
+    margin:5px;
+}
+
+.nav {
+    margin-top:3%;
+    display:flex;
+    align-items:center;
+    text-align:center;
+    justify-content:center;
+    padding-top:30px;
+    padding-bottom:30px;
+}
+
+.btn {
+    font-family:'Scifi';
+    text-align:center;
+    vertical-align:middle;
+    cursor:pointer;
+    background-color:#1fcc008f;
+    padding:5%;
+    width:100%;
+    border:2px solid #20CC00;
+    font-size:large;
+}
+
+.btn:hover {
+    background-color:#20CC00;
+}
+
+.player {
+    border:4px solid #20CC00;
+    padding:7em;
+    border-radius:5%;
+}
+
+.single {
+    margin:50px;
+}
+
+.multi {
+    margin:50px;
+}
+
+.image {
+    padding-bottom:20px;
+}
