@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>42Pong</title>
+    <link rel="stylesheet" href="login.css" />
+    <link rel="stylesheet" href="../navDropdown/css/style.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="../navDropdown/js/main.js"></script>
+  </head>
+  <body>
+    <iframe src="../matrix_background/matrix.html"></iframe>
+
+    <div class="profile-menu">
+      <div class="action">
+        <img src="../navDropdown/images/profile.png" />
+      </div>
+      <div class="menu">
+        <div class="profile">
+          <img src="../navDropdown/images/profile.png" />
+          <div class="info">
+            <h2 data-translatable>TEST USER // FRENCH USER</h2>
+            <p data-translatable>this is a test user // test</p>
+          </div>
+        </div>
+        <ul>
+          <li>
+            <img src="../navDropdown/images/user.png" />
+            <a data-translatable href="#">ACCOUNT // test</a>
+          </li>
+          <li>
+            <img src="../navDropdown/images/setting.png" />
+            <a data-translatable href="#">SETTINGS // test</a>
+          </li>
+          <li>
+            <img src="../navDropdown/images/logout.png" />
+            <a data-translatable href="../index_page/index.html">BACK TO MENU</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="center">
+      <h1>42PONG</h1>
+      <form method="post">
+        <div class="txt_field">
+          <input type="text" required />
+          <span></span>
+          <label>USERNAME</label>
+        </div>
+        <div class="txt_field">
+          <input type="password" required />
+          <span></span>
+          <label>PASSWORD</label>
+        </div>
+        <!-- <div class="pass">Forgot Password?</div> -->
+        <div class="signup_link">
+          <button class="btn" id="btnAudio" data-translatable>LOGIN</button>
+          <br />
+          NOT A MEMBER? <a href="#">SIGN UP</a> <br /><br />
+          <a> </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- script for changing language -->
+    <script src="../plugin/dom-i18n-master/src/dom-i18n.js"></script>
+
+    <script>
+      var enButton = document.getElementById("en-btn");
+      var frButton = document.getElementById("fr-btn");
+      var i18n = domI18n({
+        selector: "[data-translatable]",
+        separator: " // ",
+        languages: ["en", "fr"],
+        defaultLanguage: "en",
+      });
+
+      enButton.onclick = function () {
+        i18n.changeLanguage("en");
+      };
+
+      frButton.onclick = function () {
+        i18n.changeLanguage("fr");
+      };
+    </script>
+  </body>
+</html>

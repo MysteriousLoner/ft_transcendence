@@ -1,0 +1,146 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-menu {
+  position: fixed;
+  top: 25px;
+  right: 30px;
+}
+
+.profile-menu .action {
+  display: block;
+  width: 54px;
+  height: 54px;
+  background-color: #222533;
+  border-radius: 50%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.profile-menu .action img {
+  width: 100%;
+  height: 100%;
+}
+
+.profile-menu .menu {
+  width: 310px;
+  padding: 30px;
+  background-color: #333;
+  border-radius: 10px;
+  position: absolute;
+  top: 75px;
+  right: 0px;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s;
+}
+
+.profile-menu .menu.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.profile-menu .menu::before {
+  content: "";
+  width: 16px;
+  height: 16px;
+  background-color: #222533;
+  border-top-left-radius: 3px;
+  position: absolute;
+  top: -8px;
+  right: 19px;
+  transform: rotate(45deg);
+}
+
+.profile-menu .menu .profile {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.profile-menu .menu .profile img {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  user-select: none;
+}
+
+.profile-menu .menu .profile .info {
+  margin-left: 15px;
+}
+
+.profile-menu .menu .profile .info h2 {
+  color: #dadada;
+  font-size: 18px;
+  font-weight: 400;
+  text-transform: capitalize;
+  margin-bottom: 4px;
+}
+
+.profile-menu .menu .profile .info p {
+  color: #7d8193;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.profile-menu .menu .btn {
+  width: 250px;
+  height: 53px;
+  color: #e5e5e5;
+  background-color: #1a1c29;
+  border-radius: 5px;
+  font-size: 16px;
+  font-weight: 400;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+  transition: all 0.3s;
+}
+
+.profile-menu .menu .btn img {
+  width: 20px;
+  margin-right: 5px;
+  user-select: none;
+}
+
+.profile-menu .menu .btn:hover {
+  background-color: #292c3d;
+}
+
+.profile-menu .menu ul li {
+  list-style: none;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.profile-menu .menu ul li:last-child {
+  margin: 0;
+}
+
+.profile-menu .menu ul li a {
+  color: #e5e5e5;
+  font-size: 16px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.profile-menu .menu ul li img {
+  width: 26px;
+  margin-right: 10px;
+  user-select: none;
+}
