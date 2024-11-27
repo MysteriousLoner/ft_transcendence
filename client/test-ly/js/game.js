@@ -4,6 +4,8 @@ let scene, camera, renderer;
 let ball, playerPaddle, opponentPaddle;
 const gameMapWidth = 36, gameMapHeight = 18;
 
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.142.0/build/three.module.js';
+
 function init() {
     // Initialize Three.js Scene
     scene = new THREE.Scene();
@@ -30,18 +32,25 @@ function initGameObjects() {
     scene.add(ball);
 
     // Player Paddle
-    const playerPaddleGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]);
-    const playerPaddleMaterial = new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.1, gapSize: 0.1 });
-    playerPaddle = new THREE.Line(playerPaddleGeometry, playerPaddleMaterial);
+    // const playerPaddleGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]);
+    // const playerPaddleMaterial = new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.1, gapSize: 0.1 });
+    const playerPaddleGeometry = new THREE.BoxGeometry(0.2, 1, 0.2);
+    const playerPaddleMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+    playerPaddle = new THREE.Mesh(playerPaddleGeometry, playerPaddleMaterial);
+    const edgesGeometry = new THREE.EdgesGeometry(playerPaddleGeometry);
+    const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
+    const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
+    playerPaddle.add(edges);
     scene.add(playerPaddle);
 
     // Opponent Paddle
     const opponentPaddleGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]);
     const opponentPaddleMaterial = new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.1, gapSize: 0.1 });
     opponentPaddle = new THREE.Line(opponentPaddleGeometry, opponentPaddleMaterial);
+    opponentPaddle.add(edges);
     scene.add(opponentPaddle);
 
-    camera.position.z = 10;
+    camera.position.z = 15;
 }
 
 function connectWebSocket() {
@@ -55,6 +64,7 @@ function connectWebSocket() {
 
         // Update positions based on game state
         updateGameObjects(ballX, ballY, playerY, opponentY);
+        playerPaddle.position.y = playerY;
     };
 
     socket.onclose = function(event) {
@@ -67,6 +77,7 @@ function updateGameObjects(ballX, ballY, playerY, opponentY) {
     ball.position.set(ballX - (gameMapWidth / 2), ballY - (gameMapHeight / 2), 0);
     playerPaddle.position.set(-gameMapWidth / 2 + 0.5, playerY - (gameMapHeight / 2), 0);
     opponentPaddle.position.set(gameMapWidth / 2 - 0.5, opponentY - (gameMapHeight / 2), 0);
+    console.log(playerPaddle);
     console.log('Ball:', ball.position, 'Player:', playerPaddle.position, 'Opponent:', opponentPaddle.position);
 }
 
