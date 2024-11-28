@@ -3,9 +3,11 @@ import * as THREE from 'three';
 
 export default class Ball {
     constructor(playerPaddle, aiPaddle) {
+        // tells the browser how the ball should look like
         this.geometry = new THREE.SphereGeometry(0.1, 32, 32);
         this.material = new THREE.MeshPhongMaterial({ color: 0xffffff });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+        // ends illustration, use the mesh to reference the ball.
 
         this.playerPaddle = playerPaddle;
         this.aiPaddle = aiPaddle;
