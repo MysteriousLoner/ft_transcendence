@@ -3,25 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join a Room</title>
+    <title>BeatsPong - Login</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="../css/styles.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="../js/game.js" defer></script>
 </head>
 <body>
-    <div class="container" id="startContainer">
-        <h1>Enter your name and join a room</h1>
-        <input type="text" id="nameInput" placeholder="Your Name" />
-        <button id="startButton">Start</button>
+    <!-- Log in or registration selection screen -->
+    <div id="landingScreen" class="container d-none flex-column justify-content-center align-items-center vh-100">
+        <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
+            <h1 class="title">BeatsPong</h1>
+            <div class="button-container">
+                <button class="btn btn-custom mx-3" id="loginButton">Login</button>
+                <button class="btn btn-custom" id="registerButton">Register</button>
+            </div>
+        </div>
     </div>
-    <script>
-        document.getElementById('startButton').addEventListener('click', function() {
-            // Clear the screen
-            document.body.innerHTML = '';
+    <!-- End of selection screen -->
 
-            // Initialize the game
-            init(); // Make sure `init` is defined in `game.js`
-        });
-    </script>
+    <!-- Login Screen --> 
+    <div id="loginScreen" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
+        <h1>Login</h1> 
+        <form id="loginForm"> 
+            <div class="form-group"> 
+                <label for="email">Email:</label> 
+                <input type="email" class="form-control" id="email"> 
+            </div> 
+            <div class="form-group"> 
+                <label for="password">Password:</label> 
+                <input type="password" class="form-control" id="password"> 
+            </div> 
+            <button type="submit" class="btn btn-primary mt-3">Submit</button> 
+        </form> 
+    </div> 
+    <!-- Register Screen --> 
+    <div id="registerScreen" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
+        <h1>Register</h1> 
+        <form> 
+            <div class="form-group"> 
+                <label for="username">Username:</label> 
+                <input type="text" class="form-control" id="username"> 
+            </div> 
+            <div class="form-group"> 
+                <label for="email">Email:</label> 
+                <input type="email" class="form-control" id="email"> 
+            </div> <div class="form-group"> <label for="password">Password:</label> 
+                <input type="password" class="form-control" id="password"> 
+            </div> <button type="submit" class="btn btn-primary mt-3">Submit</button> 
+        </form>
+    </div>
+
+    <!-- Game Container --> 
+    <div id="gameContainer" class="container d-none"></div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Custom JS -->
+    <script src="../js/index.js"></script>
+    <script src="../js/game.js"></script>
 </body>
 </html>

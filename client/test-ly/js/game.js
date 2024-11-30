@@ -4,7 +4,7 @@ let ball, playerPaddle, opponentPaddle;
 const gameMapWidth = 36, gameMapHeight = 18;
 const boxWidth = 15, boxHeight = 10;
 
-function init() {
+function startGame() {
     // Initialize Three.js Scene
     // set the scene
     scene = new THREE.Scene();
@@ -109,6 +109,3 @@ window.addEventListener('resize', () => {
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
 });
-
-// Start the game
-init();

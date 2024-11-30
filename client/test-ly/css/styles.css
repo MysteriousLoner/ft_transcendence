@@ -1,61 +1,40 @@
+/* styles.css */
 body {
     background-color: black;
     color: white;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
     margin: 0;
+    font-family: 'Arial', sans-serif;
 }
 
-.container {
+.title {
+    font-size: 10vw;
+    font-weight: bold;
     text-align: center;
+    margin-bottom: 3vh;
 }
 
-input {
-    border: 2px solid white;
-    background: transparent;
-    color: white;
-    padding: 10px;
-    width: 300px;
-    outline: none;
-    transition: border-color 0.3s;
-}
-
-input:focus {
-    border-color: #ccc;
-}
-
-button {
-    width: 100%;
-    padding: 15px;
-    margin-top: 10px;
-    border: none;
-    background-color: transparent;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    transition: color 0.3s;
-    position: relative;
-}
-
-button:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+.button-container .btn-custom {
+    width: 20vw;
+    height: 10vh;
+    font-size: 2.5vw;
+    font-weight: bold;
+    color: black;
     background-color: white;
-    opacity: 0.2; /* Glowing Effect */
-    transition: opacity 0.3s;
+    border: none;
+    transition: box-shadow 0.3s ease;
 }
 
-button:hover {
-    color: yellow; /* Change color on hover */
+.button-container .btn-custom:hover {
+    box-shadow: 0 0 10px 2px yellow;
 }
 
-button.hidden {
-    display: none; /* Hide the button initially */
+.button-container {
+    display: flex; flex-direction: column; /* Arrange buttons vertically */ 
+    align-items: center; /* Center align buttons */ 
+    gap: 2vh;
 }
+
+.button-container .btn-custom:active {
+    background-color: gray; /* Change background color when clicked */
+}
+
