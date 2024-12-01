@@ -1,5 +1,7 @@
 // game.js
-let renderer, camera, scene;
+let renderer, camera, scene, socket;
+let movingDown = false;
+let movingUp = false;
 
 function startGame() {
     // Initialize Three.js Scene
@@ -58,7 +60,7 @@ function startGame() {
 }
 
 function connectWebSocket(ball, playerPaddle, opponentPaddle) {
-    const socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong');
+    socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong');
 
     socket.onmessage = function(event) {
         const gameState = JSON.parse(event.data);
@@ -75,6 +77,29 @@ function connectWebSocket(ball, playerPaddle, opponentPaddle) {
     };
 }
 
+function sendMessage(message) {
+    if (socket.readyState == WebSocket.OPEN) {
+        socket.send(JSON.stringify(message));
+        console.log("sending message");
+    }
+}
+
+document.addEventListener('keydown', function(event) { 
+    if (event.key === 'w') { 
+        movingUp = true;
+    } else if (event.key === 's') { 
+        movingDown = true;
+    } 
+});
+
+document.addEventListener('keyup', function(event) { 
+    if (event.key === 'w') { 
+        movingUp = false;
+    } else if (event.key === 's') { 
+        movingDown = false;
+    } 
+});
+
 function updateGameObjects(ballX, ballY, playerY, opponentY, ball, playerPaddle, opponentPaddle) {
     // Scale and position values based on box dimensions
     const boxWidth = 15, boxHeight = 10;
@@ -88,13 +113,19 @@ function updateGameObjects(ballX, ballY, playerY, opponentY, ball, playerPaddle,
     playerPaddle.position.set(-boxWidth / 2 + 0.5, scaledPlayerPaddleY - (boxHeight / 2), 0);
     opponentPaddle.position.set(boxWidth / 2 - 0.5, scaledOpponentPaddleY - (boxHeight / 2), 0);
 
-    console.log('Ball:', ball.position, 'Player:', playerPaddle.position, 'Opponent:', opponentPaddle.position);
+    // console.log('Ball:', ball.position, 'Player:', playerPaddle.position, 'Opponent:', opponentPaddle.position);
 }
 
 
 function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
+    if (movingUp == true) {
+        sendMessage({ action: 'move_up' });
+    }
+    if (movingDown == true) {
+        sendMessage({ action: 'move_down' });
+    }
 }
 
 // Event Listener for Window Resize

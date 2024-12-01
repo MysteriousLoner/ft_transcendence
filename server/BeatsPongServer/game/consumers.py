@@ -1,20 +1,19 @@
-# game/consumers.py
+import asyncio
 import json
 import random
-import asyncio
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 class PongGameConsumer(AsyncWebsocketConsumer):
     game_map_width = 36
     game_map_height = 18
     ball_speed = 1
-    player_paddle_speed = 1
+    player_paddle_speed = 0.2
     opponent_paddle_speed = 1
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ball = {'x': 18, 'y': 9}  # Center of the map
-        self.player_paddle = {'x': 0, 'y': 9}  # Left side center
+        self.player_paddle = {'x': -1, 'y': 9}  # Left side center
         self.opponent_paddle = {'x': 35, 'y': 9}  # Right side center
         self.ball_direction = random.choice([(1, 1), (1, -1), (-1, 1), (-1, -1)])  # Random initial direction
         self.score = {'player': 0, 'opponent': 0}
@@ -23,16 +22,32 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.running = True
-        await self.game_loop()
+        asyncio.create_task(self.game_loop())
 
     async def disconnect(self, close_code):
         self.running = False
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        action = data.get('action')
+        print("message received: " + text_data)
+
+        if action == 'move_up':
+            self.move_paddle('up')
+        elif action == 'move_down':
+            self.move_paddle('down')
 
     async def game_loop(self):
         while self.running:
             await asyncio.sleep(0.05)  # Control the game loop speed
             self.update_game_state()
             await self.send_game_state()
+
+    def move_paddle(self, direction):
+        if direction == 'up':
+            self.player_paddle['y'] = max(0, self.player_paddle['y'] + self.player_paddle_speed)
+        elif direction == 'down':
+            self.player_paddle['y'] = min(self.game_map_height - 1, self.player_paddle['y'] - self.player_paddle_speed)
 
     def update_game_state(self):
         # Update ball position
