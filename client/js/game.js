@@ -1,12 +1,11 @@
 // game.js
-let scene, camera, renderer;
-let ball, playerPaddle, opponentPaddle;
-const gameMapWidth = 36, gameMapHeight = 18;
-const boxWidth = 15, boxHeight = 10;
 
 function startGame() {
     // Initialize Three.js Scene
     // set the scene
+    let scene, camera, renderer;
+    const gameMapWidth = 36, gameMapHeight = 18;
+    const boxWidth = 15, boxHeight = 10;
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     renderer = new THREE.WebGLRenderer();
@@ -28,7 +27,7 @@ function startGame() {
     document.body.appendChild(renderer.domElement);
 
     // Initialize Game Objects
-    initGameObjects();
+    initGameObjects(scene);
 
     // Connect to WebSocket
     connectWebSocket();
@@ -37,8 +36,9 @@ function startGame() {
     animate();
 }
 
-function initGameObjects() {
+function initGameObjects(scene) {
     // Ball
+    let ball, playerPaddle, opponentPaddle;
     const ballGeometry = new THREE.SphereGeometry(0.1, 32, 32);
     const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
     ball = new THREE.Mesh(ballGeometry, ballMaterial);
