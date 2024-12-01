@@ -1,10 +1,8 @@
 // game.js
+let renderer, camera, scene;
 
 function startGame() {
     // Initialize Three.js Scene
-    // set the scene
-    let scene, camera, renderer;
-    const gameMapWidth = 36, gameMapHeight = 18;
     const boxWidth = 15, boxHeight = 10;
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -27,16 +25,6 @@ function startGame() {
     document.body.appendChild(renderer.domElement);
 
     // Initialize Game Objects
-    initGameObjects(scene);
-
-    // Connect to WebSocket
-    connectWebSocket();
-
-    // Start the render loop
-    animate();
-}
-
-function initGameObjects(scene) {
     // Ball
     let ball, playerPaddle, opponentPaddle;
     const ballGeometry = new THREE.SphereGeometry(0.1, 32, 32);
@@ -61,9 +49,15 @@ function initGameObjects(scene) {
     scene.add(opponentPaddle);
 
     camera.position.z = 10;
+
+    // Connect to WebSocket
+    connectWebSocket(ball, playerPaddle, opponentPaddle);
+
+    // Start the render loop
+    animate();
 }
 
-function connectWebSocket() {
+function connectWebSocket(ball, playerPaddle, opponentPaddle) {
     const socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong');
 
     socket.onmessage = function(event) {
@@ -73,7 +67,7 @@ function connectWebSocket() {
         const [opponentX, opponentY] = gameState.opponent_paddle.split(',').map(Number);
 
         // Update positions based on game state
-        updateGameObjects(ballX, ballY, playerY, opponentY);
+        updateGameObjects(ballX, ballY, playerY, opponentY, ball, playerPaddle, opponentPaddle);
     };
 
     socket.onclose = function(event) {
@@ -81,8 +75,10 @@ function connectWebSocket() {
     };
 }
 
-function updateGameObjects(ballX, ballY, playerY, opponentY) {
+function updateGameObjects(ballX, ballY, playerY, opponentY, ball, playerPaddle, opponentPaddle) {
     // Scale and position values based on box dimensions
+    const boxWidth = 15, boxHeight = 10;
+    const gameMapWidth = 36, gameMapHeight = 18;
     const scaledBallX = ballX * (boxWidth / gameMapWidth); 
     const scaledBallY = ballY * (boxHeight / gameMapHeight);
     const scaledPlayerPaddleY = playerY * (boxHeight / gameMapHeight);
