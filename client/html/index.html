@@ -40,17 +40,20 @@
     <!-- Register Screen --> 
     <div id="registerScreen" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
         <h1>Register</h1> 
-        <form> 
+        <form id="registerForm"> 
             <div class="form-group"> 
                 <label for="username">Username:</label> 
                 <input type="text" class="form-control" id="username"> 
             </div> 
             <div class="form-group"> 
                 <label for="email">Email:</label> 
-                <input type="email" class="form-control" id="email"> 
-            </div> <div class="form-group"> <label for="password">Password:</label> 
-                <input type="password" class="form-control" id="password"> 
-            </div> <button type="submit" class="btn btn-primary mt-3">Submit</button> 
+                <input type="email" class="form-control" id="userEmail"> 
+            </div> 
+            <div class="form-group"> 
+                <label for="password">Password:</label> 
+                <input type="password" class="form-control" id="userPassword"> 
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Submit</button> 
         </form>
     </div>
 

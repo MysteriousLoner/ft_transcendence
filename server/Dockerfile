@@ -1,18 +1,33 @@
-# Use the official Python image from Docker Hub
-FROM python:3.10-slim
+# Use the official Python image from the Docker Hub
+FROM python:3.9-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the requirements file and install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the requirements file into the container at /app
+COPY dependencies/requirements.txt /app/
 
-# Copy the rest of the project
-COPY . .
+# Install the dependencies
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
 
-# Expose port 8000 for the Django application
+# Install PostgreSQL client
+RUN apt-get update && apt-get install -y postgresql-client
+
+# Copy the project files into the container at /app
+COPY . /app/
+
+# Copy the entrypoint script
+# COPY entrypoint.sh /entrypoint.sh
+
+# Make the entrypoint script executable
+# RUN chmod +x /entrypoint.sh
+
+# Expose the port that the application will run on
 EXPOSE 8000
 
-# Command to run the Django application
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "myapp.wsgi:application"]
+# Use the entrypoint script
+# ENTRYPOINT ["/entrypoint.sh", "db"]
+
+# Command to run the migration and then start the application
+CMD ["bash", "-c", "python BeatsPongServer/manage.py makemigrations && python BeatsPongServer/manage.py migrate && python BeatsPongServer/manage.py runserver 0.0.0.0:8000"]
