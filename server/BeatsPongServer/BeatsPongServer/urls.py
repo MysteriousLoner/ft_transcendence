@@ -20,5 +20,5 @@ from django.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/auth/', include('BPAuthDAL.urls')),
+    path('api/auth/', include('BPAuthService.urls')),
 ]

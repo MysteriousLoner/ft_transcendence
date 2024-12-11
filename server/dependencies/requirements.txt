@@ -15,6 +15,7 @@ djangorestframework-simplejwt==5.3.1
 hyperlink==21.0.0
 idna==3.10
 incremental==24.7.2
+pillow==11.0.0
 psycopg2-binary==2.9.10
 pyasn1==0.6.1
 pyasn1_modules==0.4.1

@@ -132,7 +132,7 @@ function animate() {
 window.addEventListener('resize', () => {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    renderer.setSize(width, height);
+    // renderer.setSize(width, height);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
 });

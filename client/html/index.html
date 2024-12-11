@@ -27,35 +27,51 @@
         <h1>Login</h1> 
         <form id="loginForm"> 
             <div class="form-group"> 
+                <label for="username">Username:</label> 
+                <input type="text" class="form-control" id="username"> 
+            </div> 
+            <div class="form-group"> 
+                <label for="password">Password:</label> 
+                <input type="password" class="form-control" id="userPassword"> 
+            </div> 
+            <button type="submit" class="btn btn-primary mt-3">Submit</button> 
+        </form> 
+        <div id="errorMessage" class="d-none" style="border: 2px solid darkred; background-color: lightcoral; color: black; padding: 10px; margin-top: 15px;">
+            <span id="errorText"></span>
+        </div>
+    </div> 
+
+    <!-- Register Screen --> 
+    <div id="registerScreen" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
+        <h1>Register</h1> 
+        <form id="registerForm"> 
+            <div class="form-group"> 
+                <label for="username1">Username:</label> 
+                <input type="text" class="form-control" id="username1"> 
+            </div> 
+            <div class="form-group"> 
                 <label for="email">Email:</label> 
                 <input type="email" class="form-control" id="email"> 
             </div> 
             <div class="form-group"> 
                 <label for="password">Password:</label> 
                 <input type="password" class="form-control" id="password"> 
-            </div> 
-            <button type="submit" class="btn btn-primary mt-3">Submit</button> 
-        </form> 
-    </div> 
-    <!-- Register Screen --> 
-    <div id="registerScreen" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
-        <h1>Register</h1> 
-        <form id="registerForm"> 
-            <div class="form-group"> 
-                <label for="username">Username:</label> 
-                <input type="text" class="form-control" id="username"> 
-            </div> 
-            <div class="form-group"> 
-                <label for="email">Email:</label> 
-                <input type="email" class="form-control" id="userEmail"> 
-            </div> 
-            <div class="form-group"> 
-                <label for="password">Password:</label> 
-                <input type="password" class="form-control" id="userPassword"> 
             </div>
             <button type="submit" class="btn btn-primary mt-3">Submit</button> 
         </form>
+        <div id="errorMessage" class="d-none" style="border: 2px solid darkred; background-color: lightcoral; color: black; padding: 10px; margin-top: 15px;">
+            <span id="errorText"></span>
+        </div>
     </div>
+
+
+    <!-- Profile Page -->
+    <div id="menuScreen" class="container d-none flex-column flex-row justify-content-center align-items-center vh-100"> 
+        <div class="box top-left">Top Left</div> 
+        <div class="box top-right">Top Right</div> 
+        <div class="box bottom-left">Bottom Left</div> 
+        <div class="box bottom-right">Bottom</div>
+     </div>
 
     <!-- Game Container --> 
     <div id="gameContainer" class="container d-none"></div>

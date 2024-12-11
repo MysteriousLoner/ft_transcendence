@@ -17,39 +17,83 @@ window.addEventListener('popstate', function(event) {
     }
 });
 
-document.getElementById('loginForm').addEventListener('submit', function(event) { 
-    event.preventDefault(); 
-    navigateTo('gameContainer'); 
-    startGame(); 
-});
-
 document.getElementById('registerForm').addEventListener('submit', function(event) { 
     event.preventDefault();
-    const username = document.getElementById('username').value; 
-    const email = document.getElementById('userEmail').value; 
-    const password = document.getElementById('userPassword').value; 
+
+    const username = document.getElementById('username1').value; 
+    const email = document.getElementById('email').value; 
+    const password = document.getElementById('password').value; 
     const data = { 
         username: username, 
         email: email, 
-        password: password }; 
+        password: password 
+    }; 
+
     console.log("username: " + username);
-    console.log("email: ", email);
+    console.log("email: " + email);
     console.log("password: " + password);
+
     fetch('http://127.0.0.1:8000/api/auth/create/', { 
         method: 'POST', 
-        headers: { 'Content-Type': 'application/json' }, 
+        headers: { 
+            'Content-Type': 'application/json' 
+        }, 
         body: JSON.stringify(data) 
     }) 
     .then(response => response.json()) 
     .then(data => { 
         console.log('Success:', data); 
-        // Optionally, add code to handle the response, such as showing a success message 
-        }) 
+        if (data.error) {
+            document.getElementById('errorText').innerText = data.error;
+            document.getElementById('errorMessage').classList.remove('d-none');
+        } else {
+            navigateTo('landingScreen');
+        }
+    }) 
     .catch((error) => { 
-        console.error('Error:', error); 
-        // Optionally, add code to handle errors, such as showing an error message 
-        }); 
+        console.error('Error:', error);
+        document.getElementById('errorText').innerText = 'An unexpected error occurred. Please try again.';
+        document.getElementById('errorMessage').classList.remove('d-none');
+    }); 
 });
+
+document.getElementById('loginForm').addEventListener('submit', function(event) { 
+    event.preventDefault();
+
+    const username = document.getElementById('username').value; 
+    const password = document.getElementById('userPassword').value; 
+    const data = { 
+        username: username, 
+        password: password 
+    }; 
+
+    console.log("username: " + username);
+    console.log("password: " + password);
+
+    fetch('http://127.0.0.1:8000/api/auth/login/', { 
+        method: 'POST', 
+        headers: { 
+            'Content-Type': 'application/json' 
+        }, 
+        body: JSON.stringify(data) 
+    }) 
+    .then(response => response.json()) 
+    .then(data => { 
+        console.log('Success:', data); 
+        if (data.error) {
+            document.getElementById('errorText').innerText = data.error;
+            document.getElementById('errorMessage').classList.remove('d-none');
+        } else {
+            navigateTo('menuScreen');
+        }
+    }) 
+    .catch((error) => { 
+        console.error('Error:', error);
+        document.getElementById('errorText').innerText = 'An unexpected error occurred. Please try again.';
+        document.getElementById('errorMessage').classList.remove('d-none');
+    }); 
+});
+
 
 function navigateTo(screenId) {
     // Hide all screens

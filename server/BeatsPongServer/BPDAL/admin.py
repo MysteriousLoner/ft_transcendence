@@ -6,3 +6,4 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email')  # Columns to display in the admin list view
     search_fields = ('username', 'email')  # Fields to search in the admin site
 
+
