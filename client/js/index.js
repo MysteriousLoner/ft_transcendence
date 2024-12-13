@@ -1,5 +1,4 @@
 // index.js
-import 
 document.getElementById('loginButton').addEventListener('click', function() {
     navigateTo('loginScreen');
     history.pushState({ screen: 'loginScreen' }, '', '#login');
@@ -21,7 +20,7 @@ window.addEventListener('popstate', function(event) {
 document.getElementById('startGameButton-vp').addEventListener('click', function() {
     navigateTo('gameContainer');
     history.pushState({ screen: 'gameContainer' }, '', '#register');
-    
+    startGame();
 });
 
 
