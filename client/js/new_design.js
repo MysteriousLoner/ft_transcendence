@@ -197,6 +197,8 @@ function animate() {
     renderer.render(scene, camera);
 }   
 
-connectWebSocket();
-animate();
+function startGame() {
+    connectWebSocket();
+    animate();
+}
 

@@ -14,3 +14,10 @@ class ProfileData(models.Model):
 
     def __str__(self): 
         return self.username
+    
+class MatchHistory(models.Model):
+    winRate = models.FloatField()
+    bestFriend = models.CharField(max_length=100)
+
+    def __str__(self): 
+        return self.bestFriend

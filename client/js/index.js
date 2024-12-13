@@ -1,4 +1,5 @@
 // index.js
+import 
 document.getElementById('loginButton').addEventListener('click', function() {
     navigateTo('loginScreen');
     history.pushState({ screen: 'loginScreen' }, '', '#login');
@@ -16,6 +17,13 @@ window.addEventListener('popstate', function(event) {
         navigateTo('landingScreen');
     }
 });
+
+document.getElementById('startGameButton-vp').addEventListener('click', function() {
+    navigateTo('gameContainer');
+    history.pushState({ screen: 'gameContainer' }, '', '#register');
+    
+});
+
 
 document.getElementById('registerForm').addEventListener('submit', function(event) { 
     event.preventDefault();
