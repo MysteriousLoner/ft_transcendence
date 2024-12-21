@@ -54,7 +54,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             document.getElementById('errorText').innerText = data.error;
             document.getElementById('errorMessage').classList.remove('d-none');
         } else {
-            navigateTo('landingScreen');
+            navigateTo('verificationPage');
         }
     }) 
     .catch((error) => { 

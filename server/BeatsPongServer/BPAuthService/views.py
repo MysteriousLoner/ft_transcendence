@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from common.dataObjects import UserCredential
-from BPDAL.views import insert_user, get_user_by_username
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 import json
 import re
 
@@ -23,44 +23,32 @@ def create_user(request):
     if not is_strong_password(password): 
         return JsonResponse({"error": "Password is not strong enough."}, status=400)
     
-    userCredential = UserCredential(username, email, password)
+    user = User.objects.create_user(username, email, password)
+    user.save()
 
-    result = insert_user(userCredential) 
-    if "error" in result: 
-        error_message = result["error"] 
-        if 'duplicate key value violates unique constraint' in error_message: 
-            if 'email' in error_message: 
-                return JsonResponse({"error": "Email taken."}, status=400) 
-            if 'username' in error_message: 
-                return JsonResponse({"error": "Username taken."}, status=400) 
-            return JsonResponse({"error": error_message}, status=400)
-    return JsonResponse({"message": result["message"]}, status=201)
+    return JsonResponse({"message": "user registered!"}, status=201)
+
 
 @csrf_exempt
 def login(request):
+    # print("Debug: attempt login")
     if request.method != 'POST':
         return JsonResponse({"error": "Invalid request type."}, status=400)
 
-    try:
-        data = json.loads(request.body)
-        username = data.get('username')
-        password = data.get('password')
+    data = json.loads(request.body)
+    username = data.get('username')
+    password = data.get('password')
 
-        if not username or not password:
-            return JsonResponse({"error": "Username and password are required."}, status=400)
+    # print("Username: " + username)
+    # print("Password: " + password)
 
-        credentials = get_user_by_username(username)
+    user = authenticate(request, username=username, password=password)
 
-        if not (credentials.password == password):
-            return JsonResponse({"error": "Invalid username or password."}, status=401)
-
+    if user is not None:
+        # login(request, user)
         return JsonResponse({"message": "Login successful"}, status=200)
-
-    except Exception as e:
-        if 'username' in e: 
-            return JsonResponse({"error": "Username not found"}, status=400) 
-        return JsonResponse({"error": str(e)}, status=500)
-
+    else:
+        return JsonResponse({"error": "Invalid username or password"}, status=401)
 
 # Utility Functions
 def is_valid_username(s):

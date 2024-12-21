@@ -77,6 +77,18 @@
         <div class="box bottom-right">Bottom</div>
      </div>
 
+     <!-- Verification Page --> 
+    <div id="verificationPage" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
+        <h1>A code is sent to <span id="userEmail"></span> to verify identity</h1> 
+        <form id="verificationForm" class="text-center mt-4"> 
+            <div class="form-group"> 
+                <label for="verificationCode">Enter Verification Code:</label> 
+                <input type="text" class="form-control" id="verificationCode" placeholder="Enter your code" required> 
+            </div> 
+            <button type="submit" class="btn btn-primary mt-3">Submit</button> 
+        </form>
+    </div>
+
     <!-- Game Container --> 
     <div id="gameContainer" class="container d-none">
         <div class="scoreboard" id="score"></div>

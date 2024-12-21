@@ -9,8 +9,9 @@ function startGame() {
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
     renderer = new THREE.WebGLRenderer();
+    
     renderer.setSize( window.innerWidth, window.innerHeight );
-    camera.position.z = 5;
+    camera.position.z = 5;a
 // White box 
     const cubeGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, 5); 
     const cubeEdges = new THREE.EdgesGeometry(cubeGeometry); 

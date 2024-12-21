@@ -102,7 +102,9 @@ window.addEventListener('keydown', function(event) {
 
 // Websocket connection ------------------------------------------------------
 let     scoreLeft = 4, scoreRight = 2, DOMloaded =- false;
-        socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong');
+
+let socket;
+
 const keys = {
     w: false,
     s: false,
@@ -122,6 +124,7 @@ function updateElement() {
 }
 
 function connectWebSocket() {
+    socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong?gameMode=solo');
     socket.onmessage = function(event) {
         const gameState = JSON.parse(event.data);
         updateGameObjects(gameState);
@@ -135,7 +138,7 @@ function connectWebSocket() {
 
 function updateGameObjects(gameState) {
     const gameStateString = JSON.stringify(gameState);
-    console.log(gameStateString);
+    // console.log(gameStateString);
 
     [cuboidWidth, cuboidHeight, cuboidDepth] = gameState.cuboid.split(',').map(Number);
     [ballRadius, ball.position.x, ball.position.y, ball.position.z] = gameState.ball.split(',').map(Number);
@@ -168,17 +171,11 @@ document.addEventListener('keyup', (event) => {
 });
 
 function movePaddles(){
-    if (socket.readyState == socket.OPEN)
+    if (socket.readyState == socket.OPEN) {
         socket.send(JSON.stringify({ 'keys': keys }));
+        console.log(keys)
+    }
 }
-
-
-// function sendMessage(message) {
-//     if (socket.readyState == WebSocket.OPEN) {
-//         socket.send(JSON.stringify(message));
-//         console.log("sending message");
-//     }
-// }
 
 // document.addEventListener('keydown', (event) => {
 //     let action = '';

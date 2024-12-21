@@ -19,6 +19,8 @@ run = False
 
 # Game mechanics class -----------------------------------------------------
 class PongGameConsumer(AsyncWebsocketConsumer):
+    waiting_players = []
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.running = False
@@ -65,6 +67,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
     async def connect(self):
         await self.accept()
+        PongGameConsumer.waiting_players.append(self)
         self.running = True
         asyncio.create_task(self.game_loop())
 
@@ -143,5 +146,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             "rightPaddle": f"{self.rightPaddle['x']:.2f},{self.rightPaddle['y']:.2f},{self.rightPaddle['z']:.2f}",
             "score": f"{self.score['left']},{self.score['right']}"
         }
-        print(f"\r{json.dumps(game_state)}", end='')  # Print the game state in the same line
+        # print(f"\r{json.dumps(game_state)}", end='')  # Print the game state in the same line
         await self.send(text_data=json.dumps(game_state))
+
+    # async def start_game(self):

@@ -85,6 +85,12 @@ TEMPLATES = [
     },
 ]
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 WSGI_APPLICATION = 'BeatsPongServer.wsgi.application'
 
 
@@ -146,3 +152,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'beatspongsmtp@gmail.com'
+EMAIL_HOST_PASSWORD = 'BPSmtp@123'
+
+# settings.py
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default: Store sessions in the database
+SESSION_COOKIE_AGE = 1209600  # Two weeks in seconds
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False  # Keep the session active even if the browser is closed
+SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
