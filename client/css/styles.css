@@ -1,10 +1,10 @@
 /* styles.css */
-body {
+/* body {
     background-color: black;
     color: white;
     margin: 0;
     font-family: 'Arial', sans-serif;
-}
+} */
 
 .title {
     font-size: 10vw;
@@ -38,3 +38,145 @@ body {
     background-color: gray; /* Change background color when clicked */
 }
 
+
+/* new_design_styles.css */
+
+body { margin: 0; }
+canvas { display: block; }
+.info {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    background: rgba(128, 255, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    font-family: Arial, sans-serif;
+}
+.scoreboard {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.8);
+    padding: 20px 40px;
+    border-radius: 5px;
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+}
+.position {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(128, 255, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    font-family: Arial, sans-serif;
+}
+.ai-right-button {
+    position: absolute;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    cursor: pointer;
+    top: 30%;
+    left: 85%;
+    transform: translate(-50%, -50%);
+}
+.ai-right-button:hover {
+    background-color: #f2f2f2;
+}
+.ai-right-button.active {
+    background-color: green;
+    color: white;
+}
+.ai_left-button {
+    position: absolute;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    cursor: pointer;
+    top: 25%;
+    left: 85%;
+    transform: translate(-50%, -50%);
+}
+.ai_left-button:hover {
+    background-color: #f2f2f2;
+}
+.ai_left-button.active {
+    background-color: green;
+    color: white;
+}
+.predict_point-button {
+    position: absolute;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    cursor: pointer;
+    top: 35%;
+    left: 85%;
+    transform: translate(-50%, -50%);
+}
+.predict_point-button:hover {
+    background-color: #f2f2f2;
+}
+.predict_point-button.active {
+    background-color: green;
+    color: white;
+}
+.collision_particle-button {
+    position: absolute;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    cursor: pointer;
+    top: 40%;
+    left: 85%;
+    transform: translate(-50%, -50%);
+}
+.collision_particle-button:hover {
+    background-color: #f2f2f2;
+}
+.collision_particle-button.active {
+    background-color: green;
+    color: white;
+}
+.snowfall-button {
+    position: absolute;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    cursor: pointer;
+    top: 45%;
+    left: 85%;
+    transform: translate(-50%, -50%);
+}
+.snowfall-button:hover {
+    background-color: #f2f2f2;
+}
+.snowfall-button.active {
+    background-color: green;
+    color: white;
+}
+.ai_prediction-button {
+    position: absolute;
+    background-color: white;
+    color: black;
+    border: 1px solid #ccc;
+    padding: 10px 10px;
+    cursor: pointer;
+    top: 50%;
+    left: 85%;
+    transform: translate(-50%, -50%);
+}
+.ai_prediction-button:hover {
+    background-color: #f2f2f2;
+}
+.ai_prediction-button.active {
+    background-color: green;
+    color: white;
+}
