@@ -1,5 +1,5 @@
 // Front-end dimensions -------------------------------------------------------
-let     cuboidWidth = 15, cuboidHeight = 10, cuboidDepth = 0.25,
+let     cuboidWidth = 15, cuboidHeight = 10, cuboidDepth = 5,
         paddleWidth = 0.2, paddleHeight = 1.5, paddleDepth = 0.25,
         ballRadius = 0.125, cameraZ = 10;
 

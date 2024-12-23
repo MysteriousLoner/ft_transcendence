@@ -1,6 +1,6 @@
 import asyncio, random
 from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
+
 '''
 This class is an object to represent an instance of a running game in regular mode.
 It consists of an independant game container and a channel that connects 2 websocket connections of 2 players

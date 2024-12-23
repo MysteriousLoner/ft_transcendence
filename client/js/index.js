@@ -24,45 +24,78 @@ document.getElementById('startGameButton-vp').addEventListener('click', function
 });
 
 
-document.getElementById('registerForm').addEventListener('submit', function(event) { 
+// Handle registration form submission
+document.getElementById('registerForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
-    const username = document.getElementById('username1').value; 
-    const email = document.getElementById('email').value; 
-    const password = document.getElementById('password').value; 
-    const data = { 
-        username: username, 
-        email: email, 
-        password: password 
-    }; 
+    const username = document.getElementById('username1').value;
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const data = {
+        username: username,
+        email: email,
+        password: password
+    };
 
-    console.log("username: " + username);
-    console.log("email: " + email);
-    console.log("password: " + password);
-
-    fetch('http://127.0.0.1:8000/api/auth/create/', { 
-        method: 'POST', 
-        headers: { 
-            'Content-Type': 'application/json' 
-        }, 
-        body: JSON.stringify(data) 
-    }) 
-    .then(response => response.json()) 
-    .then(data => { 
-        console.log('Success:', data); 
+    fetch('http://127.0.0.1:8000/api/auth/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
         if (data.error) {
             document.getElementById('errorText').innerText = data.error;
             document.getElementById('errorMessage').classList.remove('d-none');
         } else {
+            document.getElementById('userEmail').innerText = email;
+            localStorage.setItem('access_token', data.access_token);
             navigateTo('verificationPage');
         }
-    }) 
-    .catch((error) => { 
+    })
+    .catch((error) => {
         console.error('Error:', error);
         document.getElementById('errorText').innerText = 'An unexpected error occurred. Please try again.';
         document.getElementById('errorMessage').classList.remove('d-none');
-    }); 
+    });
 });
+
+// Handle verification form submission
+document.getElementById('verificationForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const verificationCode = document.getElementById('verificationCode').value;
+    const accessToken = localStorage.getItem('access_token');
+    const data = {
+        verification_code: verificationCode,
+        access_token: accessToken
+    };
+
+    fetch('http://127.0.0.1:8000/api/auth/verify/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            alert('User registered successfully!');
+            window.location.href = 'login.html';
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert('An unexpected error occurred. Please try again.');
+    });
+});
+
+ 
 
 document.getElementById('loginForm').addEventListener('submit', function(event) { 
     event.preventDefault();
