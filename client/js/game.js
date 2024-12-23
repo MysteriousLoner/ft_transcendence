@@ -1,139 +1,200 @@
-// game.js
-let renderer, camera, scene, socket;
-let movingDown = false;
-let movingUp = false;
+// Front-end dimensions -------------------------------------------------------
+let     cuboidWidth = 15, cuboidHeight = 10, cuboidDepth = 5,
+        paddleWidth = 0.2, paddleHeight = 1.5, paddleDepth = 0.25,
+        ballRadius = 0.125, cameraZ = 10;
 
-function startGame() {
-    // Initialize Three.js Scene
-    const boxWidth = 15, boxHeight = 10;
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    renderer = new THREE.WebGLRenderer();
-    
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    camera.position.z = 5;a
-// White box 
-    const cubeGeometry = new THREE.BoxGeometry(boxWidth, boxHeight, 5); 
-    const cubeEdges = new THREE.EdgesGeometry(cubeGeometry); 
-    const cubeLines = new THREE.LineSegments(cubeEdges, new THREE.LineBasicMaterial({ color: 0xffffff })); 
-    scene.add(cubeLines);
-    const pointLight = new THREE.PointLight(0xffffff, 3, 100);
-    pointLight.position.set(2, 2, 5);
-    scene.add(pointLight);
-    const ambientLight = new THREE.AmbientLight(0xc0c0c0);
-    scene.add(ambientLight);
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    directionalLight.position.set(-5, 5, 5).normalize();
-    scene.add(directionalLight);
-    document.body.appendChild(renderer.domElement);
+// Create a scene ------------------------------------------------------------
+var scene = new THREE.Scene();
 
-    // Initialize Game Objects
-    // Ball
-    let ball, playerPaddle, opponentPaddle;
-    const ballGeometry = new THREE.SphereGeometry(0.1, 32, 32);
-    const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xffffff });
-    ball = new THREE.Mesh(ballGeometry, ballMaterial);
-    scene.add(ball);
+// Create a camera -----------------------------------------------------------
+var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+camera.position.z = cameraZ;
 
-    // Player Paddle
-    const playerPaddleGeometry = new THREE.BoxGeometry(boxWidth * 0.05, boxHeight * 0.2, 1);
-    const playerPaddleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const edgesGeometry = new THREE.EdgesGeometry(playerPaddleGeometry);
-    const edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
-    const edges = new THREE.LineSegments(edgesGeometry, edgesMaterial);
-    playerPaddle = new THREE.Line(playerPaddleGeometry, playerPaddleMaterial);
-    // playerPaddle.add(edges);
-    scene.add(playerPaddle);
+// Create a renderer and add it to the DOM -----------------------------------
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
 
-    // Opponent Paddle
-    const opponentPaddleGeometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(1, 0, 0)]);
-    const opponentPaddleMaterial = new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.1, gapSize: 0.1 });
-    opponentPaddle = new THREE.Line(playerPaddleGeometry, playerPaddleMaterial);
-    scene.add(opponentPaddle);
+// Create a cuboid geometry, material ----------------------------------------
+var geometry = new THREE.BoxGeometry(cuboidWidth, cuboidHeight, cuboidDepth) // width, height, depth
+var wireframe = new THREE.WireframeGeometry( geometry );
+var edges = new THREE.EdgesGeometry( geometry );
+var mesh_material = new THREE.MeshBasicMaterial({ color: 0x00ff00});
+var line_material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+var cuboid = new THREE.LineSegments(edges, line_material);
 
-    camera.position.z = 10;
+// Create paddles geometry, material -----------------------------------------
+var paddleGeometry = new THREE.BoxGeometry(paddleWidth, paddleHeight, paddleDepth);
+var paddleMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+var leftPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
+var rightPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
+leftPaddle.position.set(-cuboidWidth/2, 0, 0);
+rightPaddle.position.set(cuboidWidth/2, 0, 0);
 
-    // Connect to WebSocket
-    connectWebSocket(ball, playerPaddle, opponentPaddle);
+// Create ball geometry, material --------------------------------------------
+var ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 32);
+var ball_wireframe = new THREE.WireframeGeometry(ballGeometry);
+var ball_edges = new THREE.EdgesGeometry(ballGeometry);
+var ballMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+var ball = new THREE.Mesh(ballGeometry, ballMaterial);
+ball.position.set(0, 0, 0);
 
-    // Start the render loop
-    animate();
+// Create a group to hold cuboid and paddles ---------------------------------
+var group = new THREE.Group();
+group.add(cuboid);
+group.add(leftPaddle);
+group.add(rightPaddle);
+group.add(ball);
+
+
+// Add to scene --------------------------------------------------------------
+// scene.add(cuboid);
+// scene.add(leftPaddle);
+// scene.add(rightPaddle);
+scene.add(group);
+
+
+// Handle window resize ------------------------------------------------------
+window.addEventListener('resize', onWindowResize, false);
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function connectWebSocket(ball, playerPaddle, opponentPaddle) {
-    socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong');
+// Handle keydown events for rotation ----------------------------------------
+window.addEventListener('keydown', function(event) {
+    switch (event.key) {
+        case 'i': // rotate up
+            group.rotation.x -= 0.1;
+            break;
+        case 'k': // rotate down
+            group.rotation.x += 0.1;
+            break;
+        case 'j': // rotate left
+            group.rotation.y -= 0.1;
+            break;
+        case 'l': // rotate right
+            group.rotation.y += 0.1;
+            break;
+        case 'u': // rotate clockwise
+            group.rotation.z += 0.1;
+            break;
+        case 'o': // rotate counterclockwise
+            group.rotation.z -= 0.1;
+            break;
+        case '=': // scale up
+            camera.position.z -= 0.5;
+            break;
+        case '-': // scale down
+            camera.position.z += 0.5;
+            break;
+        case 'r': // reset
+            group.rotation.x = 0;
+            group.rotation.y = 0;
+            group.rotation.z = 0;
+            camera.position.z = cameraZ;
+            break;
+    }
+})
 
+
+// Websocket connection ------------------------------------------------------
+let     scoreLeft = 4, scoreRight = 2, DOMloaded =- false;
+
+let socket;
+
+const keys = {
+    w: false,
+    s: false,
+    ArrowUp: false,
+    ArrowDown: false
+}
+
+function updateElement() {
+    if (!DOMloaded)
+        return;
+    document.getElementById('score').textContent = `${scoreLeft} : ${scoreRight}`;
+    document.getElementById('position').textContent = `Rotation: (x: ${group.rotation.x.toFixed(2)}, y: ${group.rotation.y.toFixed(2)}, z: ${group.rotation.z.toFixed(2)})`;
+    document.getElementById('scale').textContent = `Camera: (z: ${camera.position.z.toFixed(2)})`;
+    document.getElementById('leftPaddlePosition').textContent = `Left Paddle (y: ${leftPaddle.position.y.toFixed(2)})`;
+    document.getElementById('rightPaddlePosition').textContent = `Right Paddle (y: ${rightPaddle.position.y.toFixed(2)})`;
+    document.getElementById('ballPosition').textContent = `Ball (x: ${ball.position.x.toFixed(2)}, y: ${ball.position.y.toFixed(2)})`;
+}
+
+function connectWebSocket() {
+    socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong?gameMode=solo');
     socket.onmessage = function(event) {
         const gameState = JSON.parse(event.data);
-        const [ballX, ballY] = gameState.ball.split(',').map(Number);
-        const [playerX, playerY] = gameState.player_paddle.split(',').map(Number);
-        const [opponentX, opponentY] = gameState.opponent_paddle.split(',').map(Number);
-
-        // Update positions based on game state
-        updateGameObjects(ballX, ballY, playerY, opponentY, ball, playerPaddle, opponentPaddle);
+        updateGameObjects(gameState);
+        updateElement();
     };
 
     socket.onclose = function(event) {
         console.error('WebSocket closed:', event);
     };
+};
+
+function updateGameObjects(gameState) {
+    const gameStateString = JSON.stringify(gameState);
+    // console.log(gameStateString);
+
+    [cuboidWidth, cuboidHeight, cuboidDepth] = gameState.cuboid.split(',').map(Number);
+    [ballRadius, ball.position.x, ball.position.y, ball.position.z] = gameState.ball.split(',').map(Number);
+
+    [paddleWidth, paddleHeight, paddleDepth] = gameState.paddle_dimensions.split(',').map(Number);
+    [leftPaddle.position.x, leftPaddle.position.y, leftPaddle.position.z] = gameState.leftPaddle.split(',').map(Number);
+    [rightPaddle.position.x, rightPaddle.position.y, rightPaddle.position.z] = gameState.rightPaddle.split(',').map(Number);
+    [scoreLeft, scoreRight] = gameState.score.split(',').map(Number);
+    console.log(scoreLeft, scoreRight);
 }
 
-function sendMessage(message) {
-    if (socket.readyState == WebSocket.OPEN) {
-        socket.send(JSON.stringify(message));
-        console.log("sending message");
+// Initiliaze elements -------------------------------------------------------
+document.addEventListener('DOMContentLoaded', () => {
+    DOMloaded = true;
+    updateElement()
+});
+
+document.addEventListener('keydown', (event) => {
+    if (event.key in keys) {
+        keys[event.key] = true;
+        console.log(event.key);
+    }
+});
+
+document.addEventListener('keyup', (event) => {
+    if (event.key in keys) {
+        keys[event.key] = false;
+        console.log(event.key);
+    }
+});
+
+function movePaddles(){
+    if (socket.readyState == socket.OPEN) {
+        socket.send(JSON.stringify({ 'keys': keys }));
+        console.log(keys)
     }
 }
 
-document.addEventListener('keydown', function(event) { 
-    if (event.key === 'w') { 
-        movingUp = true;
-    } else if (event.key === 's') { 
-        movingDown = true;
-    } 
-});
+// document.addEventListener('keydown', (event) => {
+//     let action = '';
+//     if (event.key === 'w' || event.key === 's' || event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+//         action = event.key;
+//         socket.send(JSON.stringify({ 'action': action }));
+//     };
+//     console.log("sending message: " + action);
+// });
 
-document.addEventListener('keyup', function(event) { 
-    if (event.key === 'w') { 
-        movingUp = false;
-    } else if (event.key === 's') { 
-        movingDown = false;
-    } 
-});
-
-function updateGameObjects(ballX, ballY, playerY, opponentY, ball, playerPaddle, opponentPaddle) {
-    // Scale and position values based on box dimensions
-    const boxWidth = 15, boxHeight = 10;
-    const gameMapWidth = 36, gameMapHeight = 18;
-    const scaledBallX = ballX * (boxWidth / gameMapWidth); 
-    const scaledBallY = ballY * (boxHeight / gameMapHeight);
-    const scaledPlayerPaddleY = playerY * (boxHeight / gameMapHeight);
-    const scaledOpponentPaddleY = opponentY * (boxHeight / gameMapHeight);
-
-    ball.position.set(scaledBallX - (boxWidth / 2), scaledBallY - (boxHeight / 2), 0);
-    playerPaddle.position.set(-boxWidth / 2 + 0.5, scaledPlayerPaddleY - (boxHeight / 2), 0);
-    opponentPaddle.position.set(boxWidth / 2 - 0.5, scaledOpponentPaddleY - (boxHeight / 2), 0);
-
-    // console.log('Ball:', ball.position, 'Player:', playerPaddle.position, 'Opponent:', opponentPaddle.position);
-}
-
+// Animation loop ------------------------------------------------------------
 
 function animate() {
+    movePaddles();
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
-    if (movingUp == true) {
-        sendMessage({ action: 'move_up' });
-    }
-    if (movingDown == true) {
-        sendMessage({ action: 'move_down' });
-    }
-}
+}   
 
-// Event Listener for Window Resize
-window.addEventListener('resize', () => {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    // renderer.setSize(width, height);
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-});
+function startGame() {
+    connectWebSocket();
+    animate();
+}
