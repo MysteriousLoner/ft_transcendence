@@ -36,6 +36,11 @@ class PongGame:
         self.channel1_name = player1.channel_name
         self.channel2_name = player2.channel_name
 
+        self.ai_last_refresh_time = 0
+        self.ai_refresh_interval = 1
+        self.AI_target = 0
+        self.predicted_target = 0
+
         # create group for websockets, add websockets from players to group
         self.channel_layer = get_channel_layer()
         asyncio.create_task(self.channel_layer.group_add(self.room_name, player1.channel_name))

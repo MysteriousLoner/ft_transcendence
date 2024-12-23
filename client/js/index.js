@@ -51,7 +51,7 @@ document.getElementById('registerForm').addEventListener('submit', function(even
             document.getElementById('errorMessage').classList.remove('d-none');
         } else {
             document.getElementById('userEmail').innerText = email;
-            localStorage.setItem('access_token', data.access_token);
+            localStorage.setItem('username', username);  // Store username in local storage
             navigateTo('verificationPage');
         }
     })
@@ -62,15 +62,15 @@ document.getElementById('registerForm').addEventListener('submit', function(even
     });
 });
 
-// Handle verification form submission
+
 document.getElementById('verificationForm').addEventListener('submit', function(event) {
     event.preventDefault();
 
     const verificationCode = document.getElementById('verificationCode').value;
-    const accessToken = localStorage.getItem('access_token');
+    const username = localStorage.getItem('username');  // Retrieve username from local storage
     const data = {
-        verification_code: verificationCode,
-        access_token: accessToken
+        verificationCode: verificationCode,
+        username: username
     };
 
     fetch('http://127.0.0.1:8000/api/auth/verify/', {
@@ -95,7 +95,6 @@ document.getElementById('verificationForm').addEventListener('submit', function(
     });
 });
 
- 
 
 document.getElementById('loginForm').addEventListener('submit', function(event) { 
     event.preventDefault();

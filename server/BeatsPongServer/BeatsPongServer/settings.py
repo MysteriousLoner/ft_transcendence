@@ -49,39 +49,50 @@ INSTALLED_APPS = [
     'BPDAL'
 ]
 
-# REST_FRAMEWORK = {
-#     'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.IsAuthenticated',
-#     ),
-#     'DEFAULT_AUTHENTICATION_CLASSES': (
-#         'rest_framework_simplejwt.authentication.JWTAuthentication',
-#     ),
-# }
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
 
-# SIMPLE_JWT = {
-#     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
-#     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
-#     'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
-#     'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
-#     'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
-# }
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
+    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
+}
 
 ASGI_APPLICATION = 'BeatsPongServer.asgi.application'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
 
 ]
 
-CORS_ALLOWED_ORIGINS = [ "http://localhost:3000", "http://localhost:5500"]
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = False  # Make sure this is set to False
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+    "http://localhost:5500",
+]
+CORS_ALLOWED_ORIGINS = [ 
+    "http://localhost:3000", 
+    "http://localhost:5500", 
+]
+
 
 ROOT_URLCONF = 'BeatsPongServer.urls'
 
@@ -186,5 +197,4 @@ SESSION_COOKIE_SECURE = False  # Set to True if using HTTPS
 SESSION_COOKIE_NAME = 'session_id'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SAMESITE = 'Lax'
-CORS_ALLOW_CREDENTIALS = True
 

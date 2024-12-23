@@ -1,6 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
-from .models import ProfileData
+from .models import ProfileData, VerificationCode
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import User
 
 '''
 Functions that interact with the database
@@ -17,13 +18,46 @@ def query_profile_data(username):
     except ObjectDoesNotExist:
         return None
     
+def query_verification_code(username):
+    try:
+        codeObj = VerificationCode.objects.get(username=username)
+        return codeObj
+    except ObjectDoesNotExist:
+        return None
+    
+def query_user(username):
+    try:
+        user = User.objects.get(username=username)
+        return user
+    except ObjectDoesNotExist:
+        return None
+    
 # insert functions
+def create_user(username, email, password):
+    user = User.objects.create_user(
+        username=username, 
+        email=email, 
+    )
+    user.password = password
+    user.save()
+    return user
+
 def create_profile(username, profilePicture):
     profile = ProfileData.objects.create(
         username=username,
         profilePicture=profilePicture,
     )
     return profile
+
+def create_verification_code(username, email, code, password, expDate):
+    codeObj = VerificationCode.objects.create(
+        username = username,
+        code = code,
+        expriarationDate = expDate,
+        password = password,
+        email = email,
+    )
+    return codeObj
 
 # update functions
 def update_profile_picture(username, newProfilePicture):
@@ -63,4 +97,11 @@ def remove_friend(username, friend_username):
             profile.save()
         return profile
     except ProfileData.DoesNotExist:
+        return None
+
+def remove_verification_code(username):
+    try:
+        codeObj = VerificationCode.objects.get(username=username)
+        codeObj.delete()
+    except VerificationCode.DoesNotExist:
         return None

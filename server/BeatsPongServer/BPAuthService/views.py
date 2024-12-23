@@ -1,17 +1,16 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import User
 from django.core.mail import send_mail
-from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.authentication import JWTAuthentication
-from rest_framework_simplejwt.exceptions import InvalidToken
+from BPDAL.views import create_verification_code, query_verification_code, query_user, create_user
 from .utils import generate_random_code, is_strong_password, is_valid_email, is_valid_username
 import json
+from django.utils import timezone
+from datetime import datetime, timedelta
 
 # Handles request to register a user
 @csrf_exempt
-def create_user(request):
+def register_user(request):
     if request.method != 'POST':
         return JsonResponse({"error": "Invalid request type."}, status=400)
     
@@ -22,41 +21,40 @@ def create_user(request):
     
     # basic check for credentials
     if not is_valid_username(username): 
-        return JsonResponse({"error": "Invalid username."}, status=400) 
+        return JsonResponse({"error": "Invalid username."}, status=400)
+    if query_user(username):
+        print("username taken")
+        return JsonResponse({"error": "username taken"}, status=400)
     if not is_valid_email(email): 
-        return JsonResponse({"error": "Invalid email."}, status=400) 
+        return JsonResponse({"error": "Invalid email."}, status=400)
     if not is_strong_password(password): 
         return JsonResponse({"error": "Password is not strong enough."}, status=400)
 
-    # Generate JWT tokens 
-    user = User(username=username, email=email, password=password) # Temporary user object 
-    refresh = RefreshToken.for_user(user) 
-    access_token = str(refresh.access_token)
+    # generates an object to store verification code in the database
+    verificationCode = generate_random_code()
+    expDate = datetime.now() + timedelta(minutes=10)
+    code = query_verification_code(username)
+    if code:
+        code.delete()
+    create_verification_code(
+        username, 
+        email,
+        verificationCode, 
+        password,
+        expDate,
+    )
 
-    verification_code = generate_random_code()
-    request.session['verification_code'] = verification_code
-    request.session['username'] = username 
-    request.session['email'] = email 
-    request.session['password'] = password
-    request.session.save()
-    print(f"Session ID in create_user: {request.session.session_key}", flush=True)
-
-    stored_code = request.session.get('verification_code') 
-
-    if stored_code is not None:
-        print(f"Create user: Stored verification code: {stored_code}", flush=True)
-    else:
-        print("Create user: No verification code found in session.", flush=True)
-
+    # sends email to the user with code
     send_mail( 
         'Your Verification Code', 
-        f'Your verification code is: {verification_code}', 
-        'your-email@example.com',  # From email 
-        [email],  # To email 
+        f'Your verification code is: {verificationCode}', 
+        'code expires in 10 minuites!',
+        [email],
         fail_silently=False, 
     )
 
-    return JsonResponse({ "message": "Verification code sent to email.", "access_token": access_token }, status=201)
+    return JsonResponse({ "message": "Verification code sent to email.", 
+                         "username": username }, status=201)
 
 @csrf_exempt
 def verify_code(request):
@@ -64,44 +62,30 @@ def verify_code(request):
         return JsonResponse({"error": "Invalid request type."}, status=400)
 
     data = json.loads(request.body)
-    input_code = data['verification_code']
-    token = data['access_token']
+    code = data['verificationCode']
+    username = data['username']
 
-    # Verify JWT token
-    jwt_auth = JWTAuthentication()
-    try:
-        validated_token = jwt_auth.get_validated_token(token)
-        user = jwt_auth.get_user(validated_token)
-    except InvalidToken:
-        return JsonResponse({"error": "Invalid token."}, status=400)
+    if code is None or username is None:
+        return JsonResponse({"error": "code or username is none!"}, status=401)
+    
+    codeObj = query_verification_code(username)
+    if codeObj is None:
+        return JsonResponse({"error": "username does not exist!"}, status=401)
+    
+    if timezone.now() > codeObj.expriarationDate:
+        codeObj.delete()
+        return JsonResponse({"error": "code expired!"}, status=401)
+    
+    if code != codeObj.code:
+        codeObj.delete()
+        return JsonResponse({"error": "incorrect verification code!"}, status=401)
+    
+    codeObj.delete()
 
-    # Check the verification code
-    stored_code = request.session.get('verification_code')
-    if stored_code is None:
-        return JsonResponse({"error": "No verification code found in session."}, status=400)
-    if input_code != stored_code:
-        return JsonResponse({"error": "Invalid verification code."}, status=400)
+    create_user(username, codeObj.email, codeObj.password)
 
-    # Retrieve user data from session
-    username = request.session.get('username')
-    email = request.session.get('email')
-    password = request.session.get('password')
-
-    if username and email and password:
-        user = User.objects.create_user(username, email, password)
-        user.save()
-
-        # Clear session data after successful registration
-        del request.session['verification_code']
-        del request.session['username']
-        del request.session['email']
-        del request.session['password']
-
-        return JsonResponse({"message": "User registered successfully!"}, status=201)
-    else:
-        return JsonResponse({"error": "Session data missing. Please try registering again."}, status=400)
-
-
+    return JsonResponse({ "message": "account created"}, status=201)
+    
 @csrf_exempt
 def login(request):
     if request.method != 'POST':

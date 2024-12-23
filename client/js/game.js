@@ -16,6 +16,7 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 // Create a cuboid geometry, material ----------------------------------------
+let cuboidColor = 0x00ff00;
 var geometry = new THREE.BoxGeometry(cuboidWidth, cuboidHeight, cuboidDepth) // width, height, depth
 var wireframe = new THREE.WireframeGeometry( geometry );
 var edges = new THREE.EdgesGeometry( geometry );
@@ -30,6 +31,7 @@ var leftPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
 var rightPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
 leftPaddle.position.set(-cuboidWidth/2, 0, 0);
 rightPaddle.position.set(cuboidWidth/2, 0, 0);
+let paddle_color = 0xffff00;
 
 // Create ball geometry, material --------------------------------------------
 var ballGeometry = new THREE.SphereGeometry(ballRadius, 32, 32);
@@ -99,6 +101,20 @@ window.addEventListener('keydown', function(event) {
     }
 })
 
+function updateGameObjects(gameState) {
+    const gameStateString = JSON.stringify(gameState);
+    // console.log(gameStateString);
+
+    [cuboidWidth, cuboidHeight, cuboidDepth] = gameState.cuboid.split(',').map(Number);
+    [ballRadius, ball.position.x, ball.position.y, ball.position.z] = gameState.ball.split(',').map(Number);
+
+    [paddleWidth, paddleHeight, paddleDepth] = gameState.paddle_dimensions.split(',').map(Number);
+    [leftPaddle.position.x, leftPaddle.position.y, leftPaddle.position.z] = gameState.leftPaddle.split(',').map(Number);
+    [rightPaddle.position.x, rightPaddle.position.y, rightPaddle.position.z] = gameState.rightPaddle.split(',').map(Number);
+    [scoreLeft, scoreRight] = gameState.score.split(',').map(Number);
+    // [ballTarget.position.x, ballTarget.position.y, ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
+    [ballSpeedX, ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
+}
 
 // Websocket connection ------------------------------------------------------
 let     scoreLeft = 4, scoreRight = 2, DOMloaded =- false;
@@ -190,6 +206,7 @@ function movePaddles(){
 
 function animate() {
     movePaddles();
+    visual_toogle();
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
 }   
@@ -197,4 +214,174 @@ function animate() {
 function startGame() {
     connectWebSocket();
     animate();
+}
+
+function createExplosion(x, y, z, direction) {
+    const particleCount = 75; // Number of particles
+    const particles = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 3); // 3 values per particle (x, y, z)
+    if (direction == 'left' || direction == 'right')
+        explosion_color = paddle_color;
+    if (direction == 'top' || direction == 'bottom')
+        explosion_color = cuboidColor;
+
+    const particleMaterial = new THREE.PointsMaterial({ color: explosion_color, size: 0.05, transparent: true, opacity: 0.8 });
+
+    // Create the particles
+    for (let i = 0; i < particleCount; i++) {
+        if (direction == 'left')
+            positions[i * 3] = x + Math.random() * 0.2; // Shift x to spread left
+        else if (direction == 'right')
+            positions[i * 3] = x - Math.random() * 0.2; // Shift x to spread right
+        else
+            positions[i * 3] = x + (Math.random() - 0.5) * 2;
+
+        if (direction == 'top')
+            positions[i * 3 + 1] = y - Math.random() * 0.2; // Shift y to spread up
+        else if (direction == 'bottom')
+            positions[i * 3 + 1] = y + Math.random() * 0.2; // Shift y to spread down
+        else
+            positions[i * 3 + 1] = y + (Math.random() - 0.5) * 2;
+
+
+        positions[i * 3 + 2] = z + (Math.random() - 0.5) * 2; // Keep z spread as before
+    }
+
+    particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+    const particleSystem = new THREE.Points(particles, particleMaterial);
+
+    // Add particle system to the scene
+    group.add(particleSystem);
+
+
+    // Animate opacity
+    let elapsed = 0;
+    const duration = 1000; // 1 second
+
+    const fadeAnimation = () => {
+        elapsed += 16; // Approximately 16ms per frame
+        const t = elapsed / duration;
+
+        if (t <= 0.5) {
+            // Fade in
+            particleMaterial.opacity = t * 2; // Linearly interpolate from 0 to 1 over the first half of the duration
+        } else if (t <= 1) {
+            // Fade out
+            particleMaterial.opacity = 2 - t * 2; // Linearly interpolate from 1 to 0 over the second half
+        } else {
+            // Remove particle system
+            group.remove(particleSystem);
+            return; // Stop animation
+        }
+
+        requestAnimationFrame(fadeAnimation);
+    };
+
+    fadeAnimation(); // Start the animation
+}
+
+function checkBallPaddleCollision() {
+    console.log("checking direction")
+    if (ball.position.x - ballRadius <= leftPaddle.position.x + paddleWidth/2 &&
+        ball.position.y - ballRadius <= leftPaddle.position.y + paddleHeight/2 &&
+        ball.position.y + ballRadius >= leftPaddle.position.y - paddleHeight/2) {
+        return 'left';
+    }
+    else if (ball.position.x + ballRadius >= rightPaddle.position.x - paddleWidth/2 &&
+        ball.position.y - ballRadius <= rightPaddle.position.y + paddleHeight/2 &&
+        ball.position.y + ballRadius >= rightPaddle.position.y - paddleHeight/2) {
+        return 'right';
+    }
+    else if (ball.position.y + ballRadius >= cuboidHeight/2)
+        return 'top';
+    else if (ball.position.y - ballRadius <= -cuboidHeight/2)
+        return 'bottom';
+    else {
+        return 'none';
+    }
+}
+
+// Create snowfall effect -----------------------------------------------------
+function createSnowfall(cuboidWidth, cuboidHeight, cuboidDepth, snowfallCount, scene) {
+
+    // Create snowflake geometry
+    const snowflakes = new THREE.BufferGeometry();
+    const snowflakePositions = new Float32Array(snowfallCount * 3);
+
+    // Initialize snowflake positions
+    for (let i = 0; i < snowfallCount; i++) {
+        snowflakePositions[i * 3] = (Math.random() - 0.5) * cuboidWidth; // Random x
+        snowflakePositions[i * 3 + 1] = (Math.random() - 0.5) * cuboidHeight;   // Random y (top to bottom)
+        snowflakePositions[i * 3 + 2] = (Math.random() - 0.5) * cuboidDepth; // Random z
+    }
+
+    snowflakes.setAttribute('position', new THREE.BufferAttribute(snowflakePositions, 3));
+
+    // Material for snowflakes
+    const snowflakeMaterial = new THREE.PointsMaterial({
+        color: 0xffffff,
+        size: 0.05,
+        transparent: true,
+        opacity: 0.8
+    });
+
+    // Create the particle system
+    const snowfallSystem = new THREE.Points(snowflakes, snowflakeMaterial);
+    scene.add(snowfallSystem); // Add to the scene
+    
+
+    // Function to animate snowfall
+    function animateSnowfall() {
+        for (let i = 0; i < snowfallCount; i++) {
+            snowflakePositions[i * 3 + 1] -= 0.02; // Snowflake falling down
+            if (snowflakePositions[i * 3 + 1] < -cuboidHeight / 2) { 
+                // Reset snowflake to top when it goes below the cuboid
+                snowflakePositions[i * 3 + 1] = cuboidHeight / 2;
+            }
+        }
+        snowfallSystem.geometry.attributes.position.needsUpdate = true; // Notify Three.js to update positions
+    }
+
+    function removeSnowfall() {
+        scene.remove(snowfallSystem); // Remove the particle system from the scene
+        snowfallSystem.geometry.dispose(); // Dispose of the geometry
+        snowfallSystem.material.dispose(); // Dispose of the material
+    }
+
+    return { animateSnowfall, removeSnowfall } ; // Return the animation function
+}
+
+let snowfallActive = false;  // Flag to track snowfall state
+let snowfallFunctions = null;  // To store the snowfall functions (animation and removal)
+
+function toggleSnowfall() {
+    if (snowfallActive) {
+        // If snowfall is active, remove and stop it
+        if (snowfallFunctions) {
+            snowfallFunctions.removeSnowfall(); // Remove snowfall from the scene
+        }
+        snowfallActive = false;  // Set flag to false
+    } else {
+        // If snowfall is not active, create and animate it
+        snowfallFunctions = createSnowfall(10, 10, 10, 500, group); // Create snowfall
+        snowfallActive = true;  // Set flag to true
+    }
+}
+
+function visual_toogle() {
+    let ballCollision = checkBallPaddleCollision();
+    console.log(ballCollision);
+    if (ballCollision != 'none' && keys['Collision_Particles'])
+        console.log("exploding");
+        createExplosion(ball.position.x, ball.position.y, ball.position.z, ballCollision);
+
+    // if (keys['Ball_Predict_Point'])
+    //     ballTarget.visible = true;
+    // else
+    //     ballTarget.visible = false;
+
+    if (snowfallActive && snowfallFunctions) {
+        snowfallFunctions.animateSnowfall(); // Animate snowfall if active
+    }
 }
