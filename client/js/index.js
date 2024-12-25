@@ -37,17 +37,10 @@ document.getElementById('registerForm').addEventListener('submit', function(even
         password: password
     };
 
-    fetch('http://127.0.0.1:8000/api/auth/create/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            document.getElementById('errorText').innerText = data.error;
+    makeRequest('POST', 'api/auth/register/', data)
+    .then(response => {
+        if (response.error) {
+            document.getElementById('errorText').innerText = response.error;
             document.getElementById('errorMessage').classList.remove('d-none');
         } else {
             document.getElementById('userEmail').innerText = email;
@@ -73,20 +66,13 @@ document.getElementById('verificationForm').addEventListener('submit', function(
         username: username
     };
 
-    fetch('http://127.0.0.1:8000/api/auth/verify/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.error) {
-            alert(data.error);
+    makeRequest('POST', 'api/auth/verify/', data)
+    .then(response => {
+        if (response.error) {
+            alert(response.error);
         } else {
             alert('User registered successfully!');
-            window.location.href = 'login.html';
+            navigateTo('landingScreen');
         }
     })
     .catch((error) => {
@@ -109,18 +95,11 @@ document.getElementById('loginForm').addEventListener('submit', function(event) 
     console.log("username: " + username);
     console.log("password: " + password);
 
-    fetch('http://127.0.0.1:8000/api/auth/login/', { 
-        method: 'POST', 
-        headers: { 
-            'Content-Type': 'application/json' 
-        }, 
-        body: JSON.stringify(data) 
-    }) 
-    .then(response => response.json()) 
-    .then(data => { 
-        console.log('Success:', data); 
-        if (data.error) {
-            document.getElementById('errorText').innerText = data.error;
+    makeRequest('POST', 'api/auth/login/', data)
+    .then(response => { 
+        console.log('Success:', response); 
+        if (response.error) {
+            document.getElementById('errorText').innerText = response.error;
             document.getElementById('errorMessage').classList.remove('d-none');
         } else {
             navigateTo('menuScreen');

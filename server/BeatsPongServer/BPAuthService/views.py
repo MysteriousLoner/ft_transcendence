@@ -7,13 +7,14 @@ from .utils import generate_random_code, is_strong_password, is_valid_email, is_
 import json
 from django.utils import timezone
 from datetime import datetime, timedelta
+from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated 
+from rest_framework_simplejwt.tokens import RefreshToken
 
 # Handles request to register a user
 @csrf_exempt
+@api_view(['POST'])
 def register_user(request):
-    if request.method != 'POST':
-        return JsonResponse({"error": "Invalid request type."}, status=400)
-    
     data = json.loads(request.body)
     username = data['username']
     email = data['email']
@@ -57,6 +58,7 @@ def register_user(request):
                          "username": username }, status=201)
 
 @csrf_exempt
+@api_view(['POST'])
 def verify_code(request):
     if request.method != 'POST':
         return JsonResponse({"error": "Invalid request type."}, status=400)
@@ -87,10 +89,8 @@ def verify_code(request):
     return JsonResponse({ "message": "account created"}, status=201)
     
 @csrf_exempt
+@api_view(['POST'])
 def login(request):
-    if request.method != 'POST':
-        return JsonResponse({"error": "Invalid request type."}, status=400)
-
     data = json.loads(request.body)
     username = data.get('username')
     password = data.get('password')
@@ -98,6 +98,15 @@ def login(request):
     user = authenticate(request, username=username, password=password)
 
     if user is not None:
-        return JsonResponse({"message": "Login successful"}, status=200)
+        refresh = RefreshToken.for_user(user)
+        print("refresh: " + str(refresh), flush=True)
+        print("access: " + str(refresh.access_token), flush=True)
+        return JsonResponse(
+            {
+                "refresh": str(refresh),
+                "access": str(refresh.access_token),
+                "message": "Login successful"
+            },
+            status=200)
     else:
         return JsonResponse({"error": "Invalid username or password"}, status=401)
