@@ -10,6 +10,23 @@
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body>
+    <!-- Buttons to switch languages -->
+    <button onclick="translate_eng()">English</button>
+    <button onclick="translate_chi()">Mandarin</button>
+    <button onclick="translate_mly()">Malay</button>
+    <!-- Google Translate Widget (hidden) -->
+    <div id="google_translate_element"></div>
+    <script>
+        // Define the googleTranslateElementInit function before the script loads
+        function googleTranslateElementInit() {
+            console.log("Google Translate initialized");
+            new google.translate.TranslateElement({
+                pageLanguage: 'en',
+                includedLanguages: 'en,zh-CN,ms',
+                autoDisplay: false
+            }, 'google_translate_element');
+        }
+    </script>
     <!-- Log in or registration selection screen -->
     <div id="landingScreen" class="container d-none flex-column justify-content-center align-items-center vh-100">
         <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
@@ -109,15 +126,27 @@
         <button class="ai_prediction-button" id="AI_Prediction">Enable Pro AI</button>
     </div>
 
+    <!-- Google Translate Script -->
+    <script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
     <!-- Bootstrap JS and dependencies -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <!-- Custom JS -->
+    <script src="../js/multi-language.js"></script>
     <script src="../js/index.js"></script>
     <script src="../js/new_design.js"></script>
     <script src="../js/requestWrapper.js"></script>
     <!-- <script src="../js/game.js"></script> -->
+    <script>
+        window.addEventListener('load', () => {
+            const translateSelect = document.querySelector('select.goog-te-combo');
+            if (translateSelect) {
+                translateSelect.value = 'en'; // Set the language to English
+                translateSelect.dispatchEvent(new Event('change')); // Trigger the change event
+            }
+        });
+    </script>
 </body>
 </html>
