@@ -137,10 +137,15 @@ function checkBallPaddleCollision() {
 function createSnowfall(cuboidWidth, cuboidHeight, cuboidDepth, snowfallCount, scene) {
 
     // Create snowflake geometry
-    const snowflakes = new THREE.BufferGeometry();
-    const snowflakePositions = new Float32Array(snowfallCount * 3);
 
-    // Initialize snowflake positions
+    const snowflakes = new THREE.BufferGeometry();
+    // BufferGeometry is used to store the positions of the snowflakes
+    // as it is more efficient than Geometry for large numbers of particles
+
+    const snowflakePositions = new Float32Array(snowfallCount * 3);
+    // Float32Array is used to store the positions of the snowflakes, it holds x, y, z for each snowflake
+
+    // Initialize snowflake positions randomly within the cuboid dimensions
     for (let i = 0; i < snowfallCount; i++) {
         snowflakePositions[i * 3] = (Math.random() - 0.5) * cuboidWidth; // Random x
         snowflakePositions[i * 3 + 1] = (Math.random() - 0.5) * cuboidHeight;   // Random y (top to bottom)
@@ -173,6 +178,7 @@ function createSnowfall(cuboidWidth, cuboidHeight, cuboidDepth, snowfallCount, s
         }
         snowfallSystem.geometry.attributes.position.needsUpdate = true; // Notify Three.js to update positions
     }
+    // Update the snowflake positions to stimulate falling snow, if a snowflake goes below the cuboid, reset it to the top
 
     function removeSnowfall() {
         scene.remove(snowfallSystem); // Remove the particle system from the scene
@@ -195,7 +201,7 @@ function toggleSnowfall() {
         snowfallActive = false;  // Set flag to false
     } else {
         // If snowfall is not active, create and animate it
-        snowfallFunctions = createSnowfall(10, 10, 10, 500, group); // Create snowfall
+        snowfallFunctions = createSnowfall(cuboidWidth, cuboidHeight, cuboidDepth * 8, 500, group); // Create snowfall
         snowfallActive = true;  // Set flag to true
     }
 }
