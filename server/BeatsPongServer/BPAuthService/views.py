@@ -1,15 +1,32 @@
-from django.http import JsonResponse
+# django framework dependencies
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate
 from django.core.mail import send_mail
-from BPDAL.views import create_verification_code, query_verification_code, query_user, create_user
-from .utils import generate_random_code, is_strong_password, is_valid_email, is_valid_username
-import json
+
+# data access layer functions
+from BPDAL.views import create_verification_code
+from BPDAL.views import query_verification_code
+from BPDAL.views import query_user
+from BPDAL.views import create_user
+
+# local app utility functions
+from .utils import generate_random_code
+from .utils import is_strong_password
+from .utils import is_valid_email
+from .utils import is_valid_username
+
+# formatting, data objects
 from django.utils import timezone
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
+from django.http import JsonResponse
+import json 
+
+
+# django rest framework dependencies, JWT
 from rest_framework.decorators import api_view
-from rest_framework.permissions import IsAuthenticated 
 from rest_framework_simplejwt.tokens import RefreshToken
+from BeatsPongServer.customJwtSerializer import CustomTokenObtainPairSerializer
 
 # Handles request to register a user
 @csrf_exempt
@@ -99,12 +116,15 @@ def login(request):
 
     if user is not None:
         refresh = RefreshToken.for_user(user)
+        # no need to use jwt to store session data, https ensures integtity
+        # customSerializer = CustomTokenObtainPairSerializer.get_token(user)
+        accessToken = refresh.access_token 
         print("refresh: " + str(refresh), flush=True)
-        print("access: " + str(refresh.access_token), flush=True)
+        print("access: " + str(accessToken), flush=True)
         return JsonResponse(
             {
                 "refresh": str(refresh),
-                "access": str(refresh.access_token),
+                "access": str(accessToken),
                 "message": "Login successful"
             },
             status=200)

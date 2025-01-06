@@ -15,7 +15,8 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
     # Class level variables for room management-------------------------------------------------------
 
     # Players in que for 1v1
-    que_solo = []
+    que_solo = [] 
+    
     # Players in que for tournamant
     que_tourney = []
     # active rooms with games running

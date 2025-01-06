@@ -385,3 +385,9 @@ function visual_toogle() {
         snowfallFunctions.animateSnowfall(); // Animate snowfall if active
     }
 }
+
+document.getElementById('startGameButton-vp').addEventListener('click', function() {
+    navigateTo('gameContainer');
+    history.pushState({ screen: 'gameContainer' }, '', '#register');
+    startGame();
+});
