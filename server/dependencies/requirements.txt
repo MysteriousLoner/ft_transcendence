@@ -22,6 +22,7 @@ pyasn1_modules==0.4.1
 pycparser==2.22
 PyJWT==2.10.1
 pyOpenSSL==24.2.1
+python-dotenv==1.0.1
 service-identity==24.1.0
 sqlparse==0.5.1
 Twisted==24.7.0

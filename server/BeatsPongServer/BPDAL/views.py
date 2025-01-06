@@ -1,5 +1,5 @@
 from django.views.decorators.csrf import csrf_exempt
-from .models import ProfileData, VerificationCode
+from .models import ProfileData, VerificationCode, FriendRequestList
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 
@@ -32,6 +32,13 @@ def query_user(username):
     except ObjectDoesNotExist:
         return None
     
+def query_friend_request_list(username):
+    try:
+        friendRequestList = FriendRequestList.objects.get(username=username)
+        return friendRequestList
+    except FriendRequestList.DoesNotExist:
+        return None
+    
 # insert functions
 def create_user(username, email, password):
     user = User.objects.create_user(
@@ -40,6 +47,15 @@ def create_user(username, email, password):
     )
     user.password = password
     user.save()
+
+    profileData = ProfileData.objects.create(
+        username=username,
+        profilePicture='default.jpg',
+    )
+
+    friendRequestList = FriendRequestList.objects.create(
+        username=username,
+    )
     return user
 
 def create_profile(username, profilePicture):
@@ -58,6 +74,13 @@ def create_verification_code(username, email, code, password, expDate):
         email = email,
     )
     return codeObj
+
+def create_friend_request_list(username):
+    try:
+        friendRequestList = FriendRequestList.objects.create(username=username)
+        return friendRequestList
+    except FriendRequestList.DoesNotExist:
+        return None
 
 # update functions
 def update_profile_picture(username, newProfilePicture):
@@ -88,6 +111,26 @@ def add_friend(username, friend_username):
     except ProfileData.DoesNotExist:
         return None
     
+def add_friend_request(username, friend_username):
+    try:
+        friendRequestList = FriendRequestList.objects.get(username=username)
+        if friend_username not in friendRequestList.pendingRequests:
+            friendRequestList.pendingRequests.append(friend_username)
+            friendRequestList.save()
+        return friendRequestList
+    except FriendRequestList.DoesNotExist:
+        return None
+    
+def remove_friend_request(username, friend_username):
+    try:
+        friendRequestList = FriendRequestList.objects.get(username=username)
+        if friend_username in friendRequestList.pendingRequests:
+            friendRequestList.pendingRequests.remove(friend_username)
+            friendRequestList.save()
+        return friendRequestList
+    except FriendRequestList.DoesNotExist:
+        return None
+    
 # delete functions
 def remove_friend(username, friend_username):
     try:
@@ -105,3 +148,4 @@ def remove_verification_code(username):
         codeObj.delete()
     except VerificationCode.DoesNotExist:
         return None
+    

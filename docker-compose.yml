@@ -4,9 +4,9 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=postgres
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
     ports:
       - "5432:5432"
     healthcheck:
@@ -25,20 +25,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    environment:
-      - ENV_VAR_NAME=value  # Add your environment variables here
-
-  client:
-    build:
-      context: ./client
-    ports:
-      # - "3000:3000"
-      - "8000:80"
-    volumes:
-      - ./client:/app
-    environment:
-      - ENV_VAR_NAME=value  # Add your environment variables here
-      
+    env_file:
+      - .env
   # client:
   #   build:
   #     context: ./client

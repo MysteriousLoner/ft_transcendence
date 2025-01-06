@@ -34,3 +34,12 @@ class VerificationCode(models.Model):
         if self.password: 
             self.password = make_password(self.password) 
             super(VerificationCode, self).save(*args, **kwargs)
+
+# list of pending friend requests
+# Primary Key: username
+class FriendRequestList(models.Model):
+    username = models.CharField(max_length=100, unique=True)
+    pendingRequests = ArrayField(models.CharField(max_length=100), blank=True, default=list)
+
+    def __str__(self):
+        return self.username

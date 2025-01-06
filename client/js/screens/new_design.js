@@ -413,3 +413,8 @@ function startGame() {
     animate();
 }
 
+document.getElementById('startGameButton-vp').addEventListener('click', function() {
+    navigateTo('gameContainer');
+    history.pushState({ screen: 'gameContainer' }, '', '#register');
+    startGame();
+});
