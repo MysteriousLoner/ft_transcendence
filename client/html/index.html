@@ -45,16 +45,18 @@
 
 
 	<!-- Log in or registration selection screen -->
-	<div id="landingScreen" class="container d-flex flex-column justify-content-center align-items-center vh-100 Scifi">
-		<iframe src="./matrix_background/matrix.html"></iframe>
-		<div class="container d-flex flex-column justify-content-center align-items-center vh-100">
-			<h1 class="title">BEATSPONG</h1>
-			<div class="button-container">
-				<button class="btn btn-custom mx-3" id="loginButton">LOGIN</button>
-				<button class="btn btn-custom" id="registerButton">REGISTER</button>
-			</div>
-		</div>
-	</div>
+    <div id="landingScreen" class="">
+        <div id="landingScreenFlexer" class="container d-flex flex-column justify-content-center align-items-center vh-100 Scifi">
+            <iframe id="matrixIframe" src="./matrix_background/matrix.html"></iframe>
+            <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
+                <h1 class="title">BEATSPONG</h1>
+                <div class="button-container">
+                    <button class="btn btn-custom mx-3" id="loginButton">LOGIN</button>
+                    <button class="btn btn-custom" id="registerButton">REGISTER</button>
+                </div>
+            </div>
+        </div>
+    </div>
 	<!-- End of selection screen -->
 
 	<!-- Login Screen -->
@@ -155,10 +157,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 	<!-- Custom JS -->
 	<script src="../js/multi-language.js"></script>
-	<script src="../js/index.js"></script>
-	<script src="../js/new_design.js"></script>
-	<script src="../js/requestWrapper.js"></script>
-	<!-- <script src="../js/game.js"></script> -->
+	<script type="module" src="../js/index.js"></script>
 	<script>
 		window.addEventListener('load', () => {
 			const translateSelect = document.querySelector('select.goog-te-combo');

@@ -3,6 +3,7 @@ import makeRequest from "../utils/requestWrapper.js";
 
 class RegisterScreen {
     constructor(sceneRouterCallback, screenRouterCallback, sceneVars) {
+        console.log('RegisterScreen constructor');
         // class specific event listeners
         this.sceneVars = sceneVars;
         this.sceneRouterCallback = sceneRouterCallback;
