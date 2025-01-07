@@ -31,7 +31,7 @@ class LoginScreen {
                 document.getElementById('errorMessage').classList.remove('d-none');
             } else {
                 this.clean();
-                console.log('User logged in successfully!');
+                this.sceneRouterCallback('menuScene');
             }
         } catch (error) {
             console.error('Error:', error);

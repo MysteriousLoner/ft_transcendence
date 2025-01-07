@@ -14,10 +14,11 @@ class VerificationScreen {
         document.getElementById('verificationForm').removeEventListener('submit', (event) => this.submitForm(event));
         document.getElementById('verificationScreen').classList.add('d-none');
     }
-    
+
     submitForm(event) {
         event.preventDefault();
         const verificationCode = document.getElementById('verificationCode').value;
+        
         const username = this.sceneVars.username;
         const data = {
             verificationCode: verificationCode,
