@@ -1,130 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BeatsPong - Login</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../css/styles.css">
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>BeatsPong - Login</title>
+	<!-- Bootstrap CSS -->
+	<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+	<!-- Fonts Awesome CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+	<!-- Custom CSS -->
+	<link rel="stylesheet" href="../css/styles.css">
+	<link rel="stylesheet" href="../css/index.css">
 </head>
+
 <body>
-    <!-- Log in or registration selection screen -->
-    <div id="landingScreen" class="container d-none flex-column justify-content-center align-items-center vh-100">
-        <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
-            <h1 class="title">BeatsPong</h1>
-            <div class="button-container">
-                <button class="btn btn-custom mx-3" id="loginButton">Login</button>
-                <button class="btn btn-custom" id="registerButton">Register</button>
+
+	<div class="dropdown">
+		<button class="dropbtn">
+			<i class="fa-solid fa-globe fa-2xl"></i>
+			<!-- <img src="path/to/icon.png" alt="Icon" class="icon"> Language -->
+		</button>
+		<div class="dropdown-content">
+				<!-- Buttons to switch languages -->
+			<button onclick="translate_eng()">ENGLISH</button>
+			<button onclick="translate_chi()">MANDARIN</button>
+			<button onclick="translate_mly()">MALAY</button>
+		</div>
+	</div>
+	<script>
+		// Define the googleTranslateElementInit function before the script loads
+		function googleTranslateElementInit() {
+			console.log("Google Translate initialized");
+			new google.translate.TranslateElement({
+				pageLanguage: 'en',
+				includedLanguages: 'en,zh-CN,ms',
+				autoDisplay: false
+			}, 'google_translate_element');
+		}
+	</script>
+		<!-- Google Translate Widget (hidden) -->
+	<div id="google_translate_element" class="hidden"></div>
+	<div>
+
+
+	<!-- Log in or registration selection screen -->
+    <div id="landingScreen" class="">
+        <div id="landingScreenFlexer" class="container d-flex flex-column justify-content-center align-items-center vh-100 Scifi">
+            <iframe id="matrixIframe" src="./matrix_background/matrix.html"></iframe>
+            <div class="container d-flex flex-column justify-content-center align-items-center vh-100">
+                <h1 class="title">BEATSPONG</h1>
+                <div class="button-container">
+                    <button class="btn btn-custom mx-3" id="loginButton">LOGIN</button>
+                    <button class="btn btn-custom" id="registerButton">REGISTER</button>
+                </div>
             </div>
         </div>
     </div>
-    <!-- End of selection screen -->
+	<!-- End of selection screen -->
 
-    <!-- Login Screen --> 
-    <div id="loginScreen" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
-        <h1>Login</h1> 
-        <form id="loginForm"> 
-            <div class="form-group"> 
-                <label for="username">Username:</label> 
-                <input type="text" class="form-control" id="username"> 
-            </div> 
-            <div class="form-group"> 
-                <label for="password">Password:</label> 
-                <input type="password" class="form-control" id="userPassword"> 
-            </div> 
-            <button type="submit" class="btn btn-primary mt-3">Submit</button> 
-        </form> 
-        <div id="errorMessage" class="d-none" style="border: 2px solid darkred; background-color: lightcoral; color: black; padding: 10px; margin-top: 15px;">
-            <span id="errorText"></span>
-        </div>
-    </div> 
+	<!-- Login Screen -->
+	<div id="loginScreen" class="container d-none flex-column justify-content-center align-items-center vh-100">
+		<h1>Login</h1>
+		<form id="loginForm">
+			<div class="form-group">
+				<label for="username">Username:</label>
+				<input type="text" class="form-control" id="username">
+			</div>
+			<div class="form-group">
+				<label for="password">Password:</label>
+				<input type="password" class="form-control" id="userPassword">
+			</div>
+			<button type="submit" class="btn btn-primary mt-3">Submit</button>
+		</form>
+		<div id="errorMessage" class="d-none"
+			style="border: 2px solid darkred; background-color: lightcoral; color: black; padding: 10px; margin-top: 15px;">
+			<span id="errorText"></span>
+		</div>
+	</div>
 
-    <!-- Register Screen --> 
-    <div id="registerScreen" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
-        <h1>Register</h1> 
-        <form id="registerForm"> 
-            <div class="form-group"> 
-                <label for="username1">Username:</label> 
-                <input type="text" class="form-control" id="username1"> 
-            </div> 
-            <div class="form-group"> 
-                <label for="email">Email:</label> 
-                <input type="email" class="form-control" id="email"> 
-            </div> 
-            <div class="form-group"> 
-                <label for="password">Password:</label> 
-                <input type="password" class="form-control" id="password"> 
-            </div>
-            <button type="submit" class="btn btn-primary mt-3">Submit</button> 
-        </form>
-        <div id="errorMessage" class="d-none" style="border: 2px solid darkred; background-color: lightcoral; color: black; padding: 10px; margin-top: 15px;">
-            <span id="errorText"></span>
-        </div>
-    </div>
+	<!-- Register Screen -->
+	<div id="registerScreen" class="container d-none flex-column justify-content-center align-items-center vh-100">
+		<h1>Register</h1>
+		<form id="registerForm">
+			<div class="form-group">
+				<label for="username1">Username:</label>
+				<input type="text" class="form-control" id="username1">
+			</div>
+			<div class="form-group">
+				<label for="email">Email:</label>
+				<input type="email" class="form-control" id="email">
+			</div>
+			<div class="form-group">
+				<label for="password">Password:</label>
+				<input type="password" class="form-control" id="password">
+			</div>
+			<button type="submit" class="btn btn-primary mt-3">Submit</button>
+		</form>
+		<div id="errorMessage" class="d-none"
+			style="border: 2px solid darkred; background-color: lightcoral; color: black; padding: 10px; margin-top: 15px;">
+			<span id="errorText"></span>
+		</div>
+	</div>
 
 
-    <!-- Profile Page -->
-    <div id="menuScreen" class="container d-none flex-column flex-row justify-content-center align-items-center vh-100"> 
-        <div class="box top-left">Top Left</div> 
-        <div class="box top-right">Top Right</div> 
-        <div class="box bottom-left">Bottom Left
-            <div class="button-container">
-                <button class="btn btn-custom mx-3" id="startGameButton-vp">Vanila Pong</button>
-            </div>
-        </div> 
-        <div class="box bottom-right">Bottom</div>
-     </div>
+	<!-- Profile Page -->
+	<div id="menuScreen" class="container d-none flex-column flex-row justify-content-center align-items-center vh-100">
+		<div class="box top-left">Top Left</div>
+		<div class="box top-right">Top Right</div>
+		<div class="box bottom-left">Bottom Left
+			<div class="button-container">
+				<button class="btn btn-custom mx-3" id="startGameButton-vp">Vanila Pong</button>
+			</div>
+		</div>
+		<div class="box bottom-right">Bottom</div>
+	</div>
 
-     <!-- Verification Page --> 
-    <div id="verificationScreen" class="container d-none flex-column justify-content-center align-items-center vh-100"> 
-        <h1>A code is sent to <span id="userEmail"></span> to verify identity</h1> 
-        <form id="verificationForm" class="text-center mt-4"> 
-            <div class="form-group"> 
-                <label for="verificationCode">Enter Verification Code:</label> 
-                <input type="text" class="form-control" id="verificationCode" placeholder="Enter your code" required> 
-            </div> 
-            <button type="submit" class="btn btn-primary mt-3">Submit</button> 
-        </form>
-    </div>
+	<!-- Verification Page -->
+	<div id="verificationScreen" class="container d-none flex-column justify-content-center align-items-center vh-100">
+		<h1>A code is sent to <span id="userEmail"></span> to verify identity</h1>
+		<form id="verificationForm" class="text-center mt-4">
+			<div class="form-group">
+				<label for="verificationCode">Enter Verification Code:</label>
+				<input type="text" class="form-control" id="verificationCode" placeholder="Enter your code" required>
+			</div>
+			<button type="submit" class="btn btn-primary mt-3">Submit</button>
+		</form>
+	</div>
 
-    <!-- Game Container --> 
-    <div id="gameContainer" class="container d-none">
-        <div class="scoreboard" id="score"></div>
-        <div class="info">
-            <div id="position"></div>
-            <div id="scale"></div>
-        </div>
-        <div class="position">
-            <div id="leftPaddlePosition"></div>
-            <div id="rightPaddlePosition"></div>
-            <div id="ballSpeed"></div>
-        </div>
-        <button class="ai-right-button" id="AI_Right">Enable AI R</button>
-        <button class="ai_left-button" id="AI_Left">Enable AI L</button>
-        <button class="predict_point-button" id="Ball_Predict_Point">Show Ball Prediction</button>
-        <button class="collision_particle-button" id="Collision_Particles">Enable Collision Particles</button>
-        <button class="snowfall-button" id="Snowfall">Enable Snowfall</button>
-        <button class="ai_prediction-button" id="AI_Prediction">Enable Pro AI</button>
-    </div>
+	<!-- Game Container -->
+	<div id="gameContainer" class="container d-none">
+		<div class="scoreboard" id="score"></div>
+		<div class="info">
+			<div id="position"></div>
+			<div id="scale"></div>
+		</div>
+		<div class="position">
+			<div id="leftPaddlePosition"></div>
+			<div id="rightPaddlePosition"></div>
+			<div id="ballSpeed"></div>
+		</div>
+		<button class="ai-right-button" id="AI_Right">Enable AI R</button>
+		<button class="ai_left-button" id="AI_Left">Enable AI L</button>
+		<button class="predict_point-button" id="Ball_Predict_Point">Show Ball Prediction</button>
+		<button class="collision_particle-button" id="Collision_Particles">Enable Collision Particles</button>
+		<button class="snowfall-button" id="Snowfall">Enable Snowfall</button>
+		<button class="ai_prediction-button" id="AI_Prediction">Enable Pro AI</button>
+	</div>
 
-    <!-- Bootstrap JS and dependencies -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Custom JS -->
-    <script type="module" src="../js/index.js"></script>
-    <!-- <script type="module" src="../js/new_design.js"></script> -->
-    <!-- <script type="module" src="../js/requestWrapper.js"></script>
-    <script type="module" src="../js/login.js"></script>
-    <script type="module" src="../js/landingScreen.js"></script>
-    <script type="module" src="../js/router.js"></script>
-    <script type="module" src="../js/registerScreen.js"></script>
-    <script type="module" src="../js/verificationScreen.js"></script> -->
-    <!-- <script src="../js/profile.js"></script>
-    <script src="../js/utils.js"></script> -->
-    <!-- <script src="../js/game.js"></script> -->
+	<!-- Google Translate Script -->
+	<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+	<!-- Bootstrap JS and dependencies -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+	<!-- Custom JS -->
+	<script src="../js/multi-language.js"></script>
+	<script type="module" src="../js/index.js"></script>
+	<script>
+		window.addEventListener('load', () => {
+			const translateSelect = document.querySelector('select.goog-te-combo');
+			if (translateSelect) {
+				translateSelect.value = 'en'; // Set the language to English
+				translateSelect.dispatchEvent(new Event('change')); // Trigger the change event
+			}
+		});
+	</script>
 </body>
+
 </html>

@@ -9,6 +9,12 @@ class VerificationScreen {
         document.getElementById('verificationScreen').classList.remove('d-none');
         document.getElementById('verificationForm').addEventListener('submit', (event) => this.submitForm(event));
     }
+
+    clean() {
+        document.getElementById('verificationForm').removeEventListener('submit', (event) => this.submitForm(event));
+        document.getElementById('verificationScreen').classList.add('d-none');
+    }
+    
     submitForm(event) {
         event.preventDefault();
         const verificationCode = document.getElementById('verificationCode').value;

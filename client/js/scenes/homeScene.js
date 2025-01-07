@@ -2,6 +2,7 @@ import LandingScreen from "../screens/landingScreen.js";
 
 class HomeScene {
   constructor(sceneRouterCallback) {
+    console.log('HomeScene constructor');
     this.currentScreen = null;
     this.sceneRouterCallback = sceneRouterCallback;
 
