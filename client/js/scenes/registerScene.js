@@ -5,6 +5,7 @@ class RegisterScene {
     constructor(sceneRouterCallback) {
         console.log('RegisterScene constructor');
         this.sceneRouterCallback = sceneRouterCallback;
+        
         // scene level shared variables
         this.currentScreen = null;
         this.sceneVars = {
@@ -19,6 +20,7 @@ class RegisterScene {
         );
     }
 
+    // standard, no nneed to change if not neccesary
     cleanScreens() {
         this.currentScreen.clean();
         this.currentScreen = null;

@@ -8,6 +8,7 @@ class RegisterScreen {
         this.sceneVars = sceneVars;
         this.sceneRouterCallback = sceneRouterCallback;
         this.screenRouterCallback = screenRouterCallback;
+
         document.getElementById('registerScreen').classList.remove('d-none');
         document.getElementById('registerForm').addEventListener('submit', (event) => this.submitForm(event));
     }
