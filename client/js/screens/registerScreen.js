@@ -38,7 +38,7 @@ class RegisterScreen {
             } else {
                 document.getElementById('userEmail').innerText = email;
                 this.sceneVars.username = username;
-                this.screenRouterCallback("verificationPage");
+                this.screenRouterCallback("verificationScreen");
             }
         })
         .catch((error) => {

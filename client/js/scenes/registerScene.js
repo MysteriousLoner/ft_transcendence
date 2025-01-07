@@ -24,27 +24,21 @@ class RegisterScene {
         this.currentScreen = null;
     }
 
-    switchToRegister(previousScreen) {
-        previousScreen.closeScreen();
-        this.currentScreen = new RegisterScreen(
-            this.sceneRouterCallback.bind(this), 
-            this.screenRouterCallback.bind(this), 
-            this.sceneVars
-        );
-    }
-
-    switchToVerification(previousScreen) {
-        previousScreen.closeScreen();
-        this.currentScreen = new VerificationScreen(
-            this.sceneRouterCallback.bind(this)
-        );
-    }
-
     screenRouterCallback(screen) {
         if (screen === 'registerScreen') { 
-            this.switchToRegister(this.currentScreen);
+            this.cleanScreens();
+            this.currentScreen = new RegisterScreen(
+                this.sceneRouterCallback.bind(this), 
+                this.screenRouterCallback.bind(this), 
+                this.sceneVars
+            );
         } else if (screen === 'verificationScreen') {
-            this.switchToVerification(this.currentScreen);
+            this.cleanScreens();
+            this.currentScreen = new VerificationScreen(
+                this.sceneRouterCallback.bind(this), 
+                this.screenRouterCallback.bind(this), 
+                this.sceneVars
+            );
         } else {
             console.error('Invalid screen:', screen);
         }
