@@ -234,7 +234,7 @@ function onWindowResize() {
 }
 
 // Websocket connection ------------------------------------------------------
-let     scoreLeft = 4, scoreRight = 2, DOMloaded =- false, ballSpeedX = 0, ballSpeedY = 0,
+let     scoreLeft = 4, scoreRight = 2, DOMloaded = false, ballSpeedX = 0, ballSpeedY = 0,
         socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong');
 const keys = {
     w: false,
