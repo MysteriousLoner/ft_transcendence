@@ -1,4 +1,2 @@
 server/venv/
 .env
-venv/
-.pyc
