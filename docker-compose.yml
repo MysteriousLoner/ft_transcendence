@@ -25,14 +25,18 @@ services:
       - "8000:8000"
     volumes:
       - ./server:/app
-      - media_volume:/app/media
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DJANGO_SETTINGS_MODULE=BeatsPongServer.settings
     depends_on:
       db:
         condition: service_healthy
     env_file:
       - .env
-    environment:
-      - DB_HOST=db
     networks:
       - app-network
       - monitoring

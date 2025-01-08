@@ -2,20 +2,25 @@
 
 set -e
 
-echo "Waiting for postgres..."
+if [ -z "${POSTGRES_DB}" ]; then
+    echo "POSTGRES_DB is not set"
+    exit 1
+fi
 
-# Wait for postgres
-until PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USERNAME" -d "$DB_NAME" -c '\q'; do
-  echo "Postgres is unavailable - sleeping"
-  sleep 1
+echo "Waiting for postgres..."
+while ! nc -z $DB_HOST $DB_PORT; do
+    sleep 0.1
 done
 
 echo "PostgreSQL started"
 
-echo "Running migrations..."
-python BeatsPongServer/manage.py makemigrations --noinput
-python BeatsPongServer/manage.py migrate --noinput
+cd BeatsPongServer/
+
+# Make the init script executable
+chmod +x init_db.sh
+
+# Run the initialization script
+./init_db.sh
 
 echo "Starting server..."
-python BeatsPongServer/manage.py runserver 0.0.0.0:8000
-exec "$@"
+exec python manage.py runserver 0.0.0.0:8000
