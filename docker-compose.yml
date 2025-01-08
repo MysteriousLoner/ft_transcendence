@@ -1,17 +1,17 @@
 services:
   db:
-    image: postgres
+    image: postgres:13
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
       timeout: 5s
       retries: 5
     networks:
@@ -25,22 +25,39 @@ services:
       - "8000:8000"
     volumes:
       - ./server:/app
+      - media_volume:/app/media
     depends_on:
       db:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      - DB_HOST=db
+    networks:
+      - app-network
+      - monitoring
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    networks:
-      - app-network
-      - monitoring
 
-  # Monitoring stack starts here
+  # client:
+  #   build:
+  #     context: ./client
+  #   ports:
+  #     - "3000:3000"
+  #   volumes:
+  #     - ./client:/app
+  #   environment:
+  #     - ENV_VAR_NAME=value  # Add your environment variables here
+  #   networks:
+  #     - app-network
+  #     - monitoring
+  #   depends_on:
+  #     - server
+
   prometheus:
     image: prom/prometheus:latest
     volumes:
@@ -105,8 +122,10 @@ services:
     networks:
       - monitoring
     restart: unless-stopped
-    
+
 volumes:
+  postgres_data:
+  media_volume:
   prometheus_data:
   grafana_data:
 

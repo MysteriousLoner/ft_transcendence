@@ -1,15 +1,21 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
-host="$1"
-shift
-cmd="$@"
+echo "Waiting for postgres..."
 
-until pg_isready -h "$host" -U "postgres"; do
-  >&2 echo "Postgres is unavailable - retrying in 5 seconds"
-  sleep 5
+# Wait for postgres
+until PGPASSWORD=$DB_PASSWORD psql -h "$DB_HOST" -U "$DB_USERNAME" -d "$DB_NAME" -c '\q'; do
+  echo "Postgres is unavailable - sleeping"
+  sleep 1
 done
 
->&2 echo "Postgres is up - executing command"
-exec $cmd
+echo "PostgreSQL started"
+
+echo "Running migrations..."
+python BeatsPongServer/manage.py makemigrations --noinput
+python BeatsPongServer/manage.py migrate --noinput
+
+echo "Starting server..."
+python BeatsPongServer/manage.py runserver 0.0.0.0:8000
+exec "$@"
