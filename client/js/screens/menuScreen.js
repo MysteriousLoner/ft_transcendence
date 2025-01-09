@@ -1,3 +1,5 @@
+import initPage from '../menu.js';
+
 class MenuScreen {
     constructor(sceneRouterCallback, screenRouterCallback) {
         // routing callback functions standard
@@ -7,6 +9,7 @@ class MenuScreen {
         console.log('MenuScreen constructor');
         // class specific event listeners
         document.getElementById('menuScreen').classList.remove('d-none');
+		initPage();
     }
 
     clean() {
