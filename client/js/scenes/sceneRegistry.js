@@ -11,7 +11,7 @@ class SceneRegistry {
     }
 
     sceneRouterCallback(scene) {
-        console.log('Routing to scene:', scene);
+        // console.log('Routing to scene:', scene);
         if (this.currentScene) {
             this.currentScene.cleanScreens();
         }
@@ -22,7 +22,6 @@ class SceneRegistry {
                 this.currentScene = new HomeScene(this.sceneRouterCallback.bind(this));
                 break;
             case 'registerScene':
-                console.log('Routing to register scene');
                 this.currentScene = new RegisterScene(this.sceneRouterCallback.bind(this));
                 break;
             case 'loginScene':

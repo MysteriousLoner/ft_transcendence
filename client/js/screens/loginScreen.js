@@ -6,18 +6,19 @@ class LoginScreen {
         this.screenRouterCallback = screenRouterCallback;
         // class specific event listeners
         document.getElementById('loginForm').addEventListener('submit', (event) => this.submitForm(event));
-		document.getElementById('backbtn').addEventListener('click', () => this.backtoMenu());
+		document.getElementById('backbtn').addEventListener('click', () => this.backToHome());
         document.getElementById('loginScreen').classList.remove('d-none');
     }
 
     clean() {
         document.getElementById('loginForm').removeEventListener('submit', (event) => this.submitForm(event));
-		document.getElementById('backbtn').removeEventListener('click', () => this.backtoMenu());
+		document.getElementById('backbtn').removeEventListener('click', () => this.backToHome());
         document.getElementById('loginScreen').classList.add('d-none');
 		document.getElementById('errorMessage').classList.add('d-none');
     }
 
-	backtoMenu() {
+	backToHome() {
+		event.preventDefault();
 		this.clean();
 		this.sceneRouterCallback('homeScene');
 	}
