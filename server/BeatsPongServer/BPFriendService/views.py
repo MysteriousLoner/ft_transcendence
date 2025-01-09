@@ -19,7 +19,7 @@ Conrtroller for friends related services
 '''
 
 @csrf_exempt
-@api_view
+@api_view(['POST'])
 def getProfileData(request):
     requestData = json.loads(request.body)
     username = requestData['username']
