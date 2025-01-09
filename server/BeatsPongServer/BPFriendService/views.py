@@ -19,6 +19,17 @@ Conrtroller for friends related services
 '''
 
 @csrf_exempt
+@api_view
+def getProfileData(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profileData = query_profile_data(requestData['username'])
+
+    return JsonResponse(profileData, status=200)
+
+@csrf_exempt
 @api_view(['POST'])
 def getFriendList(request):        
     requestData = json.loads(request.body)
