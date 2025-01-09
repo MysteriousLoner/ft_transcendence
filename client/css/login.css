@@ -31,12 +31,12 @@ label {
 }
 
 .slogan p {
-	font-size: 20px;
+	font-size: 25px;
 	font-family: 'Courier New', Courier, monospace;
 }
 
 .button-login {
-	padding-top: 100px;
+	padding-top: 70px;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
@@ -129,80 +129,148 @@ label {
 	font-weight: bold;
 }
 
+
 .bluepill {
-	/* margin: 10px;
-	margin-bottom: 50px; */
-	/* padding: 15px 40px; */
-	border: none;
-	outline: none;
-	color: #FFF;
-	cursor: pointer;
-	position: relative;
-	z-index: 1;
-	border-radius: 35px;
-	height: 60px;
-	width: 200px;
-	background-color: #007BFF;
-	font-family: 'Courier New', Courier, monospace;
-	font-size: 45px;
-	/* display: inline-block; */
+    border: none;
+    outline: none;
+    color: #ffffff;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    border-radius: 35px;
+    height: 60px;
+    width: 200px;
+    background-color: #007BFF;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 45px;
+    overflow: hidden; /* Ensure the glow effect doesn't overflow */
 }
 
-.bluebtn::after {
-	content: "";
-	z-index: -1;
-	position: absolute;
-	width: 100%;
-	height: 100%;
-	background-color: #333;
-	left: 0;
-	top: 0;
-	border-radius: 35x;
-}
-/* glow */
+/* Glow effect */
 .bluepill::before {
-	content: "";
-	background: linear-gradient(to right, rgb(0, 101, 253), rgb(11, 61, 200));
-	position: absolute;
-	top: -2px;
-	left: -2px;
-	background-size: 600%;
-	z-index: -1;
-	width: calc(100% + 10px);
-	height: calc(100% + 10px);
-	filter: blur(8px);
-	animation: glowing 20s linear infinite;
-	transition: opacity .3s ease-in-out;
-	border-radius: 10px;
-	opacity: 0;
+    content: "";
+    background: linear-gradient(to right, rgb(2, 82, 204), rgb(11, 61, 200));
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background-size: 600%;
+    z-index: -1;
+    width: calc(100% + 5px);
+    height: calc(100% + 5px);
+    filter: blur(10px);
+    animation: glowing 20s linear infinite;
+    transition: opacity .3s ease-in-out;
+    border-radius: 35px;
+    opacity: 0; /* Initially hidden */
+}
+
+.bluepill:hover::before {
+    opacity: 1; /* Show the glowing effect on hover */
+}
+
+/* Vertical line */
+.bluepill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%; /* Center the line horizontally */
+    width: 4px; /* Thickness of the line */
+    background-color: rgb(27, 27, 27); /* Color of the line */
+    transform: translateX(-50%); /* Center the line */
+    z-index: 1; /* Ensure the line is above the glowing background */
 }
 
 @keyframes glowing {
-	0% {
-		background-position: 0 0;
-	}
-
-	50% {
-		background-position: 400% 0;
-	}
-
-	100% {
-		background-position: 0 0;
-	}
+    0% {
+        background-position: 0 0;
+    }
+    50% {
+        background-position: 400% 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
 }
 
 .bluepill:hover {
     background-color: #0056b3; /* Darker blue on hover */
 }
 
-.bluepill:hover::before {
-	opacity: 1;
+.bluepill:active {
+    background: transparent; /* Optional: Change background on active */
 }
 
-.bluepill:active:after {
-	background: transparent;
+.redpill {
+    border: none;
+    outline: none;
+    color: #FFF;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+    border-radius: 35px;
+    height: 60px;
+    width: 200px;
+    background-color: #fa3535;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 45px;
+    overflow: hidden; /* Ensure the glow effect doesn't overflow */
 }
 
+/* Glow effect */
+.redpill::before {
+    content: "";
+    background: linear-gradient(to right, rgb(157, 2, 2), rgb(231, 63, 63));
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    background-size: 600%;
+    z-index: -1;
+    width: calc(100% + 5px);
+    height: calc(100% + 5px);
+    filter: blur(8px);
+    animation: glowing 20s linear infinite;
+    transition: opacity .3s ease-in-out;
+    border-radius: 35px;
+    opacity: 0; /* Initially hidden */
+}
+
+.redpill:hover::before {
+    opacity: 1; /* Show the glowing effect on hover */
+}
+
+/* Vertical line */
+.redpill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%; /* Center the line horizontally */
+    width: 3px; /* Thickness of the line */
+    background-color:rgb(27, 27, 27); /* Color of the line */
+    transform: translateX(-50%); /* Center the line */
+    z-index: 1; /* Ensure the line is above the glowing background */
+}
+
+@keyframes glowing {
+    0% {
+        background-position: 0 0;
+    }
+    50% {
+        background-position: 400% 0;
+    }
+    100% {
+        background-position: 0 0;
+    }
+}
+
+.redpill:hover {
+    background-color: #fe4545; /* Darker red on hover */
+}
+
+.redpill:active {
+    background: transparent; /* Optional: Change background on active */
+}
 
 
 .redbtn {
