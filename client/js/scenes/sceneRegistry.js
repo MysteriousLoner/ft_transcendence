@@ -5,6 +5,7 @@ import MenuScene from "./menuScene.js";
 
 class SceneRegistry {
     constructor () {
+        this.updateHistory = true;
         this.currentScene = null;
         this.history = [];
         window.addEventListener('popstate', this.handlePopState.bind(this));
@@ -32,15 +33,20 @@ class SceneRegistry {
                 break;
             default:
                 console.error('Invalid scene:', scene);
-                break;
+                return;
         }
-        this.history.push(scene);
-        window.history.pushState({ scene }, '', `#${scene}`);
+        if (this.updateHistory == true) {
+            this.history.push(scene);
+            window.history.pushState({ scene }, '', `#${scene}`);
+            this.updateHistory = false;
+        }
+        console.log(history);
     }
 
     handlePopState(event) { 
         const { scene } = event.state || {}; 
         if (scene) { 
+            this.updateHistory = true;
             this.sceneRouterCallback(scene); 
         } 
     }
@@ -50,6 +56,7 @@ class SceneRegistry {
         this.currentScene = new HomeScene(this.sceneRouterCallback.bind(this));
         this.history.push(initialScene); 
         window.history.replaceState({ scene: initialScene }, '', `#${initialScene}`);
+        console.log(history);
     }
 }
 
