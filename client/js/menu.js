@@ -1,8 +1,11 @@
-// Mock data
-const userData = {
+
+import makeRequest from "./utils/requestWrapper.js";
+
+
+const userData1 = {
     username: "JohnDoe",
     profilePicture: "https://example.com/profile.jpg",
-    friendList: ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Henry", "Ivy", "Jack"],
+    friendList: ["leeyang2004", "etlaw", "folim", "David", "Eve", "Frank", "Grace", "Henry", "Ivy", "Jack"],
     winRate: 65.5
 };
 
@@ -15,7 +18,10 @@ let currentNewPage = 1;
 const friendsPerPage = 5;
 
 // Initialize the page
-function initPage() {
+async function initPage(name) {
+
+	const req = { username : name };
+	const userData = await makeRequest("GET", "api/auth/user");
     document.getElementById("username").textContent = userData.username;
     document.getElementById("profilePicture").src = userData.profilePicture;
     updateWinRate(userData.winRate);

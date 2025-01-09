@@ -1,6 +1,6 @@
 .Menu {
     font-family:'Courier New', Courier, monospace;
-    background-color: #1a1a1a;
+    background-color: #000000;
     color: #ffffff;
     margin: 0;
     padding: 0;
@@ -10,7 +10,7 @@
 .Menu .container {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 95vh;
     box-sizing: border-box;
 }
 
