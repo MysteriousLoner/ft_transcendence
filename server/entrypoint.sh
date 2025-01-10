@@ -1,15 +1,26 @@
-#!/bin/bash
+#!/bin/sh
 
 set -e
 
-host="$1"
-shift
-cmd="$@"
+if [ -z "${POSTGRES_DB}" ]; then
+    echo "POSTGRES_DB is not set"
+    exit 1
+fi
 
-until pg_isready -h "$host" -U "postgres"; do
-  >&2 echo "Postgres is unavailable - retrying in 5 seconds"
-  sleep 5
+echo "Waiting for postgres..."
+while ! nc -z $DB_HOST $DB_PORT; do
+    sleep 0.1
 done
 
->&2 echo "Postgres is up - executing command"
-exec $cmd
+echo "PostgreSQL started"
+
+cd BeatsPongServer/
+
+# Make the init script executable
+chmod +x init_db.sh
+
+# Run the initialization script
+./init_db.sh
+
+echo "Starting server..."
+exec python manage.py runserver 0.0.0.0:8000

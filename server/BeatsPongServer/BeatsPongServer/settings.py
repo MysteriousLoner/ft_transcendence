@@ -36,20 +36,21 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
+    'django.contrib.auth',  # Make sure this is at the top
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
     'corsheaders',
     'daphne',
     'channels',
     'rest_framework',
     'rest_framework_simplejwt',
     'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'game',
     'BPAuthService',
-    'BPDAL'
+    'BPDAL',
+    'django_prometheus',
 ]
 
 REST_FRAMEWORK = {
@@ -67,6 +68,7 @@ SIMPLE_JWT = {
 ASGI_APPLICATION = 'BeatsPongServer.asgi.application'
 
 MIDDLEWARE = [
+    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -76,11 +78,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
-CORS_ORIGIN_ALLOW_ALL = False
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [ 
     "http://localhost:3000", 
     "http://localhost:5500", 
