@@ -2,6 +2,7 @@ import RegisterScene from "./registerScene.js";
 import LoginScene from "./loginScene.js";
 import HomeScene from "./homeScene.js";
 import MenuScene from "./menuScene.js";
+import GameScene from "./gameScene.js";
 
 class SceneRegistry {
     constructor () {
@@ -31,6 +32,9 @@ class SceneRegistry {
             case 'menuScene':
                 this.currentScene = new MenuScene(this.sceneRouterCallback.bind(this));
                 break;
+            case 'gameScene':
+                this.currentScene = new GameScene(this.sceneRouterCallback.bind(this));
+                break
             default:
                 console.error('Invalid scene:', scene);
                 break;

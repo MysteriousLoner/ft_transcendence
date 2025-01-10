@@ -130,22 +130,25 @@
 
 	<!-- Game Container -->
 	<div id="gameContainer" class="container d-none">
-		<div class="scoreboard" id="score"></div>
-		<div class="info">
-			<div id="position"></div>
-			<div id="scale"></div>
-		</div>
-		<div class="position">
-			<div id="leftPaddlePosition"></div>
-			<div id="rightPaddlePosition"></div>
-			<div id="ballSpeed"></div>
-		</div>
-		<button class="ai-right-button" id="AI_Right">Enable AI R</button>
-		<button class="ai_left-button" id="AI_Left">Enable AI L</button>
-		<button class="predict_point-button" id="Ball_Predict_Point">Show Ball Prediction</button>
-		<button class="collision_particle-button" id="Collision_Particles">Enable Collision Particles</button>
-		<button class="snowfall-button" id="Snowfall">Enable Snowfall</button>
-		<button class="ai_prediction-button" id="AI_Prediction">Enable Pro AI</button>
+        <canvas id="pong-game-canvas" height="25"></canvas>
+        <div class="feature-buttons">
+            <button id="AI_Left">Enable AI L</button>
+            <button id="AI_Right">Enable AI R</button>
+            <button id="Ball_Predict_Point">Show Ball Prediction</button>
+            <button id="Collision_Particles">Enable Collision Particles</button>
+            <button id="Snowfall">Enable Snowfall</button>
+            <button id="AI_Prediction">Enable Pro AI</button>
+        </div>
+        <div class="scoreboard" id="score"></div>
+        <div class="info">
+            <div id="position"></div>
+            <div id="scale"></div>
+        </div>
+        <div class="position">
+            <div id="leftPaddlePosition"></div>
+            <div id="rightPaddlePosition"></div>
+            <div id="ballSpeed"></div>
+        </div>
 	</div>
 
 	<!-- Google Translate Script -->
