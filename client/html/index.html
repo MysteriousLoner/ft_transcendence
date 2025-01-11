@@ -13,6 +13,7 @@
 	<link rel="stylesheet" href="../css/styles.css">
 	<link rel="stylesheet" href="../css/index.css">
 	<link rel="stylesheet" href="../css/login.css">
+	<link rel="stylesheet" href="../css/menu.css">
 </head>
 
 <body>
@@ -114,8 +115,8 @@
 						<input type="password" class="form-control" id="password">
 					</div>
 					<div class="button-register">
-						<button type="submit" class="redbtn ">SUBMIT</button>
-						<button id="backbtn2" class="bluebtn">BACK</button>
+						<button type="submit" class="redbtn ">Submit</button>
+						<button id="backbtn2" class="bluebtn">Back</button>
 					</div>
 				</form>
 				<div id="errorMessage2" class="d-none CN-font"
@@ -127,7 +128,7 @@
 
 
 		<!-- Profile Page -->
-		<div id="menuScreen"
+		<!-- <div id="menuScreen"
 			class="container d-none flex-column flex-row justify-content-center align-items-center vh-100">
 			<div class="box top-left">Top Left</div>
 			<div class="box top-right">Top Right</div>
@@ -137,6 +138,59 @@
 				</div>
 			</div>
 			<div class="box bottom-right">Bottom</div>
+		</div> -->
+
+		<!-- real profile page -->
+		<div class='Menu d-none' id="menuScreen">
+			<div class="container">
+				<div class="profile">
+					<img id="profilePicture" src="placeholder.svg?height=150&width=150" alt="Profile Picture">
+					<h1 id="username">Username</h1>
+					<p class="win-rate">Win Rate: <span id="winRate">0.0</span>%</p>
+					<div class="win-rate-container center">
+						<div class="win-rate-bar">
+							<div id="winRateProgress"></div>
+						</div>
+					</div>
+					<div class="game-buttons large-buttons">
+						<button id="vanillaPong">Play Vanilla Pong</button>
+						<button id="friendsPong">Play Friends Pong</button>
+					</div>
+				</div>
+				<div class="friend-section">
+					<div class="friend-list">
+						<h2>Friend List</h2>
+						<div class="search-bar">
+							<input type="text" id="friendSearch" placeholder="Search friends...">
+							<button onclick="searchFriends()">Search</button>
+						</div>
+						<ul id="friendsList"></ul>
+						<div class="pagination">
+							<button id="prevPage">Previous</button>
+							<span id="currentPage">1</span>
+							<button id="nextPage">Next</button>
+						</div>
+					</div>
+					<div class="friend-requests">
+						<h2>Friend Requests</h2>
+						<ul id="friendRequests"></ul>
+					</div>
+					<div class="add-friend">
+						<h2>Add Friend</h2>
+						<div class="search-bar">
+							<input type="text" id="addFriendSearch" placeholder="Search for new friends...">
+							<button onclick="searchNewFriends()">Search</button>
+						</div>
+						<ul id="newFriendsList"></ul>
+						<div class="pagination">
+							<button id="prevNewPage">Previous</button>
+							<span id="currentNewPage">1</span>
+							<button id="nextNewPage">Next</button>
+						</div>
+					</div>
+				</div>
+			</div>	
+			<script src="../js/menu.js"></script>
 		</div>
 
 		<!-- Verification Page -->

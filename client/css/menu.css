@@ -1,0 +1,194 @@
+.Menu {
+    font-family:'Courier New', Courier, monospace;
+    background-color: #000000;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+.Menu .container {
+    display: flex;
+    flex-direction: column;
+    min-height: 95vh;
+    box-sizing: border-box;
+}
+
+.Menu .profile {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.Menu #profilePicture {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.Menu .friend-section {
+    display: flex;
+    flex-grow: 1;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.Menu .friend-list, 
+.Menu .friend-requests, 
+.Menu .add-friend {
+    background-color: #2a2a2a;
+    border-radius: 5px;
+    padding: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 300px;
+}
+
+.Menu h1, 
+.Menu h2 {
+    color: #ffffff;
+}
+
+.Menu ul {
+    list-style-type: none;
+    padding: 0;
+    flex-grow: 1;
+    margin-bottom: 10px;
+}
+
+.Menu li {
+    background-color: #3a3a3a;
+    margin-bottom: 10px;
+    padding: 15px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+}
+
+.Menu button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 2px 2px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+.Menu input[type="text"] {
+    width: 70%;
+    padding: 5px;
+    margin-right: 10px;
+}
+
+.Menu .search-bar {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.Menu .game-buttons {
+    margin-top: 20px;
+}
+
+.Menu .game-buttons button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.Menu .game-buttons button:hover {
+    background-color: #2980b9;
+}
+
+.Menu .delete-friend {
+    background-color: #e74c3c;
+}
+
+.Menu .delete-friend:hover {
+    background-color: #c0392b;
+}
+
+.Menu .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.Menu .pagination button {
+    background-color: #3498db;
+    margin: 0 5px;
+}
+
+.Menu .pagination span {
+    margin: 0 10px;
+}
+
+.Menu .win-rate-container {
+    margin: 20px 0;
+}
+
+.Menu .win-rate-bar {
+    background-color: #2c3e50;
+    height: 20px;
+	width: 60%;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+.Menu #winRateProgress {
+    height: 100%;
+    background-color: #27ae60;
+    width: 0;
+    transition: width 0.5s ease-in-out;
+}
+
+.Menu .win-rate {
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.Menu .large-buttons button {
+    font-size: 18px;
+    padding: 15px 30px;
+}
+
+.Menu .invite-friend {
+    background-color: #3498db;
+    margin-right: 5px;
+}
+
+.Menu .invite-friend:hover {
+    background-color: #2980b9;
+}
+
+.Menu .add-friend-button {
+    background-color: #2ecc71;
+}
+
+.Menu .add-friend-button:hover {
+    background-color: #27ae60;
+}
+
+.Menu .center {
+    display: flex;
+    justify-content: center
+}
