@@ -1,5 +1,7 @@
 import makeRequest from "./utils/requestWrapper.js";
 
+const friendList = [];
+const userName = "ethan";
 
 const userData1 = {
 	username: "JohnDoe",
