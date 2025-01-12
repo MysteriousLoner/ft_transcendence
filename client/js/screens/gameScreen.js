@@ -15,6 +15,7 @@ class GameScreen {
 
     clean() {
         console.log('closing game screen');
+        this.game.socket.close();
         document.getElementById('gameContainer').classList.add('d-none');
     }
 }

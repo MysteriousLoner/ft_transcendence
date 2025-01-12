@@ -108,6 +108,7 @@ class PongGame:
         print(f"Data received from WebSocket with channel name: {sender_channel}")
 
         f_keys = content.get('keys')
+        paused = content.get('paused')
 
         self.keys['w'] = f_keys['w']
         self.keys['s'] = f_keys['s']
@@ -117,12 +118,28 @@ class PongGame:
                 self.leftPaddle['y'] += self.leftPaddleSpeed
             elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
                 self.leftPaddle['y'] -= self.leftPaddleSpeed
+            
+            if paused and self.running:
+                print("Game paused", flush=True)
+                self.running = False
+
+            if not paused and not self.running:
+                self.running = True
+                await self.game_loop()
 
         if  sender_channel == self.channel2_name:
             if self.keys['w'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
                 self.rightPaddle['y'] += self.rightPaddleSpeed
             elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
                 self.rightPaddle['y'] -= self.rightPaddleSpeed
+
+            if paused and self.running:
+                print("Game paused", flush=True)
+                self.running = False
+
+            if not paused and not self.running:
+                self.running = True
+                await self.game_loop()
 
 
     def update_game_state(self):
