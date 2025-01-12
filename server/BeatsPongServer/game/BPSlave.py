@@ -28,6 +28,7 @@ class PongGame:
     waitTime = 3
 
     def __init__(self, room_name, player1, player2):
+        print("Game object created", flush=True)
         # identity of the room "I identify as a ......."
         self.room_name = room_name
         # identifies if the game is running

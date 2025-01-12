@@ -27,8 +27,7 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
     # handles a new connection, put them into a que, pop them when enough players to start game
     async def connect(self):
         print("connecting")
-        print(self.channel_name)
-        sys.stdout.flush() # Ensure the message is printed immediately
+        print(self.channel_name, flush=True)
         await self.accept()
         # parse url parameter to determine which game mode the user is queing for.
         query_string = self.scope['query_string'].decode()
