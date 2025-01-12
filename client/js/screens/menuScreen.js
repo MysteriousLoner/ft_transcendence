@@ -1,4 +1,5 @@
 import makeRequest from '../utils/requestWrapper.js';
+import initPage from '../menu.js';
 
 class MenuScreen {
     constructor(sceneRouterCallback, screenRouterCallback, sceneVars) {
@@ -22,6 +23,8 @@ class MenuScreen {
         document.getElementById("nextPage").addEventListener("click", () => changePage(1));
         document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
         document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
+
+		initPage();
     }
 
     clean() {
