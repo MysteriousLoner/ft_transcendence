@@ -1,8 +1,5 @@
 import makeRequest from "./utils/requestWrapper.js";
 
-const friendList = [];
-const userName = "ethan";
-
 const userData1 = {
 	username: "JohnDoe",
 	profilePicture: "https://example.com/profile.jpg",
@@ -18,10 +15,14 @@ let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
-// Initialize the page
-async function initPage() {
+let friendList = [];
+let userName = "";
 
-	const req = { username: 'ethan' };
+// Initialize the page
+async function initPage(inputUser) {
+
+	userName = inputUser;
+	const req = { username: userName };
 	console.log(req);
 	try {
 		const userData = await makeRequest('POST', 'api/menu/getProfileData/', req);

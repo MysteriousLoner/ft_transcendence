@@ -24,7 +24,8 @@ class MenuScreen {
         document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
         document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
 
-		initPage();
+		// initPage from menu.js
+		initPage(this.sceneVars.username);
     }
 
     clean() {
