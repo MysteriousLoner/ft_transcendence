@@ -1,8 +1,5 @@
 import makeRequest from "./utils/requestWrapper.js";
 
-const friendList = [];
-const userName = "ethan";
-
 const userData1 = {
 	username: "JohnDoe",
 	profilePicture: "https://example.com/profile.jpg",
@@ -18,9 +15,14 @@ let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
+<<<<<<< HEAD
 let friendList = [];	
 let userName = "";
 let userData = {};
+=======
+let friendList = [];
+let userName = "";
+>>>>>>> 836d979 (fixed API req)
 
 // Initialize the page
 async function initPage(inputUser) {
