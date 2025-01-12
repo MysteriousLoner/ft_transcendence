@@ -1,10 +1,12 @@
 import makeRequest from '../utils/requestWrapper.js';
 
 class LoginScreen {
-    constructor(sceneRouterCallback, screenRouterCallback) {
+    constructor(sceneRouterCallback, screenRouterCallback, sceneVars) {
         this.sceneRouterCallback = sceneRouterCallback;
         this.screenRouterCallback = screenRouterCallback;
+        this.sceneVars = sceneVars;
         // class specific event listeners
+        this.clean();
         document.getElementById('loginForm').addEventListener('submit', (event) => this.submitForm(event));
 		document.getElementById('backbtn').addEventListener('click', () => this.backToHome());
         document.getElementById('loginScreen').classList.remove('d-none');
@@ -32,6 +34,7 @@ class LoginScreen {
             username: username,
             password: password
         };
+        console.log(data.username);
 
         try {
             const response = await makeRequest('POST', 'api/auth/login/', data);
@@ -39,6 +42,7 @@ class LoginScreen {
                 document.getElementById('errorText').innerText = response.error;
                 document.getElementById('errorMessage').classList.remove('d-none');
             } else {
+                this.sceneVars.username = data.username;
                 this.clean();
                 this.sceneRouterCallback('menuScene');
             }

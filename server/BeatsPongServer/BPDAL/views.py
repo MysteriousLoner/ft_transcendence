@@ -2,6 +2,8 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import ProfileData, VerificationCode, FriendRequestList
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from django.db import transaction
+import time
 
 '''
 Functions that interact with the database
@@ -20,7 +22,7 @@ def query_profile_data(username):
     
 def query_verification_code(username):
     try:
-        codeObj = VerificationCode.objects.get(username=username)
+        codeObj = VerificationCode.objects.filter(username=username).first()
         return codeObj
     except ObjectDoesNotExist:
         return None
@@ -52,10 +54,12 @@ def create_user(username, email, password):
         username=username,
         profilePicture='default.jpg',
     )
+    profileData.save()
 
     friendRequestList = FriendRequestList.objects.create(
         username=username,
     )
+    friendRequestList.save()
     return user
 
 def create_profile(username, profilePicture):
@@ -143,9 +147,11 @@ def remove_friend(username, friend_username):
         return None
 
 def remove_verification_code(username):
-    try:
-        codeObj = VerificationCode.objects.get(username=username)
-        codeObj.delete()
-    except VerificationCode.DoesNotExist:
-        return None
-    
+    while True: 
+        try:
+            code = VerificationCode.objects.get(username=username)
+            print(f"Deleting verification code for {username}", flush=True)
+            code.delete()
+        except VerificationCode.DoesNotExist:
+            print(f"No more codes for {username}", flush=True)
+            break

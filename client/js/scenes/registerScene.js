@@ -3,7 +3,7 @@ import VerificationScreen from '../screens/verificationScreen.js';
 
 class RegisterScene {
     constructor(sceneRouterCallback) {
-        console.log('RegisterScene constructor');
+        // console.log('RegisterScene constructor');
         this.sceneRouterCallback = sceneRouterCallback;
         
         // scene level shared variables

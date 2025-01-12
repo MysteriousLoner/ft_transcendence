@@ -4,62 +4,75 @@
  * Standard input should be (apiEndpoint, requestMethod, jsonMessage)
  * Standard output will always be a json object.
  */
+let isRequestInProgress = false;
 
 async function makeRequest(method, url, jsonMessage) {
-    let refreshToken = getCookie('refresh');
-    let accessToken = getCookie('access');
-
-    // Ensures user is authenticated
-    if ((refreshToken === null || accessToken === null) && !isPublicEndpoint(url)) {
-        console.log('unauthenticated user, register/login first');
-        return NO_JWT;
+    console.log('Making request');
+    
+    if (isRequestInProgress) {
+        console.log('Request already in progress');
+        return { error: 'Request already in progress' };
     }
 
-    // start building request object with method and header first
-    let request = {
-        method: method,
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(jsonMessage),
-    };
+    isRequestInProgress = true;
 
-    // check if JWT, return error if refresh token expired
-    if (!isPublicEndpoint(url) && isTokenExpired(accessToken)) {
-        console.log('access token expired, refreshing');
-        accessToken = refreshAccessToken(refreshToken);
-        if (accessToken === null) {
-            return INVALID_JWT;
+    try {
+        let refreshToken = getCookie('refresh');
+        let accessToken = getCookie('access');
+
+        // Ensures user is authenticated
+        if ((refreshToken === null || accessToken === null) && !isPublicEndpoint(url)) {
+            console.error('Unauthenticated user, register/login first');
+            return ErrorMessages.NO_JWT;
         }
-    }
 
-    // add JWT to header
-    if (!isPublicEndpoint(url)) {
-        request.headers['Authorization'] = 'Bearer ' + accessToken;
-    }
+        let request = {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(jsonMessage)
+        };
 
-    // make the request and return the response
-    console.log('making request to ' + ServerIp + url);
-    const response = await fetch(ServerIp + url, request);
+        if (!isPublicEndpoint(url) && isTokenExpired(accessToken)) {
+            console.log('Access token expired, refreshing');
+            accessToken = await refreshAccessToken(refreshToken);
 
-    const data = await response.json();
+            if (accessToken === null) {
+                return ErrorMessages.INVALID_JWT;
+            }
+        }
 
-    // add new JWTs to cookies
-    if (data.refresh) {
-        console.log('refresh token: ' + data.refresh);
-        document.cookie = `refresh=${data.refresh}; Secure; SameSite=None; path=/`;
-        refreshToken = getCookie('refresh');
-        console.log('refresh token updated');
+        if (!isPublicEndpoint(url)) {
+            request.headers['Authorization'] = 'Bearer ' + accessToken;
+        }
+
+        console.log('Making request to ' + ServerIp + url);
+        const response = await fetch(ServerIp + url, request);
+        const data = await response.json();
+
+        if (data.error) {
+            console.error('Error:', data.error);
+        }
+
+        if (data.refresh) {
+            console.log('Refresh token received: ' + data.refresh);
+            document.cookie = `refresh=${data.refresh}; Secure; SameSite=None; path=/`;
+        }
+        if (data.access) {
+            console.log('Access token received: ' + data.access);
+            document.cookie = `access=${data.access}; Secure; SameSite=None; path=/`;
+        }
+
+        console.log('Request successful');
+        return data;
+
+    } catch (error) {
+        console.error('Request failed:', error);
+        return { error: 'An unexpected error occurred. Please try again.' };
+    
+    } finally {
+        isRequestInProgress = false;
+        console.log('Request completed - finally block');
     }
-    if (data.access) {
-        console.log('access token: ' + data.access);
-        document.cookie = `access=${data.access}; Secure; SameSite=None; path=/`;
-        accessToken = getCookie('access');
-        console.log('access token updated');
-    }
-    console.log('refresh: ' + refreshToken);
-    console.log('access: ' + accessToken);
-    return data;
 }
 
 // utility functions

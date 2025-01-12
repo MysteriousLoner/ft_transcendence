@@ -1,21 +1,27 @@
 import MenuScreen from "../screens/menuScreen.js";
 
 class MenuScene {
-    constructor(sceneRouterCallback) {
-        console.log('MenuScene constructor');
+    constructor(sceneRouterCallback, globalVars) {
+        // console.log('MenuScene constructor');
         this.sceneRouterCallback = sceneRouterCallback;
         
         // scene level shared variables
         this.currentScreen = null;
+        this.sceneVars = {
+            get username() {
+                return globalVars.username;
+            }
+        }
 
         // initiate default screen
         this.currentScreen = new MenuScreen(
             this.sceneRouterCallback.bind(this), 
-            this.screenRouterCallback.bind(this)
+            this.screenRouterCallback.bind(this),
+            this.sceneVars
         )
     }
 
-    // standard, no nneed to change if not neccesary
+    // standard, no need to change if not neccesary
     cleanScreens() {
         this.currentScreen.clean();
         this.currentScreen = null;

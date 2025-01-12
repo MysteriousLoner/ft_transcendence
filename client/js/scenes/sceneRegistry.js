@@ -8,6 +8,9 @@ class SceneRegistry {
         this.updateHistory = true;
         this.currentScene = null;
         this.history = [];
+        this.globalVars = {
+            username: null
+        }
         window.addEventListener('popstate', this.handlePopState.bind(this));
     }
 
@@ -26,10 +29,10 @@ class SceneRegistry {
                 this.currentScene = new RegisterScene(this.sceneRouterCallback.bind(this));
                 break;
             case 'loginScene':
-                this.currentScene = new LoginScene(this.sceneRouterCallback.bind(this));
+                this.currentScene = new LoginScene(this.sceneRouterCallback.bind(this), this.globalVars);
                 break;
             case 'menuScene':
-                this.currentScene = new MenuScene(this.sceneRouterCallback.bind(this));
+                this.currentScene = new MenuScene(this.sceneRouterCallback.bind(this), this.globalVars);
                 break;
             default:
                 console.error('Invalid scene:', scene);
@@ -40,7 +43,7 @@ class SceneRegistry {
             window.history.pushState({ scene }, '', `#${scene}`);
             this.updateHistory = false;
         }
-        console.log(history);
+        // console.log(history);
     }
 
     handlePopState(event) { 
@@ -56,7 +59,7 @@ class SceneRegistry {
         this.currentScene = new HomeScene(this.sceneRouterCallback.bind(this));
         this.history.push(initialScene); 
         window.history.replaceState({ scene: initialScene }, '', `#${initialScene}`);
-        console.log(history);
+        // console.log(history);
     }
 }
 

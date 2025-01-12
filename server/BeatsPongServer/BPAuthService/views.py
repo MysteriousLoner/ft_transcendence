@@ -8,6 +8,7 @@ from BPDAL.views import create_verification_code
 from BPDAL.views import query_verification_code
 from BPDAL.views import query_user
 from BPDAL.views import create_user
+from BPDAL.views import remove_verification_code
 
 # local app utility functions
 from .utils import generate_random_code
@@ -32,6 +33,7 @@ from BeatsPongServer.customJwtSerializer import CustomTokenObtainPairSerializer
 @csrf_exempt
 @api_view(['POST'])
 def register_user(request):
+    print("current time: " + str(timezone.now()), flush=True)
     data = json.loads(request.body)
     username = data['username']
     email = data['email']
@@ -49,11 +51,9 @@ def register_user(request):
         return JsonResponse({"error": "Password is not strong enough."}, status=400)
 
     # generates an object to store verification code in the database
+    remove_verification_code(username)
     verificationCode = generate_random_code()
     expDate = datetime.now() + timedelta(minutes=10)
-    code = query_verification_code(username)
-    if code:
-        code.delete()
     create_verification_code(
         username, 
         email,
@@ -77,6 +77,7 @@ def register_user(request):
 @csrf_exempt
 @api_view(['POST'])
 def verify_code(request):
+    print("current time: " + str(timezone.now()), flush=True)
     if request.method != 'POST':
         return JsonResponse({"error": "Invalid request type."}, status=400)
 
@@ -92,16 +93,17 @@ def verify_code(request):
         return JsonResponse({"error": "username does not exist!"}, status=401)
     
     if timezone.now() > codeObj.expriarationDate:
-        codeObj.delete()
+        remove_verification_code(username)
         return JsonResponse({"error": "code expired!"}, status=401)
     
     if code != codeObj.code:
-        codeObj.delete()
+        remove_verification_code(username)
+        print("wrong code", flush=True)
         return JsonResponse({"error": "incorrect verification code!"}, status=401)
     
-    codeObj.delete()
 
     create_user(username, codeObj.email, codeObj.password)
+    remove_verification_code(username)
 
     return JsonResponse({ "message": "account created"}, status=201)
     
@@ -119,8 +121,8 @@ def login(request):
         # no need to use jwt to store session data, https ensures integtity
         # customSerializer = CustomTokenObtainPairSerializer.get_token(user)
         accessToken = refresh.access_token 
-        print("refresh: " + str(refresh), flush=True)
-        print("access: " + str(accessToken), flush=True)
+        # print("refresh: " + str(refresh), flush=True)
+        # print("access: " + str(accessToken), flush=True)
         return JsonResponse(
             {
                 "refresh": str(refresh),

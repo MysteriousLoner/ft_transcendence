@@ -28,6 +28,7 @@ class VerificationScreen {
         .then(response => {
             if (response.error) {
                 alert(response.error);
+                this.sceneRouterCallback("registerScene");
             } else {
                 alert('User registered successfully!');
                 this.sceneRouterCallback("homeScene");
