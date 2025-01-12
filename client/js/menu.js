@@ -1,5 +1,7 @@
 import makeRequest from "./utils/requestWrapper.js";
 
+const friendList = [];
+const userName = "ethan";
 
 const userData1 = {
 	username: "JohnDoe",
@@ -33,16 +35,6 @@ async function initPage() {
 
 	updateFriendList();
 	updateFriendRequests();
-
-	// Add event listeners for game buttons
-	document.getElementById("vanillaPong").addEventListener("click", playVanillaPong);
-	document.getElementById("friendsPong").addEventListener("click", playFriendsPong);
-
-	// Add event listeners for pagination
-	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
-	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
-	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
-	document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
 }
 
 // Update win rate
@@ -52,27 +44,43 @@ function updateWinRate(winRate) {
 }
 
 // Update friend list
-function updateFriendList() {
+async function updateFriendList() {
 	const friendsList = document.getElementById("friendsList");
 	friendsList.innerHTML = "";
 
 	const startIndex = (currentPage - 1) * friendsPerPage;
 	const endIndex = startIndex + friendsPerPage;
-	const displayedFriends = userData.friendList.slice(startIndex, endIndex);
 
-	displayedFriends.forEach(friend => {
-		const li = document.createElement("li");
-		li.innerHTML = `
+	const req = { username: userName };
+	try {
+		friendList = await makeRequest('POST', 'api/menu/getFriendList/', req);
+		console.log(friendList);
+	}
+	catch (error) {
+		console.error('Error:', error);
+	}
+
+	if (friendList.length > 0) {
+		const displayedFriends = friendList.slice(startIndex, endIndex);
+		// const displayedFriends = userData.friendList.slice(startIndex, endIndex);
+
+		displayedFriends.forEach(friend => {
+			const li = document.createElement("li");
+			li.innerHTML = `
             <span>${friend}</span>
             <div>
                 <button class="invite-friend" onclick="inviteFriend('${friend}')">Invite</button>
                 <button class="delete-friend" onclick="deleteFriend('${friend}')">Delete</button>
             </div>
         `;
-		friendsList.appendChild(li);
-	});
+			friendsList.appendChild(li);
+		});
+	}
+	else {
+		console.log('No friends found');
+	}
 
-	updatePagination(userData.friendList.length, currentPage, "currentPage", "prevPage", "nextPage");
+	updatePagination(friendList.length, currentPage, "currentPage", "prevPage", "nextPage");
 }
 
 // Update pagination
