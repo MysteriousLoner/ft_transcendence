@@ -26,7 +26,7 @@ async function initPage(inputUser) {
 	console.log(req);
 	try {
 		const userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
-		document.getElementById("username").textContent = userData.username;
+		document.getElementById("username").textContent = userName;
 		document.getElementById("profilePicture").src = userData.profilePicture;
 		updateWinRate(userData.winRate);
 	}
@@ -36,6 +36,13 @@ async function initPage(inputUser) {
 
 	updateFriendList();
 	updateFriendRequests();
+
+	// edit modal
+	document.getElementById('profilePicture').addEventListener('click', openEditProfileModal);
+    document.getElementById('closeModalBtn').addEventListener('click', closeEditProfileModal);
+    document.getElementById('profileImageUpload').addEventListener('change', handleImageUpload);
+    document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('profileImageUpload').click());
+    document.getElementById('saveUsernameBtn').addEventListener('click', saveUsername);
 }
 
 // Update win rate
@@ -177,17 +184,6 @@ function inviteFriend(friend) {
 	// Add code here to handle the game invitation
 }
 
-// Play Vanilla Pong
-function playVanillaPong() {
-	alert("Starting Vanilla Pong game...");
-	// Add code here to start the Vanilla Pong game
-}
-
-// Play Friends Pong
-function playFriendsPong() {
-	alert("Starting Friends Pong game...");
-	// Add code here to start the Friends Pong game
-}
 
 // Search new friends
 let filteredNewFriends = [];
@@ -231,6 +227,37 @@ function addFriend(friend) {
 		alert(`${friend} is already in your friend list.`);
 	}
 	searchNewFriends(); // Refresh the new friends list
+}
+
+function openEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'block';
+}
+
+function closeEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'none';
+}
+
+function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profileImagePreview').src = e.target.result;
+            document.getElementById('profilePicture').src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function saveUsername() {
+    const newUsername = document.getElementById('usernameInput').value;
+    if (newUsername) {
+        userData.username = newUsername;
+        document.getElementById('username').textContent = newUsername;
+        closeEditProfileModal();
+    } else {
+        alert('Please enter a valid username');
+    }
 }
 
 export default initPage;
