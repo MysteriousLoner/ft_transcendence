@@ -8,20 +8,20 @@ class MenuScene {
         
         // scene level shared variables
         this.currentScreen = null;
-        profileData = makeRequest('POST', 'api/menu/getProfileData/', { username: globalVars.username });
+        let profileData = makeRequest('POST', 'api/menu/getProfileData/', { username: globalVars.username });
         this.sceneVars = {
             get username() {
                 return globalVars.username;
             },
-            get profilePicture() {
-                return profileData.profilePicture;
-            },
-            get friendList() {
-                return profileData.friendList;
-            },
-            get winRate() {
-                return profileData.winRate;
-            }
+        //     get profilePicture() {
+        //         return profileData.profilePicture;
+        //     },
+        //     get friendList() {
+        //         return profileData.friendList;
+        //     },
+        //     get winRate() {
+        //         return profileData.winRate;
+        //     }
         }
 
         // initiate default screen

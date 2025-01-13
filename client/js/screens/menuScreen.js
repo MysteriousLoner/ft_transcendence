@@ -24,7 +24,7 @@ class MenuScreen {
         document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
         
         // default page values
-        document.getElementById("usernameTitle").textContent = this.sceneVars.username || "Default";
+        document.getElementById("usernameTitle1").textContent = this.sceneVars.username || "Default";
         console.log("MenuScreen username: " + this.sceneVars.username);
     }
 
