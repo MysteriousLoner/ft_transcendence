@@ -15,14 +15,8 @@ let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
-<<<<<<< HEAD
-let friendList = [];	
-let userName = "";
-let userData = {};
-=======
 let friendList = [];
 let userName = "";
->>>>>>> 836d979 (fixed API req)
 
 // Initialize the page
 async function initPage(inputUser) {
