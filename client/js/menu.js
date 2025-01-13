@@ -1,5 +1,6 @@
 import makeRequest from "./utils/requestWrapper.js";
 
+
 const userData1 = {
 	username: "JohnDoe",
 	profilePicture: "https://example.com/profile.jpg",
@@ -15,8 +16,9 @@ let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
-let friendList = [];
+let friendList = [];	
 let userName = "";
+let userData = {};
 
 // Initialize the page
 async function initPage(inputUser) {
@@ -25,9 +27,9 @@ async function initPage(inputUser) {
 	const req = { username: userName };
 	console.log(req);
 	try {
-		const userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
+		userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
 		document.getElementById("username").textContent = userName;
-		document.getElementById("profilePicture").src = userData.profilePicture;
+		document.getElementById("profilePictureMenu").src = userData.profilePicture;
 		updateWinRate(userData.winRate);
 	}
 	catch (error) {
@@ -38,7 +40,7 @@ async function initPage(inputUser) {
 	updateFriendRequests();
 
 	// edit modal
-	document.getElementById('profilePicture').addEventListener('click', openEditProfileModal);
+	document.getElementById('profilePictureMenu').addEventListener('click', openEditProfileModal);
     document.getElementById('closeModalBtn').addEventListener('click', closeEditProfileModal);
     document.getElementById('profileImageUpload').addEventListener('change', handleImageUpload);
     document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('profileImageUpload').click());
@@ -236,18 +238,27 @@ function openEditProfileModal() {
 function closeEditProfileModal() {
     document.getElementById('editProfileModal').style.display = 'none';
 }
-
 function handleImageUpload(event) {
     const file = event.target.files[0];
+    const profilePic = document.getElementById('profilePicture');
+    const profileImagePreview = document.getElementById('profileImagePreview');
+    const defaultSrc = profilePic.getAttribute("data-default-src");
+
     if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            document.getElementById('profileImagePreview').src = e.target.result;
-            document.getElementById('profilePicture').src = e.target.result;
+            profilePic.src = e.target.result;
+            profileImagePreview.src = e.target.result;
+            userData.profilePicture = e.target.result;
         }
         reader.readAsDataURL(file);
+    } else {
+        profilePic.src = defaultSrc;
+        profileImagePreview.src = defaultSrc;
+        userData.profilePicture = "";
     }
 }
+
 
 function saveUsername() {
     const newUsername = document.getElementById('usernameInput').value;
