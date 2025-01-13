@@ -238,27 +238,47 @@ function openEditProfileModal() {
 function closeEditProfileModal() {
     document.getElementById('editProfileModal').style.display = 'none';
 }
+// function handleImageUpload(event) {
+//     const file = event.target.files[0];
+//     const profilePic = document.getElementById('profilePicture');
+//     const profileImagePreview = document.getElementById('profileImagePreview');
+//     const defaultSrc = profilePic.getAttribute("data-default-src");
+
+//     if (file) {
+//         const reader = new FileReader();
+//         reader.onload = function(e) {
+//             profilePic.src = e.target.result;
+//             profileImagePreview.src = e.target.result;
+//             userData.profilePicture = e.target.result;
+// 			console.log("PROFILE PICTURE" + userData.profilePicture);
+//         }
+//         reader.readAsDataURL(file);
+//     } else {
+//         profilePic.src = defaultSrc;
+//         profileImagePreview.src = defaultSrc;
+//         userData.profilePicture = "";
+//     }
+// }
+
 function handleImageUpload(event) {
-    const file = event.target.files[0];
-    const profilePic = document.getElementById('profilePicture');
-    const profileImagePreview = document.getElementById('profileImagePreview');
-    const defaultSrc = profilePic.getAttribute("data-default-src");
+    const file = event.target.files[0]; // Get the uploaded file
+    const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
+    const defaultSrc = '../images/default.png'; // Default image source
 
     if (file) {
-        const reader = new FileReader();
+        console.log("File selected:", file.name); // Log the name of the selected file
+        const reader = new FileReader(); // Create a FileReader object
         reader.onload = function(e) {
-            profilePic.src = e.target.result;
-            profileImagePreview.src = e.target.result;
-            userData.profilePicture = e.target.result;
+            console.log("File read successfully."); // Log when the file is read successfully
+            profileImagePreview.src = e.target.result; // Set the image preview to the uploaded file
+            console.log("Image preview updated with:", e.target.result); // Log the data URL of the uploaded image
         }
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(file); // Read the file as a data URL
     } else {
-        profilePic.src = defaultSrc;
-        profileImagePreview.src = defaultSrc;
-        userData.profilePicture = "";
+        console.log("No file selected, using default image."); // Log when no file is selected
+        profileImagePreview.src = defaultSrc; // Set to default image if no file is selected
     }
 }
-
 
 function saveUsername() {
     const newUsername = document.getElementById('usernameInput').value;
