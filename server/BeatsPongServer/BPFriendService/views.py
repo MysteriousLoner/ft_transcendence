@@ -4,6 +4,8 @@ from BPDAL.views import query_user
 from BPDAL.views import query_friend_request_list
 from BPDAL.views import add_friend_request
 from BPDAL.views import remove_friend_request
+from BPDAL.views import query_profile_picture
+from BPDAL.views import update_profile_picture
 
 # django rest framework dependencies
 from django.views.decorators.csrf import csrf_exempt
@@ -17,6 +19,16 @@ import json
 '''
 Conrtroller for friends related services
 '''
+@csrf_exempt
+@api_view(['POST'])
+def getProfilePicture(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profilePicture = query_profile_picture(username)
+
+    return JsonResponse(profilePicture, status=200)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -106,3 +118,17 @@ def searchUser(request):
         return JsonResponse({"error": "Profile Data does not exist"}, status=400)
     
     return serialize('json', [profileData])
+
+@csrf_exempt
+@api_view(['POST'])
+def changeProfilePicture(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profilePicture = query_profile_picture(username)
+    if not profilePicture:
+        return JsonResponse({"error": "Profile Picture does not exist."}, status=400)
+    
+    update_profile_picture(username, requestData['image'])
+    return JsonResponse({"success": "Profile Picture updated."}, status=200)

@@ -1,17 +1,20 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.hashers import make_password
+import os
 
 '''
 All tables and data models used in the app 
 '''
 
+file = open(os.path.join(os.path.dirname(__file__), '../../assets/profilePics/defaultPfp'), 'r')
+defaultPfp = file.read()
+
 # Data of the user's profile
 # Primary Key: username
 class ProfileData(models.Model):
     username = models.CharField(max_length=100, unique=True)
-    # displayName = models.CharField(max_length=100)
-    profilePicture = models.ImageField(upload_to='profile_pics/')
+    displayName = models.CharField(max_length=100)
     friendList = ArrayField(models.CharField(max_length=100), blank=True, default=list)
     winRate = models.FloatField(default=0.0)
     
@@ -41,6 +44,13 @@ class VerificationCode(models.Model):
 class FriendRequestList(models.Model):
     username = models.CharField(max_length=100, unique=True)
     pendingRequests = ArrayField(models.CharField(max_length=100), blank=True, default=list)
+
+    def __str__(self):
+        return self.username
+    
+class ProfilePicture(models.Model):
+    username = models.CharField(max_length=100, unique=True)
+    image = models.TextField(default=defaultPfp)
 
     def __str__(self):
         return self.username
