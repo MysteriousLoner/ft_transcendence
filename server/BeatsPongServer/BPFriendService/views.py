@@ -27,6 +27,7 @@ def getProfilePicture(request):
     if not query_user(username):
         return JsonResponse({"error": "User does not exist."}, status=400)
     profilePicture = query_profile_picture(username)
+    print("ProfilePic: " + profilePicture.image, flush=True)
 
     return JsonResponse(profilePicture, status=200)
 

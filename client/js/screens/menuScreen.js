@@ -26,6 +26,9 @@ class MenuScreen {
         // default page values
         document.getElementById("usernameTitle1").textContent = this.sceneVars.username || "Default";
         console.log("MenuScreen username: " + this.sceneVars.username);
+
+        const defaultPfp = makeRequest('POST', 'api/menu/getProfilePicture', { username: this.sceneVars.username });
+        console.log("MenuScreen defaultPfp: " + defaultPfp.image);
     }
 
     clean() {

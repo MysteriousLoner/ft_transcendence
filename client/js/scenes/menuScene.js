@@ -8,7 +8,7 @@ class MenuScene {
         
         // scene level shared variables
         this.currentScreen = null;
-        let profileData = makeRequest('POST', 'api/menu/getProfileData/', { username: globalVars.username });
+        // let profileData = makeRequest('POST', 'api/menu/getProfileData/', { username: globalVars.username });
         this.sceneVars = {
             get username() {
                 return globalVars.username;
