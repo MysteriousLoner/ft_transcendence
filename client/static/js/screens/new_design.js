@@ -229,7 +229,7 @@ function onWindowResize() {
 
 // Websocket connection ------------------------------------------------------
 let     scoreLeft = 4, scoreRight = 2, DOMloaded =- false, ballSpeedX = 0, ballSpeedY = 0,
-        socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong');
+        socket = new WebSocket('wss://127.0.0.1:8000/ws/game/pong');
 const keys = {
     w: false,
     s: false,
@@ -296,7 +296,7 @@ function toggle(target, buttonId, key, enableText, disableText) {
 
 
 function connectWebSocket() {
-    socket = new WebSocket('ws://127.0.0.1:8000/ws/game/pong?gameMode=solo');
+    socket = new WebSocket('wss://127.0.0.1:8000/ws/game/pong?gameMode=solo');
     socket.onmessage = function(event) {
         const gameState = JSON.parse(event.data);
         updateGameObjects(gameState);
