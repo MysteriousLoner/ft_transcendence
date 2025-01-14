@@ -27,12 +27,12 @@ services:
         condition: service_healthy
     env_file:
       - .env
-  client:
-    build:
-      context: ./client
-    ports:
-      - "443:443"
-    volumes:
-      - ./client:/app
-    env_file:
-      - .env
+  # client:
+  #   build:
+  #     context: ./client
+  #   ports:
+  #     - "443:443"
+  #   volumes:
+  #     - ./client:/app
+  #   env_file:
+  #     - .env
