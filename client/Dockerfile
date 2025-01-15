@@ -8,7 +8,7 @@ WORKDIR /usr/share/nginx/html
 RUN rm -rf ./*
 
 # Copy your frontend static files into the Nginx web root
-COPY ./static /usr/share/nginx/html
+COPY ./static /usr/share/nginx/html/html
 
 # update and upgrade the system
 RUN apt-get update && apt-get upgrade -y
