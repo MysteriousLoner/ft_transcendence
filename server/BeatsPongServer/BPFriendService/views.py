@@ -15,6 +15,7 @@ from rest_framework.decorators import api_view
 from django.core.serializers import serialize
 from django.http import JsonResponse
 import json
+import os
 
 '''
 Conrtroller for friends related services
@@ -27,9 +28,7 @@ def getProfilePicture(request):
     if not query_user(username):
         return JsonResponse({"error": "User does not exist."}, status=400)
     profilePicture = query_profile_picture(username)
-    print("ProfilePic: " + profilePicture.image, flush=True)
-
-    return JsonResponse(profilePicture, status=200)
+    return JsonResponse({"image": profilePicture.image, "code": "success"}, status=200)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -40,7 +39,7 @@ def getProfileData(request):
         return JsonResponse({"error": "User does not exist."}, status=400)
     profileData = query_profile_data(requestData['username'])
 
-    return JsonResponse(profileData, status=200)
+    return JsonResponse({"username": profileData.username, "displayName": profileData.displayName, "winRate": profileData.winRate}, status=200)
 
 @csrf_exempt
 @api_view(['POST'])

@@ -4,7 +4,7 @@ from django.contrib.auth.hashers import make_password
 import os
 
 '''
-All tables and data models used in the app 
+All tables and data models used in the app
 '''
 
 file = open(os.path.join(os.path.dirname(__file__), '../../assets/profilePics/defaultPfp'), 'r')

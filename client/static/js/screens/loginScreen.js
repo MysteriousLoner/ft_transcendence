@@ -20,7 +20,7 @@ class LoginScreen {
     }
 
 	backToHome() {
-		event.preventDefault();
+		// event.preventDefault();
 		this.clean();
 		this.sceneRouterCallback('homeScene');
 	}

@@ -9,7 +9,7 @@ class MenuScreen {
         // scene level shared variables
         this.sceneVars = sceneVars;
         
-        console.log('MenuScreen constructor');
+        // console.log('MenuScreen constructor');
         // class specific event listeners
         document.getElementById('menuScreen').classList.remove('d-none');
         
@@ -26,9 +26,8 @@ class MenuScreen {
         // default page values
         document.getElementById("usernameTitle1").textContent = this.sceneVars.username || "Default";
         console.log("MenuScreen username: " + this.sceneVars.username);
-
-        const defaultPfp = makeRequest('POST', 'api/menu/getProfilePicture', { username: this.sceneVars.username });
-        console.log("MenuScreen defaultPfp: " + defaultPfp.image);
+        this.getPfp();
+        this.getProfileData();
     }
 
     clean() {
@@ -49,6 +48,17 @@ class MenuScreen {
 
     getUsername() {
         return this.sceneVars.username;
+    }
+
+    async getPfp() {
+        const defaultPfp = await makeRequest('POST', 'api/menu/getProfilePicture/', { username: this.sceneVars.username });
+        console.log("MenuScreen defaultPfp: " + defaultPfp.image);
+        console.log("MenuScreen code: " + defaultPfp.code);
+    }
+
+    async getProfileData() {
+        const profileData = await makeRequest('POST', 'api/menu/getProfileData/', { username: this.sceneVars.username });
+        console.log("MenuScreen profileData: " + profileData);
     }
 }
 

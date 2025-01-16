@@ -17,7 +17,7 @@ class Game {
         this.scoreLeft = 4;
         this.scoreRight = 2;
 
-        this.socket = new WebSocket('wss://localhost:8000/ws/game/pong?gameMode=solo');
+        this.socket = new WebSocket('ws://localhost:8000/ws/game/pong?gameMode=solo');
         this.DOMloaded = true; // Set to true if DOMContentLoaded event is fired before starting
 
         this.keys = {
