@@ -63,9 +63,19 @@ class MenuScreen {
         console.log("username: ", profileData.username);
     }
 
+    async updateDisplayName(newDisplayName) {
+        const oldDisplayName = await makeRequest('POST', 'api/menu/getProfileData/', { username: this.sceneVars.username });
+        console.log("display name before update: " + oldDisplayName.displayName);
+        const response = await makeRequest('POST', 'api/menu/updateDisplayName/', { username: this.sceneVars.username, displayName: newDisplayName });
+        console.log("server responnse: " + response.message);
+    }
+
     async test() {
         await this.getPfp();
         await this.getProfileData();
+        const newDisplayName = "test";
+        console.log("updating display name to: " + newDisplayName);
+        await this.updateDisplayName(newDisplayName);
     }
 }
 

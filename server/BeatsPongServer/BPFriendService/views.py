@@ -41,6 +41,23 @@ def getProfileData(request):
 
     return JsonResponse({"username": profileData.username, "displayName": profileData.displayName, "winRate": profileData.winRate}, status=200)
 
+# request body should contain username and displayName
+# {
+#     "username": "username",
+#     "displayName": "displayName"
+# }
+@csrf_exempt
+@api_view(['POST'])
+def updateDisplayName(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profileData = query_profile_data(requestData['username'])
+    profileData.displayName = requestData['displayName']
+    profileData.save()
+    return JsonResponse({"message": "Display name updated to:" + profileData.displayName}, status=200)   
+
 @csrf_exempt
 @api_view(['POST'])
 def getFriendList(request):        
