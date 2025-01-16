@@ -14,10 +14,15 @@ defaultPfp = file.read()
 # Primary Key: username
 class ProfileData(models.Model):
     username = models.CharField(max_length=100, unique=True)
-    displayName = models.CharField(max_length=100, default=username)
+    displayName = models.CharField(max_length=100, blank=True)
     friendList = ArrayField(models.CharField(max_length=100), blank=True, default=list)
-    winRate = models.FloatField(default=0.0)
+    winRate = models.FloatField(default=100)
     
+    def save(self, *args, **kwargs): 
+        if not self.displayName: 
+            self.displayName = self.username # Set displayName to username if it’s not provided 
+            super(ProfileData, self).save(*args, **kwargs)
+
     def __str__(self): 
         return self.username
 

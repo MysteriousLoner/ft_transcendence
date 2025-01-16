@@ -69,7 +69,7 @@ def create_user(username, email, password):
         username=username,
     )
     profilePicture.save()
-    
+
     return user
 
 def create_profile(username, profilePicture):

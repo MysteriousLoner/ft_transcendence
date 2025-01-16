@@ -26,8 +26,7 @@ class MenuScreen {
         // default page values
         document.getElementById("usernameTitle1").textContent = this.sceneVars.username || "Default";
         console.log("MenuScreen username: " + this.sceneVars.username);
-        this.getPfp();
-        this.getProfileData();
+        this.test();
     }
 
     clean() {
@@ -58,7 +57,15 @@ class MenuScreen {
 
     async getProfileData() {
         const profileData = await makeRequest('POST', 'api/menu/getProfileData/', { username: this.sceneVars.username });
-        console.log("MenuScreen profileData: " + profileData);
+        console.log("MenuScreen profileData: ");
+        console.log("displayName: ", profileData.displayName);
+        console.log("wr: ", profileData.winRate);
+        console.log("username: ", profileData.username);
+    }
+
+    async test() {
+        await this.getPfp();
+        await this.getProfileData();
     }
 }
 
