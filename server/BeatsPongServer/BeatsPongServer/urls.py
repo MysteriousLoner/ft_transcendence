@@ -18,8 +18,10 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenVerifyView, TokenRefreshView
+# from . import views 
 
 urlpatterns = [
+    # path('', views.home, name='home'),    #for debug
     path('admin/', admin.site.urls),
     path('api/auth/', include('BPAuthService.urls')),
 	path('api/menu/', include('BPFriendService.urls')),

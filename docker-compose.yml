@@ -1,17 +1,18 @@
+version: '3.8'
+
 services:
   db:
     image: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      # - POSTGRES_DB
-      # - POSTGRES_USER
-      # - POSTGRES_PASSWORD
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USERNAME}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - "5432:5432"
+    networks:
+      - transcendence-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -30,19 +31,21 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    networks:
+      - transcendence-network
 
   nginx-server:
-    build: ./client   # Path to the Dockerfile for Nginx
-    image: nginx-server           # The image name for Nginx
-    container_name: ft_transcendence-nginx-1  # Name of the container
+    build: ./client
+    image: nginx-server
+    container_name: ft_transcendence-nginx-1
     ports:
-      - "443:443"                 # Expose port 443 (HTTPS)
-    networks:
-      - transcendence-network         # Connect to the existing network
+      - "443:443"
     volumes:
-      - ./client/static/html:/var/www/html  # Mount your local HTML directory for static files (replace this path as needed)
-      - ./client/conf:/etc/nginx/conf.d # Mount your Nginx configuration directory
-    restart: on-failure            # Restart container if it fails
+      - ./client/static/html:/var/www/html
+      - ./client/conf:/etc/nginx/conf.d
+    networks:
+      - transcendence-network
+    restart: on-failure
 
 networks:
   transcendence-network:

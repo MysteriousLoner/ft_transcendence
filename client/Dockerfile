@@ -11,9 +11,9 @@ RUN openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
     -keyout /etc/nginx/ssl/transcendence.key \
     -subj "/O=transcendence/OU=transcendence/CN=transcendence/"
 
-# Set appropriate permissions for the SSL key
-RUN chmod 600 /etc/nginx/ssl/transcendence.key
-RUN chmod 600 /etc/nginx/ssl/transcendence.crt
+# Set appropriate permissions for the SSL key (to be accessible by Nginx)
+RUN chmod 644 /etc/nginx/ssl/transcendence.key
+RUN chmod 644 /etc/nginx/ssl/transcendence.crt
 
 # Expose port 443 for HTTPS
 EXPOSE 443
@@ -24,5 +24,5 @@ COPY ./conf/nginx.conf /etc/nginx/conf.d/nginx.conf
 # Copy frontend static files to the appropriate Nginx directory
 COPY ./static /usr/share/nginx/html
 
-# Start Nginx
+# Start Nginx in the foreground (important for Docker containers)
 CMD ["nginx", "-g", "daemon off;"]
