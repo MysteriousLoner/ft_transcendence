@@ -10,6 +10,7 @@ class Game {
         this.initEventListeners();
         this.snowfallActive = false;
         this.snowfallFunctions = null;
+        this.paused = false;
 
         this.ballSpeedX = 0;
         this.ballSpeedY = 0;
@@ -119,6 +120,7 @@ class Game {
         document.addEventListener('keydown', (event) => this.handleKeydown(event));
         document.addEventListener('keyup', (event) => this.handleKeyup(event));
         document.addEventListener('click', (event) => this.handleClick(event));
+        // document.addEventListener('keydown', (event) => { this.handleKeydown(event); if (event.key === 'Escape') { this.paused = !this.paused; console.log('Game paused:', this.paused); } });
     }
 
     onWindowResize() {
@@ -187,8 +189,12 @@ class Game {
         }.bind(this);
     }
 
+    disconnectWebSocket() {
+        this.socket.close();
+    }
+
     updateGameObjects(gameState) {
-        console.log("Game state received:", gameState);
+        // console.log("Game state received:", gameState);
         const gameStateString = JSON.stringify(gameState);
         // console.log(gameStateString);
     
@@ -199,13 +205,13 @@ class Game {
         [this.leftPaddle.position.x, this.leftPaddle.position.y, this.leftPaddle.position.z] = gameState.leftPaddle.split(',').map(Number);
         [this.rightPaddle.position.x, this.rightPaddle.position.y, this.rightPaddle.position.z] = gameState.rightPaddle.split(',').map(Number);
         [this.scoreLeft, this.scoreRight] = gameState.score.split(',').map(Number);
-        [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
-        [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
+        // [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
+        // [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
     }
 
     sendMessage() {
         if (this.socket.readyState == this.socket.OPEN)
-            this.socket.send(JSON.stringify({ 'keys': this.keys }));
+            this.socket.send(JSON.stringify({ 'keys': this.keys, 'paused': this.paused }));
     }
 
     rotateBoard() {

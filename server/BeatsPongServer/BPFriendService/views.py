@@ -4,6 +4,8 @@ from BPDAL.views import query_user
 from BPDAL.views import query_friend_request_list
 from BPDAL.views import add_friend_request
 from BPDAL.views import remove_friend_request
+from BPDAL.views import query_profile_picture
+from BPDAL.views import update_profile_picture
 
 # django rest framework dependencies
 from django.views.decorators.csrf import csrf_exempt
@@ -13,10 +15,20 @@ from rest_framework.decorators import api_view
 from django.core.serializers import serialize
 from django.http import JsonResponse
 import json
+import os
 
 '''
 Conrtroller for friends related services
 '''
+@csrf_exempt
+@api_view(['POST'])
+def getProfilePicture(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profilePicture = query_profile_picture(username)
+    return JsonResponse({"image": profilePicture.image, "code": "success"}, status=200)
 
 @csrf_exempt
 @api_view(['POST'])
@@ -27,7 +39,24 @@ def getProfileData(request):
         return JsonResponse({"error": "User does not exist."}, status=400)
     profileData = query_profile_data(requestData['username'])
 
-    return JsonResponse(profileData, status=200)
+    return JsonResponse({"username": profileData.username, "displayName": profileData.displayName, "winRate": profileData.winRate}, status=200)
+
+# request body should contain username and displayName
+# {
+#     "username": "username",
+#     "displayName": "displayName"
+# }
+@csrf_exempt
+@api_view(['POST'])
+def updateDisplayName(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profileData = query_profile_data(requestData['username'])
+    profileData.displayName = requestData['displayName']
+    profileData.save()
+    return JsonResponse({"message": "Display name updated to:" + profileData.displayName}, status=200)   
 
 @csrf_exempt
 @api_view(['POST'])
@@ -106,3 +135,17 @@ def searchUser(request):
         return JsonResponse({"error": "Profile Data does not exist"}, status=400)
     
     return serialize('json', [profileData])
+
+@csrf_exempt
+@api_view(['POST'])
+def changeProfilePicture(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profilePicture = query_profile_picture(username)
+    if not profilePicture:
+        return JsonResponse({"error": "Profile Picture does not exist."}, status=400)
+    
+    update_profile_picture(username, requestData['image'])
+    return JsonResponse({"success": "Profile Picture updated."}, status=200)

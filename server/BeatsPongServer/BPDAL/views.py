@@ -1,9 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
-from .models import ProfileData, VerificationCode, FriendRequestList
+from .models import ProfileData, VerificationCode, FriendRequestList, ProfilePicture
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
-from django.db import transaction
-import time
 
 '''
 Functions that interact with the database
@@ -41,6 +39,13 @@ def query_friend_request_list(username):
     except FriendRequestList.DoesNotExist:
         return None
     
+def query_profile_picture(username):
+    try:
+        profilePicture = ProfilePicture.objects.get(username=username)
+        return profilePicture
+    except ProfilePicture.DoesNotExist:
+        return None
+    
 # insert functions
 def create_user(username, email, password):
     user = User.objects.create_user(
@@ -52,7 +57,6 @@ def create_user(username, email, password):
 
     profileData = ProfileData.objects.create(
         username=username,
-        profilePicture='default.jpg',
     )
     profileData.save()
 
@@ -60,6 +64,12 @@ def create_user(username, email, password):
         username=username,
     )
     friendRequestList.save()
+
+    profilePicture = ProfilePicture.objects.create(
+        username=username,
+    )
+    profilePicture.save()
+
     return user
 
 def create_profile(username, profilePicture):
@@ -68,6 +78,13 @@ def create_profile(username, profilePicture):
         profilePicture=profilePicture,
     )
     return profile
+
+def create_profile_picture(username, image):
+    profilePicture = ProfilePicture.objects.create(
+        username=username,
+        image=image,
+    )
+    return profilePicture
 
 def create_verification_code(username, email, code, password, expDate):
     codeObj = VerificationCode.objects.create(
@@ -89,10 +106,9 @@ def create_friend_request_list(username):
 # update functions
 def update_profile_picture(username, newProfilePicture):
     try:
-        profile = ProfileData.objects.get(username=username)
-        profile.profilePicture = newProfilePicture
-        profile.save()
-        return profile
+        profilePic = ProfilePicture.objects.get(username=username)
+        profilePic.image = newProfilePicture
+        profilePic.save()
     except ObjectDoesNotExist:
         return None
     

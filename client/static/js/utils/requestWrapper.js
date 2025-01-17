@@ -3,6 +3,9 @@
  * Since we use JWT to secure the server, these wrapper funnctionns will handle the token passing.
  * Standard input should be (apiEndpoint, requestMethod, jsonMessage)
  * Standard output will always be a json object.
+ * 
+ * IMPORTANT
+ * This is an async function, so you should always use await or other methods to wait for the output when calling this function and use them in an async funnction
  */
 let isRequestInProgress = false;
 
@@ -54,15 +57,15 @@ async function makeRequest(method, url, jsonMessage) {
         }
 
         if (data.refresh) {
-            console.log('Refresh token received: ' + data.refresh);
+            // console.log('Refresh token received: ' + data.refresh);
             document.cookie = `refresh=${data.refresh}; Secure; SameSite=None; path=/`;
         }
         if (data.access) {
-            console.log('Access token received: ' + data.access);
+            // console.log('Access token received: ' + data.access);
             document.cookie = `access=${data.access}; Secure; SameSite=None; path=/`;
         }
 
-        console.log('Request successful');
+        console.log('Request successful', data);
         return data;
 
     } catch (error) {

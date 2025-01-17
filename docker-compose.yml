@@ -31,8 +31,8 @@ services:
   #   build:
   #     context: ./client
   #   ports:
-  #     - "3000:3000"
+  #     - "443:443"
   #   volumes:
   #     - ./client:/app
-  #   environment:
-  #     - ENV_VAR_NAME=value  # Add your environment variables here
+  #   env_file:
+  #     - .env

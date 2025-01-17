@@ -55,11 +55,19 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
                 break
 
     # remove players from que when they disconnect
-    async def disconnect(self):
+    async def disconnect(self, code):
         if self in BPSlaveMaster.que_solo:
             BPSlaveMaster.que_solo.remove(self)
         if self in BPSlaveMaster.que_tourney:
             BPSlaveMaster.que_tourney.remove(self)
+
+        # # Find and remove from the room 
+        # for game in BPSlaveMaster.rooms: 
+        #     if self.channel_name in [game.channel1_name, game.channel2_name]: 
+        #         await game.handle_player_disconnect(self) 
+        #         break 
+        # print(f"Disconnected: {self.channel_name}") 
+        # await self.close()
 
     # room management functions--------------------------------------------------------------------------
 

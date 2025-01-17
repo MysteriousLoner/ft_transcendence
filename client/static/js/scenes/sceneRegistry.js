@@ -18,6 +18,7 @@ class SceneRegistry {
     sceneRouterCallback(scene) {
         // console.log('Routing to scene:', scene);
         if (this.currentScene) {
+            console.log('Cleaning current scene', this.currentScene);
             this.currentScene.cleanScreens();
         }
         this.currentScene = null;

@@ -1,4 +1,5 @@
 import MenuScreen from "../screens/menuScreen.js";
+import makeRequest from "../utils/requestWrapper.js";
 
 class MenuScene {
     constructor(sceneRouterCallback, globalVars) {
@@ -7,10 +8,20 @@ class MenuScene {
         
         // scene level shared variables
         this.currentScreen = null;
+        // let profileData = makeRequest('POST', 'api/menu/getProfileData/', { username: globalVars.username });
         this.sceneVars = {
             get username() {
                 return globalVars.username;
-            }
+            },
+        //     get profilePicture() {
+        //         return profileData.profilePicture;
+        //     },
+        //     get friendList() {
+        //         return profileData.friendList;
+        //     },
+        //     get winRate() {
+        //         return profileData.winRate;
+        //     }
         }
 
         // initiate default screen
