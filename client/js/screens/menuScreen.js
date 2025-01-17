@@ -24,6 +24,7 @@ class MenuScreen {
         document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
         document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
 
+		document.getElementById("profilePictureMenu").src = "../images/default.png";
 		// initPage from menu.js
 		initPage(this.sceneVars.username);
     }

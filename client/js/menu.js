@@ -1,5 +1,6 @@
 import makeRequest from "./utils/requestWrapper.js";
 
+
 const userData1 = {
 	username: "JohnDoe",
 	profilePicture: "https://example.com/profile.jpg",
@@ -15,8 +16,9 @@ let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
-let friendList = [];
+let friendList = [];	
 let userName = "";
+let userData = {};
 
 // Initialize the page
 async function initPage(inputUser) {
@@ -277,6 +279,7 @@ function handleImageUpload(event) {
         profileImagePreview.src = defaultSrc; // Set to default image if no file is selected
     }
 }
+
 
 function saveUsername() {
     const newUsername = document.getElementById('usernameInput').value;
