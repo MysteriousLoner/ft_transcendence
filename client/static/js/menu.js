@@ -1,7 +1,7 @@
 import makeRequest from "./utils/requestWrapper.js";
 
 
-const userData1 = {
+const exampleUserData = {
 	username: "JohnDoe",
 	profilePicture: "https://example.com/profile.jpg",
 	friendList: ["leeyang2004", "etlaw", "folim", "David", "Eve", "Frank", "Grace", "Henry", "Ivy", "Jack"],
@@ -16,33 +16,32 @@ let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
-// Initialize the page
-async function initPage() {
+let userData = {};
+let profilePicture = {};
 
-	const req = { username: 'ethan' };
-	console.log(req);
+// Initialize the page
+async function initPage(nameInput) {
+
+	const req = { username: nameInput };
 	try {
-		const userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
-		document.getElementById("username").textContent = userData.username;
-		document.getElementById("profilePicture").src = userData.profilePicture;
+		userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
+		document.getElementById("usernameTitle1").textContent = userData.username;
+		profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', req);
+		document.getElementById("profilePicture").src = profilePicture.image
 		updateWinRate(userData.winRate);
 	}
 	catch (error) {
 		console.error('Error:', error);
 	}
 
-	updateFriendList();
-	updateFriendRequests();
-
-	// Add event listeners for game buttons
-	document.getElementById("vanillaPong").addEventListener("click", playVanillaPong);
-	document.getElementById("friendsPong").addEventListener("click", playFriendsPong);
+	// updateFriendList();
+	// updateFriendRequests();
 
 	// Add event listeners for pagination
-	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
-	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
-	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
-	document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
+	// document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
+	// document.getElementById("nextPage").addEventListener("click", () => changePage(1));
+	// document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
+	// document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
 }
 
 // Update win rate

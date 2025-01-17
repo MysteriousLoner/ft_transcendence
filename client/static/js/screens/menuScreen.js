@@ -1,3 +1,4 @@
+import initPage from '../menu.js';
 import makeRequest from '../utils/requestWrapper.js';
 
 class MenuScreen {
@@ -25,8 +26,10 @@ class MenuScreen {
         
         // default page values
         document.getElementById("usernameTitle1").textContent = this.sceneVars.username || "Default";
-        console.log("MenuScreen username: " + this.sceneVars.username);
-        this.test();
+        // console.log("MenuScreen username: " + this.sceneVars.username);
+        // this.test();
+
+		initPage(this.sceneVars.username);
     }
 
     clean() {
