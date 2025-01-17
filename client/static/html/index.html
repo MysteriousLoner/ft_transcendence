@@ -144,8 +144,15 @@
 		<div class='Menu d-none' id="menuScreen">
 			<div class="container">
 				<div class="profile">
-					<img id="profilePicture" src="placeholder.svg?height=150&width=150" alt="Profile Picture">
-					<h1 id="usernameTitle1">placeholder</h1>
+					<img id="profilePictureMenu1" src="" alt="Profile Pic">
+					<div style="display: flex; align-items: center;">
+						<h2>Username:&nbsp;</h2>
+						<h2 id="usernameTitle1">placeholder</h2>
+					  </div>
+					  <div style="display: flex; align-items: center;">
+						<h2>Display name:&nbsp; </h2>
+						<h2 id="displaynameTitle">placeholder</h2>
+					  </div>
 					<p class="win-rate">Win Rate: <span id="winRate">0.0</span>%</p>
 					<div class="win-rate-container center">
 						<div class="win-rate-bar">
@@ -200,8 +207,8 @@
 						<button id="uploadImageBtn">Upload Image</button>
 					</div>
 					<div class="username-edit">
-						<input type="text" id="usernameInput" placeholder="New Username">
-						<button id="saveUsernameBtn">Save Username</button>
+						<input type="text" id="usernameInput" placeholder="New Display Name">
+						<button id="saveUsernameBtn">Save Display Name</button>
 					</div>
 					<button id="closeModalBtn">Close</button>
 				</div>

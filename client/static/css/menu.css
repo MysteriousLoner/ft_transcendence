@@ -47,6 +47,7 @@
 
 .Menu h1, 
 .Menu h2 {
+	font-size: medium;
     color: #ffffff;
 }
 
@@ -72,15 +73,16 @@
     background-color: #4CAF50;
     color: white;
     border: none;
-    padding: 5px 10px;
+    padding: 3px 4px; /* Reduce padding for a smaller button */
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 14px;
-    margin: 2px 2px;
+    font-size: 15px; /* Decrease font size */
+    margin: 1px 1px; /* Reduce margin */
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 5px;
 }
+
 
 .Menu input[type="text"] {
     width: 70%;
@@ -93,9 +95,6 @@
     margin-bottom: 10px;
 }
 
-.Menu .game-buttons {
-    margin-top: 20px;
-}
 
 .Menu .game-buttons button {
     background-color: #3498db;
@@ -105,7 +104,7 @@
     text-align: center;
     text-decoration: none;
     display: inline-block;
-    font-size: 16px;
+    font-size: 10px;
     margin: 4px 2px;
     cursor: pointer;
     border-radius: 5px;

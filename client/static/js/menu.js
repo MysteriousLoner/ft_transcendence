@@ -19,28 +19,47 @@ const friendsPerPage = 5;
 let friendList = [];	
 let userName = "";
 let userData = {};
+let profilePicture = {};
 
 // Initialize the page
 async function initPage(inputUser) {
 
+	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
+	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
+	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
+	document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
+
+
+	// get profile data
 	userName = inputUser;
 	const req = { username: userName };
 	console.log(req);
 	try {
 		userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
-		document.getElementById("username").textContent = userName;
-		document.getElementById("profilePictureMenu").src = userData.profilePicture;
+		document.getElementById("usernameTitle1").textContent = userData.username;
+		document.getElementById("displaynameTitle").textContent = userData.displayName;
 		updateWinRate(userData.winRate);
 	}
 	catch (error) {
 		console.error('Error:', error);
 	}
 
+
+	// get profile picture
+	try {
+		profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', req);
+		document.getElementById("profilePictureMenu1").src = userData.image;
+	}
+	catch (error) {
+		console.error('Error:', error);
+	}
+
+	
 	updateFriendList();
-	updateFriendRequests();
+	// updateFriendRequests();
 
 	// edit modal
-	document.getElementById('profilePictureMenu').addEventListener('click', openEditProfileModal);
+	document.getElementById('profilePictureMenu1').addEventListener('click', openEditProfileModal);
     document.getElementById('closeModalBtn').addEventListener('click', closeEditProfileModal);
     document.getElementById('profileImageUpload').addEventListener('change', handleImageUpload);
     document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('profileImageUpload').click());
@@ -55,6 +74,7 @@ function updateWinRate(winRate) {
 
 // Update friend list
 async function updateFriendList() {
+
 	const friendsList = document.getElementById("friendsList");
 	friendsList.innerHTML = "";
 
@@ -63,8 +83,9 @@ async function updateFriendList() {
 
 	const req = { username: userName };
 	try {
-		friendList = await makeRequest('POST', 'api/menu/getFriendList/', req);
-		console.log(friendList);
+		// friendList = await makeRequest('POST', 'api/menu/getFriendList/', req);
+		friendList = userData1.friendList;
+		// console.log(friendList);
 	}
 	catch (error) {
 		console.error('Error:', error);
@@ -79,12 +100,15 @@ async function updateFriendList() {
 			li.innerHTML = `
             <span>${friend}</span>
             <div>
-                <button class="invite-friend" onclick="inviteFriend('${friend}')">Invite</button>
-                <button class="delete-friend" onclick="deleteFriend('${friend}')">Delete</button>
+                <button class="invite-friend"">Invite</button>
+                <button class="delete-friend">Delete</button>
             </div>
         `;
 			friendsList.appendChild(li);
+			li.querySelector(".invite-friend").addEventListener("click", () => inviteFriend(friend));
+   			 li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 		});
+
 	}
 	else {
 		console.log('No friends found');
@@ -103,7 +127,7 @@ function updatePagination(totalItems, currentPageNum, currentPageId, prevPageId,
 
 // Change page
 function changePage(direction) {
-	const totalPages = Math.ceil(userData.friendList.length / friendsPerPage);
+	const totalPages = Math.ceil(userData1.friendList.length / friendsPerPage);
 	currentPage += direction;
 	if (currentPage < 1) currentPage = 1;
 	if (currentPage > totalPages) currentPage = totalPages;
@@ -281,14 +305,20 @@ function handleImageUpload(event) {
 }
 
 
-function saveUsername() {
+async function saveUsername() {
     const newUsername = document.getElementById('usernameInput').value;
     if (newUsername) {
-        userData.username = newUsername;
-        document.getElementById('username').textContent = newUsername;
+        userData.displayName = newUsername;
+        document.getElementById('displaynameTitle').textContent = newUsername;
+		try {
+			const response = await makeRequest('POST', 'api/menu/updateDisplayName/', { username: userData.username, displayName: newUsername });
+		}
+		catch (error) {	
+			console.error('Change Dispaly name error:', error);
+		}
         closeEditProfileModal();
     } else {
-        alert('Please enter a valid username');
+        alert('Please enter a valid display Name');
     }
 }
 
