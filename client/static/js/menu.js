@@ -16,33 +16,54 @@ let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
-// Initialize the page
-async function initPage() {
+let friendList = [];	
+let userName = "";
+let userData = {};
+let profilePicture = {};
 
-	const req = { username: 'ethan' };
+// Initialize the page
+async function initPage(inputUser) {
+
+	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
+	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
+	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
+	document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
+
+
+	// get profile data
+	userName = inputUser;
+	const req = { username: userName };
 	console.log(req);
 	try {
-		const userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
-		document.getElementById("username").textContent = userData.username;
-		document.getElementById("profilePicture").src = userData.profilePicture;
+		userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
+		document.getElementById("usernameTitle1").textContent = userData.username;
+		document.getElementById("displaynameTitle").textContent = userData.displayName;
 		updateWinRate(userData.winRate);
 	}
 	catch (error) {
 		console.error('Error:', error);
 	}
 
+
+	// get profile picture
+	try {
+		profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', req);
+		document.getElementById("profilePictureMenu1").src = userData.image;
+	}
+	catch (error) {
+		console.error('Error:', error);
+	}
+
+	
 	updateFriendList();
-	updateFriendRequests();
+	// updateFriendRequests();
 
-	// Add event listeners for game buttons
-	document.getElementById("vanillaPong").addEventListener("click", playVanillaPong);
-	document.getElementById("friendsPong").addEventListener("click", playFriendsPong);
-
-	// Add event listeners for pagination
-	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
-	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
-	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
-	document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
+	// edit modal
+	document.getElementById('profilePictureMenu1').addEventListener('click', openEditProfileModal);
+    document.getElementById('closeModalBtn').addEventListener('click', closeEditProfileModal);
+    document.getElementById('profileImageUpload').addEventListener('change', handleImageUpload);
+    document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('profileImageUpload').click());
+    document.getElementById('saveUsernameBtn').addEventListener('click', saveUsername);
 }
 
 // Update win rate
@@ -52,27 +73,48 @@ function updateWinRate(winRate) {
 }
 
 // Update friend list
-function updateFriendList() {
+async function updateFriendList() {
+
 	const friendsList = document.getElementById("friendsList");
 	friendsList.innerHTML = "";
 
 	const startIndex = (currentPage - 1) * friendsPerPage;
 	const endIndex = startIndex + friendsPerPage;
-	const displayedFriends = userData.friendList.slice(startIndex, endIndex);
 
-	displayedFriends.forEach(friend => {
-		const li = document.createElement("li");
-		li.innerHTML = `
+	const req = { username: userName };
+	try {
+		// friendList = await makeRequest('POST', 'api/menu/getFriendList/', req);
+		friendList = userData1.friendList;
+		// console.log(friendList);
+	}
+	catch (error) {
+		console.error('Error:', error);
+	}
+
+	if (friendList.length > 0) {
+		const displayedFriends = friendList.slice(startIndex, endIndex);
+		// const displayedFriends = userData.friendList.slice(startIndex, endIndex);
+
+		displayedFriends.forEach(friend => {
+			const li = document.createElement("li");
+			li.innerHTML = `
             <span>${friend}</span>
             <div>
-                <button class="invite-friend" onclick="inviteFriend('${friend}')">Invite</button>
-                <button class="delete-friend" onclick="deleteFriend('${friend}')">Delete</button>
+                <button class="invite-friend"">Invite</button>
+                <button class="delete-friend">Delete</button>
             </div>
         `;
-		friendsList.appendChild(li);
-	});
+			friendsList.appendChild(li);
+			li.querySelector(".invite-friend").addEventListener("click", () => inviteFriend(friend));
+   			 li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
+		});
 
-	updatePagination(userData.friendList.length, currentPage, "currentPage", "prevPage", "nextPage");
+	}
+	else {
+		console.log('No friends found');
+	}
+
+	updatePagination(friendList.length, currentPage, "currentPage", "prevPage", "nextPage");
 }
 
 // Update pagination
@@ -85,7 +127,7 @@ function updatePagination(totalItems, currentPageNum, currentPageId, prevPageId,
 
 // Change page
 function changePage(direction) {
-	const totalPages = Math.ceil(userData.friendList.length / friendsPerPage);
+	const totalPages = Math.ceil(userData1.friendList.length / friendsPerPage);
 	currentPage += direction;
 	if (currentPage < 1) currentPage = 1;
 	if (currentPage > totalPages) currentPage = totalPages;
@@ -168,17 +210,6 @@ function inviteFriend(friend) {
 	// Add code here to handle the game invitation
 }
 
-// Play Vanilla Pong
-function playVanillaPong() {
-	alert("Starting Vanilla Pong game...");
-	// Add code here to start the Vanilla Pong game
-}
-
-// Play Friends Pong
-function playFriendsPong() {
-	alert("Starting Friends Pong game...");
-	// Add code here to start the Friends Pong game
-}
 
 // Search new friends
 let filteredNewFriends = [];
@@ -222,6 +253,73 @@ function addFriend(friend) {
 		alert(`${friend} is already in your friend list.`);
 	}
 	searchNewFriends(); // Refresh the new friends list
+}
+
+function openEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'block';
+}
+
+function closeEditProfileModal() {
+    document.getElementById('editProfileModal').style.display = 'none';
+}
+// function handleImageUpload(event) {
+//     const file = event.target.files[0];
+//     const profilePic = document.getElementById('profilePicture');
+//     const profileImagePreview = document.getElementById('profileImagePreview');
+//     const defaultSrc = profilePic.getAttribute("data-default-src");
+
+//     if (file) {
+//         const reader = new FileReader();
+//         reader.onload = function(e) {
+//             profilePic.src = e.target.result;
+//             profileImagePreview.src = e.target.result;
+//             userData.profilePicture = e.target.result;
+// 			console.log("PROFILE PICTURE" + userData.profilePicture);
+//         }
+//         reader.readAsDataURL(file);
+//     } else {
+//         profilePic.src = defaultSrc;
+//         profileImagePreview.src = defaultSrc;
+//         userData.profilePicture = "";
+//     }
+// }
+
+function handleImageUpload(event) {
+    const file = event.target.files[0]; // Get the uploaded file
+    const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
+    const defaultSrc = '../images/default.png'; // Default image source
+
+    if (file) {
+        console.log("File selected:", file.name); // Log the name of the selected file
+        const reader = new FileReader(); // Create a FileReader object
+        reader.onload = function(e) {
+            console.log("File read successfully."); // Log when the file is read successfully
+            profileImagePreview.src = e.target.result; // Set the image preview to the uploaded file
+            console.log("Image preview updated with:", e.target.result); // Log the data URL of the uploaded image
+        }
+        reader.readAsDataURL(file); // Read the file as a data URL
+    } else {
+        console.log("No file selected, using default image."); // Log when no file is selected
+        profileImagePreview.src = defaultSrc; // Set to default image if no file is selected
+    }
+}
+
+
+async function saveUsername() {
+    const newUsername = document.getElementById('usernameInput').value;
+    if (newUsername) {
+        userData.displayName = newUsername;
+        document.getElementById('displaynameTitle').textContent = newUsername;
+		try {
+			const response = await makeRequest('POST', 'api/menu/updateDisplayName/', { username: userData.username, displayName: newUsername });
+		}
+		catch (error) {	
+			console.error('Change Dispaly name error:', error);
+		}
+        closeEditProfileModal();
+    } else {
+        alert('Please enter a valid display Name');
+    }
 }
 
 export default initPage;

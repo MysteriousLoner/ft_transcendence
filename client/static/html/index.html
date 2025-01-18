@@ -144,8 +144,15 @@
 		<div class='Menu d-none' id="menuScreen">
 			<div class="container">
 				<div class="profile">
-					<img id="profilePicture" src="placeholder.svg?height=150&width=150" alt="Profile Picture">
-					<h1 id="usernameTitle1">placeholder</h1>
+					<img id="profilePictureMenu1" src="" alt="Profile Pic">
+					<div style="display: flex; align-items: center;">
+						<h2>Username:&nbsp;</h2>
+						<h2 id="usernameTitle1">placeholder</h2>
+					  </div>
+					  <div style="display: flex; align-items: center;">
+						<h2>Display name:&nbsp; </h2>
+						<h2 id="displaynameTitle">placeholder</h2>
+					  </div>
 					<p class="win-rate">Win Rate: <span id="winRate">0.0</span>%</p>
 					<div class="win-rate-container center">
 						<div class="win-rate-bar">
@@ -190,6 +197,22 @@
 					</div>
 				</div>
 			</div>	
+			<script src="../js/menu.js"></script>
+			<div id="editProfileModal" class="editProfile modal">
+				<div class="modal-content">
+					<h2>Edit Profile</h2>
+					<div class="profile-image-upload">
+						<img id="profileImagePreview" src="../images/default.png" alt="Profile Picture Preview">
+						<input type="file" id="profileImageUpload" accept="image/*">
+						<button id="uploadImageBtn">Upload Image</button>
+					</div>
+					<div class="username-edit">
+						<input type="text" id="usernameInput" placeholder="New Display Name">
+						<button id="saveUsernameBtn">Save Display Name</button>
+					</div>
+					<button id="closeModalBtn">Close</button>
+				</div>
+			</div>
 		</div>
 
 		<!-- Verification Page -->
