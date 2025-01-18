@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import getFriendList, sendFriendRequest, rejectFriendRequest, getProfileData, getProfilePicture, update_profile_picture, updateDisplayName
+from .views import getFriendList, sendFriendRequest, rejectFriendRequest, getProfileData, getProfilePicture, updateProfilePicture, updateDisplayName
 
 urlpatterns = [
     path('getFriendList/', getFriendList, name='getFriendList'),
@@ -7,6 +7,6 @@ urlpatterns = [
     path('rejectFriendRequest/', rejectFriendRequest, name='rejectFriendRequest'),
     path('getProfileData/', getProfileData, name='getProfileData'),
     path('getProfilePicture/', getProfilePicture, name='getProfilePicture'),
-    path('updateProfilePicture/', update_profile_picture, name='updateProfilePicture'),
+    path('updateProfilePicture/', updateProfilePicture, name='updateProfilePicture'),
     path('updateDisplayName/', updateDisplayName, name='updateDisplayName'),
 ]

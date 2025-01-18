@@ -288,3 +288,27 @@
 .editProfile button:hover {
     opacity: 0.8;
 }
+
+.centered-container {
+	display: flex;
+	flex-direction: column; /* Stack the child divs vertically */
+	align-items: center;    /* Center child elements horizontally */     
+	text-align: center;     /* Center-align text inside elements */
+  }
+  
+  .profile-picture-container {
+    width: 100px; /* Set the desired width */
+    height: 100px; /* Set the desired height */
+    overflow: hidden; /* Hide any overflow */
+    border-radius: 50%; /* Make the container circular */
+    display: flex; /* Center the image */
+    justify-content: center; /* Center the image horizontally */
+    align-items: center; /* Center the image vertically */
+	padding-bottom: 30px;
+}
+
+#profilePictureMenu1 {
+    width: 100%; /* Make the image take the full width of the container */
+    height: auto; /* Maintain aspect ratio */
+    border-radius: 50%; /* Make the image circular */
+}

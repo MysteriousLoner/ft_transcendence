@@ -48,7 +48,7 @@ async function initPage(inputUser) {
 	// get profile picture
 	try {
 		profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', req);
-		document.getElementById("profilePictureMenu1").src = userData.image;
+		document.getElementById("profilePictureMenu1").src = profilePicture.image;
 	}
 	catch (error) {
 		console.error('Error:', error);
@@ -255,11 +255,16 @@ function addFriend(friend) {
 	searchNewFriends(); // Refresh the new friends list
 }
 
-function openEditProfileModal() {
+async function openEditProfileModal() {
+	profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', { username: userData.username });
+	const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
+    profileImagePreview.src = profilePicture.image // Default image source
     document.getElementById('editProfileModal').style.display = 'block';
 }
 
-function closeEditProfileModal() {
+async function closeEditProfileModal() {
+	profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', { username: userData.username });
+	document.getElementById("profilePictureMenu1").src = profilePicture.image;
     document.getElementById('editProfileModal').style.display = 'none';
 }
 // function handleImageUpload(event) {
@@ -287,15 +292,15 @@ function closeEditProfileModal() {
 function handleImageUpload(event) {
     const file = event.target.files[0]; // Get the uploaded file
     const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
-    const defaultSrc = '../images/default.png'; // Default image source
+    const defaultSrc = profilePicture.image // Default image source
 
     if (file) {
         console.log("File selected:", file.name); // Log the name of the selected file
         const reader = new FileReader(); // Create a FileReader object
-        reader.onload = function(e) {
+        reader.onload = async function(e) {
             console.log("File read successfully."); // Log when the file is read successfully
             profileImagePreview.src = e.target.result; // Set the image preview to the uploaded file
-            console.log("Image preview updated with:", e.target.result); // Log the data URL of the uploaded image
+			const response = await makeRequest('POST', 'api/menu/updateProfilePicture/', { username: userData.username, image: e.target.result });
         }
         reader.readAsDataURL(file); // Read the file as a data URL
     } else {
