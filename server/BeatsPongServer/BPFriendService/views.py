@@ -149,7 +149,7 @@ def searchUser(request):
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def changeProfilePicture(request):
+def updateProfilePicture(request):
     requestData = json.loads(request.body)
     username = requestData['username']
     if not query_user(username):
