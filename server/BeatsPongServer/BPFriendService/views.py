@@ -9,7 +9,8 @@ from BPDAL.views import update_profile_picture
 
 # django rest framework dependencies
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 # formatting, data objects
 from django.core.serializers import serialize
@@ -22,6 +23,7 @@ Conrtroller for friends related services
 '''
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def getProfilePicture(request):
     requestData = json.loads(request.body)
     username = requestData['username']
@@ -32,6 +34,7 @@ def getProfilePicture(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def getProfileData(request):
     requestData = json.loads(request.body)
     username = requestData['username']
@@ -48,6 +51,7 @@ def getProfileData(request):
 # }
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def updateDisplayName(request):
     requestData = json.loads(request.body)
     username = requestData['username']
@@ -56,10 +60,12 @@ def updateDisplayName(request):
     profileData = query_profile_data(requestData['username'])
     profileData.displayName = requestData['displayName']
     profileData.save()
+    profileData.refresh_from_db()
     return JsonResponse({"message": "Display name updated to:" + profileData.displayName}, status=200)   
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def getFriendList(request):        
     requestData = json.loads(request.body)
     username = requestData['username']
@@ -71,6 +77,7 @@ def getFriendList(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def sendFriendRequest(request):
     requestData = json.loads(request.body)
     username = requestData['username']
@@ -90,6 +97,7 @@ def sendFriendRequest(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def rejectFriendRequest(request):
     requestData = json.loads(request.body)
     username = requestData['username']
@@ -108,6 +116,7 @@ def rejectFriendRequest(request):
 
 @csrf_exempt
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def getFriendRequestList(request):
     requestData = json.loads(request.body)
     username = requestData['username']
@@ -122,6 +131,7 @@ def getFriendRequestList(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def searchUser(request):
     requestData = json.loads(request.body)
     username = requestData['username']
@@ -138,6 +148,7 @@ def searchUser(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def changeProfilePicture(request):
     requestData = json.loads(request.body)
     username = requestData['username']

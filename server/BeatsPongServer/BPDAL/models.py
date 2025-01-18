@@ -19,9 +19,8 @@ class ProfileData(models.Model):
     winRate = models.FloatField(default=100)
     
     def save(self, *args, **kwargs): 
-        if not self.displayName: 
-            self.displayName = self.username # Set displayName to username if it’s not provided 
-            super(ProfileData, self).save(*args, **kwargs)
+        self.displayName = self.displayName or self.username 
+        super(ProfileData, self).save(*args, **kwargs)
 
     def __str__(self): 
         return self.username

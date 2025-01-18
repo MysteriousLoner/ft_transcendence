@@ -8,12 +8,14 @@
  * This is an async function, so you should always use await or other methods to wait for the output when calling this function and use them in an async funnction
  */
 let isRequestInProgress = false;
+const verbose = false;
 
 async function makeRequest(method, url, jsonMessage) {
-    console.log('Making request');
+    if (verbose) { console.log('Making request'); }
     
     if (isRequestInProgress) {
-        console.log('Request already in progress');
+        if (verbose)
+            console.log('Request already in progress');
         return { error: 'Request already in progress' };
     }
 
@@ -25,7 +27,8 @@ async function makeRequest(method, url, jsonMessage) {
 
         // Ensures user is authenticated
         if ((refreshToken === null || accessToken === null) && !isPublicEndpoint(url)) {
-            console.error('Unauthenticated user, register/login first');
+            if (verbose)
+                console.error('Unauthenticated user, register/login first');
             return ErrorMessages.NO_JWT;
         }
 
@@ -36,7 +39,8 @@ async function makeRequest(method, url, jsonMessage) {
         };
 
         if (!isPublicEndpoint(url) && isTokenExpired(accessToken)) {
-            console.log('Access token expired, refreshing');
+            if (verbose)
+                console.log('Access token expired, refreshing');
             accessToken = await refreshAccessToken(refreshToken);
 
             if (accessToken === null) {
@@ -48,12 +52,14 @@ async function makeRequest(method, url, jsonMessage) {
             request.headers['Authorization'] = 'Bearer ' + accessToken;
         }
 
-        console.log('Making request to ' + ServerIp + url);
+        if (verbose)
+            console.log('Making request to ' + ServerIp + url);
         const response = await fetch(ServerIp + url, request);
         const data = await response.json();
 
         if (data.error) {
-            console.error('Error:', data.error);
+            if (verbose)
+                console.error('Error:', data.error);
         }
 
         if (data.refresh) {
@@ -65,16 +71,19 @@ async function makeRequest(method, url, jsonMessage) {
             document.cookie = `access=${data.access}; Secure; SameSite=None; path=/`;
         }
 
-        console.log('Request successful', data);
+        if (verbose)
+            console.log('Request successful', data);
         return data;
 
     } catch (error) {
-        console.error('Request failed:', error);
+        if (verbose)
+            console.error('Request failed:', error);
         return { error: 'An unexpected error occurred. Please try again.' };
     
     } finally {
         isRequestInProgress = false;
-        console.log('Request completed - finally block');
+        if (verbose)
+            console.log('Request completed - finally block');
     }
 }
 

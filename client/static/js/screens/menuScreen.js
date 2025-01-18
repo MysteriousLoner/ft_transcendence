@@ -28,7 +28,7 @@ class MenuScreen {
         // document.getElementById("usernameTitle1").textContent = this.sceneVars.username || "Default";
         // console.log("MenuScreen username: " + this.sceneVars.username);
 
-		initPage(this.sceneVars.username);
+        this.test();
     }
 
     clean() {
@@ -73,11 +73,16 @@ class MenuScreen {
     }
 
     async test() {
-        await this.getPfp();
+        console.log("testing menu screen api calls");
+        // await this.getPfp();
         await this.getProfileData();
-        const newDisplayName = "test";
+        const newDisplayName = "newDisplay";
         console.log("updating display name to: " + newDisplayName);
         await this.updateDisplayName(newDisplayName);
+        let profileData = await makeRequest('POST', 'api/menu/getProfileData/', { username: this.sceneVars.username });
+        console.log("display name after update: " + profileData.displayName);
+        console.log("usernanme after update: " + profileData.username);
+        console.log("ennd of test");
     }
 }
 
