@@ -38,6 +38,7 @@ async function initPage(inputUser) {
 		userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
 		document.getElementById("usernameTitle1").textContent = userData.username;
 		document.getElementById("displaynameTitle").textContent = userData.displayName;
+		console.log("winn rate: " + userData.winRate);
 		updateWinRate(userData.winRate);
 	}
 	catch (error) {

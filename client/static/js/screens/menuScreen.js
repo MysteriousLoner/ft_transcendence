@@ -28,7 +28,9 @@ class MenuScreen {
         // document.getElementById("usernameTitle1").textContent = this.sceneVars.username || "Default";
         // console.log("MenuScreen username: " + this.sceneVars.username);
 
-        this.test();
+        // this.test();
+        initPage(this.sceneVars.username);
+        this.getFriendList();
     }
 
     clean() {
@@ -83,6 +85,12 @@ class MenuScreen {
         console.log("display name after update: " + profileData.displayName);
         console.log("usernanme after update: " + profileData.username);
         console.log("ennd of test");
+    }
+
+    async getFriendList() {
+        const friendList = await makeRequest('POST', 'api/menu/getFriendList/', { username: this.sceneVars.username });
+        console.log("MenuScreen friendList: ");
+        console.log(friendList);
     }
 }
 

@@ -21,6 +21,39 @@ import os
 '''
 Conrtroller for friends related services
 '''
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def addFriend(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profileData = query_profile_data(requestData['username'])
+    if requestData['friend'] in profileData.friendList:
+        return JsonResponse({"error": "Friend already added."}, status=400)
+    profileData.friendList.append(requestData['friend'])
+    profileData.save()
+    profileData.refresh_from_db()
+    return JsonResponse({"message": "Friend added."}, status=200)
+
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def removeFriend(request):
+    requestData = json.loads(request.body)
+    username = requestData['username']
+    if not query_user(username):
+        return JsonResponse({"error": "User does not exist."}, status=400)
+    profileData = query_profile_data(requestData['username'])
+    if requestData['friend'] not in profileData.friendList:
+        return JsonResponse({"error": "Friend not found."}, status=400)
+    profileData.friendList.remove(requestData['friend'])
+    profileData.save()
+    profileData.refresh_from_db()
+    return JsonResponse({"message": "Friend removed."}, status=200)
+
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
