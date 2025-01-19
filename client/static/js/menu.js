@@ -25,8 +25,8 @@ async function initPage(inputUser) {
 
 	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
 	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
-	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
-	document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
+	// document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
+	// document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
 
 
 	// get profile data
@@ -147,7 +147,9 @@ function changeNewPage(direction) {
 function updateFriendRequests() {
 	const requestsList = document.getElementById("friendRequests");
 	requestsList.innerHTML = "";
+
 	const friendRequests = userData.pendingRequests | [];
+
 	if (friendRequests.length > 0) {
 		friendRequests.forEach(friend => {
 			const li = document.createElement("li");
