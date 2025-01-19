@@ -13,6 +13,15 @@ class MenuScene {
             get username() {
                 return globalVars.username;
             },
+
+            get game_mode() {
+                return globalVars.game_mode;
+            },
+
+            set game_mode(value) {
+                globalVars.game_mode = value;
+            }
+
         //     get profilePicture() {
         //         return profileData.profilePicture;
         //     },
@@ -43,7 +52,8 @@ class MenuScene {
             this.cleanScreens();
             this.currentScreen = new MenuScreen(
                 this.sceneRouterCallback.bind(this), 
-                this.screenRouterCallback.bind(this)
+                this.screenRouterCallback.bind(this),
+                this.sceneVars
             )
         } else {
             console.error('Invalid screen:', screen);

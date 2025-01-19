@@ -14,6 +14,7 @@ Note: AsyncJsonWebsocketConsumer is used. No need to dump.
 
 class PongGame:
     # Class-level variables for default game settings
+
     cuboidWidth = 15
     cuboidHeight = 10
     cuboidDepth = 0.25
@@ -29,13 +30,18 @@ class PongGame:
 
     def __init__(self, room_name, player1, player2):
         print("Game object created", flush=True)
+
+        self.game_mode = 'AI' if player2 == 'AI' else 'PvP'
+
         # identity of the room "I identify as a ......."
         self.room_name = room_name
         # identifies if the game is running
         self.running = False
+
         # identifies the name of the websocket sending message
         self.channel1_name = player1.channel_name
-        self.channel2_name = player2.channel_name
+        self.channel2_name = player2.channel_name if self.game_mode == 'PvP' else None
+
 
         self.ai_last_refresh_time = 0
         self.ai_refresh_interval = 1
@@ -45,7 +51,8 @@ class PongGame:
         # create group for websockets, add websockets from players to group
         self.channel_layer = get_channel_layer()
         asyncio.create_task(self.channel_layer.group_add(self.room_name, player1.channel_name))
-        asyncio.create_task(self.channel_layer.group_add(self.room_name, player2.channel_name))
+        if (self.game_mode == 'PvP'):
+            asyncio.create_task(self.channel_layer.group_add(self.room_name, player2.channel_name))
 
         # Initialize game state and game objects
         self.cuboid = {
@@ -85,7 +92,10 @@ class PongGame:
             'w': False,
             's': False,
             'ArrowUp': False,
-            'ArrowDown': False
+            'ArrowDown': False,
+            'AI_L': False,
+            'AI_R': False,
+            'ai_lvl': 'easy' # Default AI level is easy
         }
 
     async def start_game(self):
@@ -96,8 +106,12 @@ class PongGame:
         target_interval = 1/60
         while self.running:
             start_time = asyncio.get_event_loop().time()
-
             self.update_game_state()
+
+            # AI Control for AI mode
+            if self.game_mode == 'AI':
+                await self.AI_Control('Right')
+
             await self.send_game_state()
             elapsed_time = asyncio.get_event_loop().time() - start_time
             sleep_time = target_interval - elapsed_time
@@ -112,56 +126,196 @@ class PongGame:
 
         self.keys['w'] = f_keys['w']
         self.keys['s'] = f_keys['s']
+        self.keys['ai_lvl'] = f_keys['ai_lvl']
 
-        if  sender_channel == self.channel1_name:
+        if self.game_mode == 'AI' and sender_channel == self.channel1_name:
             if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
                 self.leftPaddle['y'] += self.leftPaddleSpeed
             elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
                 self.leftPaddle['y'] -= self.leftPaddleSpeed
-            
-            if paused and self.running:
-                print("Game paused", flush=True)
-                self.running = False
+        
+            if self.keys['ArrowUp'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
+                self.rightPaddle['y'] += PongGame.rightPaddleSpeed
+            elif self.keys['ArrowDown'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
+                self.rightPaddle['y'] -= PongGame.rightPaddleSpeed
 
-            if not paused and not self.running:
-                self.running = True
-                await self.game_loop()
+        elif self.game_mode == 'PvP' and sender_channel == self.channel1_name:
+            if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
+                self.leftPaddle['y'] += self.leftPaddleSpeed
+            elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
+                self.leftPaddle['y'] -= self.leftPaddleSpeed
 
-        if  sender_channel == self.channel2_name:
+        elif self.game_mode == 'PvP' and sender_channel == self.channel2_name:
             if self.keys['w'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
                 self.rightPaddle['y'] += self.rightPaddleSpeed
             elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
                 self.rightPaddle['y'] -= self.rightPaddleSpeed
 
-            if paused and self.running:
-                print("Game paused", flush=True)
-                self.running = False
+        if paused and self.running:
+            print("Game paused", flush=True)
+            self.running = False
 
-            if not paused and not self.running:
-                self.running = True
-                await self.game_loop()
+        if not paused and not self.running:
+            self.running = True
+            await self.game_loop()
 
+# Game State Functions Set ------------------------------------------------------------------------------------------------------------
 
     def update_game_state(self):
+        # Update ball position
         self.ball['x'] += self.ball['speedX']
         self.ball['y'] += self.ball['speedY']
+        # self.move_paddles()
+        self.update_ball_position()
+        self.predict_ball_position(self.keys['ai_lvl'])
 
-        if self.ball['y'] + self.ball['radius'] > self.cuboid['height'] / 2 or self.ball['y'] - self.ball['radius'] < -self.cuboid['height'] / 2:
+    # def move_paddles(self):
+    #     if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
+    #         self.leftPaddle['y'] += PongGame.leftPaddleSpeed
+    #     elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
+    #         self.leftPaddle['y'] -= PongGame.leftPaddleSpeed
+
+    #     if self.keys['ArrowUp'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
+    #         self.rightPaddle['y'] += PongGame.rightPaddleSpeed
+    #     elif self.keys['ArrowDown'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
+    #         self.rightPaddle['y'] -= PongGame.rightPaddleSpeed
+
+    def update_ball_position(self):
+        steps = 10
+        step_size_x = self.ball['speedX'] / steps
+        step_size_y = self.ball['speedY'] / steps
+
+        for _ in range(steps):
+            self.ball['x'] += step_size_x
+            self.ball['y'] += step_size_y
+
+            if self.wall_collision() or self.paddle_collision():
+                break
+
+    def wall_collision(self):
+        # Ball collision with cuboid top edges
+        if self.ball['y'] + self.ball['radius'] > self.cuboid['height'] / 2 or self.ball['y'] - self.ball["radius"] < -self.cuboid['height'] / 2:
             self.ball['speedY'] = -self.ball['speedY']
-        
-        if self.ball['x'] + self.ball['radius'] > self.cuboid['width'] / 2:
+            return True
+        # Ball collision with cuboid side edges
+        elif self.ball['x'] + self.ball['radius'] > self.cuboid['width'] / 2:
             self.score['left'] += 1
             self.reset_game()
+            return True
         elif self.ball['x'] - self.ball['radius'] < -self.cuboid['width'] / 2:
             self.score['right'] += 1
             self.reset_game()
+            return True
+        return False
 
+
+    def paddle_collision(self):
+        # Ball collision with paddles
         if self.ball['x'] - self.ball['radius'] < self.leftPaddle['x'] + self.leftPaddle['width'] / 2 and \
-                self.leftPaddle['y'] - self.leftPaddle['height'] / 2 < self.ball['y'] < self.leftPaddle['y'] + self.leftPaddle['height'] / 2:
-            self.ball['speedX'] = -self.ball['speedX']
-        if self.ball['x'] + self.ball['radius'] > self.rightPaddle['x'] - self.rightPaddle['width'] / 2 and \
-                self.rightPaddle['y'] - self.rightPaddle['height'] / 2 < self.ball['y'] < self.rightPaddle['y'] + self.rightPaddle['height'] / 2:
-            self.ball['speedX'] = -self.ball['speedX']
+                self.leftPaddle['y'] - (self.leftPaddle['height'] / 2) < self.ball['y'] < self.leftPaddle['y'] + (self.leftPaddle['height'] / 2):
+            self.ball_impact_physics()
+            return True
+
+        elif self.ball['x'] + self.ball["radius"] > self.rightPaddle['x'] - self.rightPaddle['width'] / 2 and \
+                self.rightPaddle['y'] - (self.rightPaddle['height'] / 2) < self.ball['y'] < self.rightPaddle['y'] + (self.rightPaddle['height'] / 2):
+            self.ball_impact_physics()
+            return True
+        return False
+    
+    def ball_impact_physics(self):
+        """ If paddle hits the ball when moving up, the ball reflect angle increases 5%. And vice versa. """
+        if self.keys['w'] or self.keys['ArrowUp']:
+            paddle_movement = 'up'
+        elif self.keys['s'] or self.keys['ArrowDown']:
+            paddle_movement = 'down'
+        else:
+            paddle_movement = 'none'
+
+        # If padddle is moving in the direction of the ball, decrease vertical, increase horizontal speed of the ball.
+        if (paddle_movement == 'up' and self.ball['speedY'] > 0) or (paddle_movement == 'down' and self.ball['speedY'] < 0):
+            self.adjust_ball_speed(-0.005, 'y')
+            self.adjust_ball_speed(0.005, 'x')
+        
+        # If padddle is moving in the opposite direction of the ball, increase the verticle, decrease horizontal speed of the ball.
+        elif (paddle_movement == 'up' and self.ball['speedY'] < 0) or (paddle_movement == 'down' and self.ball['speedY'] > 0):
+            self.adjust_ball_speed(0.005, 'y')
+            self.adjust_ball_speed(-0.005, 'x')
+
+        self.ball['speedX'] = -self.ball['speedX']
+
+    def adjust_ball_speed(self, change, vector):
+        if vector == 'x':
+            if self.ball['speedX'] > 0:
+                self.ball['speedX'] += change
+            else:
+                self.ball['speedX'] -= change
+        elif vector == 'y':
+            if self.ball['speedY'] > 0:
+                self.ball['speedY'] += change
+            else:
+                self.ball['speedY'] -= change
+
+# End of Game State Functions Set ------------------------------------------------------------------------------------------------------------
+
+# AI Functions Set ---------------------------------------------------------------------------------------------------------------------------
+    def predict_ball_position(self, mode):
+        if mode == 'easy':
+            self.predicted_target = self.ball['y']
+            return
+        
+        if mode == 'hard':
+            if self.ball['speedX'] > 0:
+                ball_distance_to_wall = (self.cuboid['width'] / 2) - self.ball['x']
+            else:
+                ball_distance_to_wall = -(self.cuboid['width'] / 2) - self.ball['x']
+            time_to_wall = ball_distance_to_wall / (self.ball['speedX'])
+
+            # print(f"Distance to wall: {ball_distance_to_wall:.2f} Time to wall: {time_to_wall:.2f}", end='\r')
+
+            predicted_y = self.ball['y'] + (time_to_wall * self.ball['speedY'])
+
+            # Modify when prediction is out of bounds
+            if predicted_y > self.cuboid['height'] / 2:
+                predicted_y = (self.cuboid['height'] / 2) - (predicted_y - self.cuboid['height'] / 2)
+            elif predicted_y < -self.cuboid['height'] / 2:
+                predicted_y = (-self.cuboid['height'] / 2) + (-self.cuboid['height'] / 2 - predicted_y)
+
+            self.predicted_target = predicted_y
+
+    async def AI_Control(self, side):
+
+        # Refresh AI target every 1 second
+        current_time = asyncio.get_event_loop().time()
+        if current_time - self.ai_last_refresh_time >= self.ai_refresh_interval:
+            self.AI_target = self.predicted_target
+            self.ai_last_refresh_time = current_time
+
+        # Right side by default
+        paddle_side = self.rightPaddle
+        up_key = 'ArrowUp'
+        down_key = 'ArrowDown'
+        ball_towards_paddle = self.ball['speedX'] > 0
+
+        if side == 'Left':
+            paddle_side = self.leftPaddle
+            up_key = 'w'
+            down_key = 's'
+            ball_towards_paddle = self.ball['speedX'] < 0
+
+        if ball_towards_paddle:
+            if abs(self.AI_target - paddle_side['y']) < 0.1:
+                self.keys[up_key] = False
+                self.keys[down_key] = False
+            elif self.AI_target > paddle_side['y']:
+                self.keys[up_key] = True
+                self.keys[down_key] = False
+            elif self.AI_target < paddle_side['y']:
+                self.keys[up_key] = False
+                self.keys[down_key] = True
+
+# End of AI Functions Set --------------------------------------------------------------------------------------------------------------------------
+
+
 
     def reset_game(self):
         self.ball['x'] = 0
@@ -172,13 +326,20 @@ class PongGame:
         self.rightPaddle['y'] = 0
 
     async def send_game_state(self):
+        # Determines which ball target to show
+        paddle = self.rightPaddle['x']
+        if self.ball['speedX'] < 0:
+            paddle = self.leftPaddle['x']
+
         game_state = {
-            'cuboid': f'{self.cuboid["width"]:.2f},{self.cuboid["height"]:.2f},{self.cuboid["depth"]:.2f}',
-            'ball': f'{self.ball["radius"]:.2f},{self.ball["x"]:.2f},{self.ball["y"]:.2f},{self.ball["z"]:.2f}',
-            'paddle_dimensions': f'{PongGame.paddleWidth:.2f},{PongGame.paddleHeight:.2f},{PongGame.paddleDepth:.2f}',
-            'leftPaddle': f'{self.leftPaddle["x"]:.2f},{self.leftPaddle["y"]:.2f},{self.leftPaddle["z"]:.2f}',
-            'rightPaddle': f'{self.rightPaddle["x"]:.2f},{self.rightPaddle["y"]:.2f},{self.rightPaddle["z"]:.2f}',
-            'score': f'{self.score["left"]},{self.score["right"]}'
+            "cuboid": f"{self.cuboid['width']:.2f},{self.cuboid['height']:.2f},{self.cuboid['depth']:.2f}",
+            "ball": f"{self.ball['radius']:.2f},{self.ball['x']:.2f},{self.ball['y']:.2f},{self.ball['z']:.2f}",
+            "paddle_dimensions": f"{PongGame.paddleWidth:.2f},{PongGame.paddleHeight:.2f},{PongGame.paddleDepth:.2f}",
+            "leftPaddle": f"{self.leftPaddle['x']:.2f},{self.leftPaddle['y']:.2f},{self.leftPaddle['z']:.2f}",
+            "rightPaddle": f"{self.rightPaddle['x']:.2f},{self.rightPaddle['y']:.2f},{self.rightPaddle['z']:.2f}",
+            "score": f"{self.score['left']},{self.score['right']}",
+            "ballTarget": f"{paddle:.2f},{self.AI_target},{0}",
+            "ballSpeed": f"{self.ball['speedX']:.4f},{self.ball['speedY']:.4f}",
         }
         await self.channel_layer.group_send(
             self.room_name,

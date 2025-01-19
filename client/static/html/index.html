@@ -166,6 +166,7 @@
 					<div class="game-buttons large-buttons">
 						<button id="vanillaPong">Play Vanilla Pong</button>
 						<button id="friendsPong">Play Friends Pong</button>
+						<button id="demoPong">Demo Pong</button>
 					</div>
 				</div>
 				<div class="friend-section">
@@ -235,28 +236,53 @@
 			</div>
 		</div>
 
-	<!-- Game Container -->
-	<div id="gameContainer" class="container d-none">
-        <canvas id="pong-game-canvas" height="25"></canvas>
-        <div class="feature-buttons">
-            <button id="AI_Left">Enable AI L</button>
-            <button id="AI_Right">Enable AI R</button>
-            <button id="Ball_Predict_Point">Show Ball Prediction</button>
-            <button id="Collision_Particles">Enable Collision Particles</button>
-            <button id="Snowfall">Enable Snowfall</button>
-            <button id="AI_Prediction">Enable Pro AI</button>
-        </div>
-        <div class="scoreboard" id="score"></div>
-        <div class="info">
-            <div id="position"></div>
-            <div id="scale"></div>
-        </div>
-        <div class="position">
-            <div id="leftPaddlePosition"></div>
-            <div id="rightPaddlePosition"></div>
-            <div id="ballSpeed"></div>
-        </div>
+		<!-- Vanilla Pong AI Selection -->
+		<div id="ailvlSelectScreen"
+			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
+			<h1>Welcome to Vanilla Pong!</h1>
+			<h2>Choose your level:</h2>
+			<div class="button-container">
+				<button class="btn btn-custom mx-3" id="easyAIButton">Easy</button>
+				<button class="btn btn-custom mx-3" id="hardAIButton">Hard</button>
+				<button class="btn btn-custom mx-3" id="backToMenuButton_1">Back to Menu</button>
+			</div>
+		</div>
+
+		<!-- Friends Pong Mode PvP Selection -->
+		<div id="friendsModeSelectScreen"
+		class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
+		<h1>Welcome to Friends Pong!</h1>
+		<h2>Choose your mode:</h2>
+		<div class="button-container">
+			<button class="btn btn-custom mx-3" id="soloButton">Solo</button>
+			<button class="btn btn-custom mx-3" id="tournamentButton">Tournament</button>
+			<button class="btn btn-custom mx-3" id="backToMenuButton_2">Back to Menu</button>
+		</div>
 	</div>
+
+		<!-- Game Container -->
+		<div id="gameContainer" class="container d-none">
+			<h1>Game Screen</h1>
+			<canvas id="pong-game-canvas" height="25"></canvas>
+			<div class="feature-buttons">
+				<button id="AI_Left">Enable AI L</button>
+				<button id="AI_Right">Enable AI R</button>
+				<button id="Ball_Predict_Point">Show Ball Prediction</button>
+				<button id="Collision_Particles">Enable Collision Particles</button>
+				<button id="Snowfall">Enable Snowfall</button>
+				<button id="AI_Prediction">Enable Pro AI</button>
+			</div>
+			<div class="scoreboard" id="score"></div>
+			<div class="info">
+				<div id="position"></div>
+				<div id="scale"></div>
+			</div>
+			<div class="position">
+				<div id="leftPaddlePosition"></div>
+				<div id="rightPaddlePosition"></div>
+				<div id="ballSpeed"></div>
+			</div>
+		</div>
 
 		<!-- Google Translate Script -->
 		<script src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
