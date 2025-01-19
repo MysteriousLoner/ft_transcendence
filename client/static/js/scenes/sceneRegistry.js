@@ -17,6 +17,7 @@ class SceneRegistry {
     }
 
     sceneRouterCallback(scene) {
+        console.log('Routing to scene:', scene);
         if (this.currentScene) {
             console.log('Cleaning current scene', this.currentScene);
             this.currentScene.cleanScreens();
@@ -44,20 +45,21 @@ class SceneRegistry {
         }
 
         // Push new state to browser history
-        window.history.pushState({ scene }, '', window.location.pathname);
-        this.history.push(scene);
+        if (this.history[this.history.length - 1] !== scene) { 
+            window.history.pushState({ scene }, '', window.location.pathname); 
+            this.history.push(scene); 
+        } 
+        console.log('Current history stack:', this.history);
     }
 
     handlePopState(event) {
-        // Previous scene pops out before current scene
-        if (this.history.length > 1) {
-            this.history.pop();  // Remove current scene
-            const scene = this.history.pop();  // Pop out previous scene
-            console.log('Handling pop state:', scene);
-            this.sceneRouterCallback(scene);
-        } else {
-            console.log('No previous scene found in history');
-        }
+        if (this.history.length <= 1) { 
+            return; 
+        } 
+        const previousScene = this.history.length >= 2 ? this.history[this.history.length - 2] : this.history[0]; 
+        this.history.pop(); 
+        console.log('Handling pop state:', previousScene); 
+        this.sceneRouterCallback(previousScene);
     }
 
     startApp() {
