@@ -10,8 +10,6 @@ const userData1 = {
 
 const friendRequests = ["Kevin", "Liam"];
 
-const allUsers = ["Alice", "Bob", "Charlie", "David", "Eve", "Frank", "Grace", "Henry", "Ivy", "Jack", "Kevin", "Liam", "Mike", "Nancy", "Oscar", "Patty", "Quinn", "Rachel", "Sam", "Tom"];
-
 let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
@@ -266,6 +264,8 @@ async function closeEditProfileModal() {
 	profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', { username: userData.username });
 	document.getElementById("profilePictureMenu1").src = profilePicture.image;
     document.getElementById('editProfileModal').style.display = 'none';
+
+	userData = await makeRequest('POST', 'api/menu/getProfileData/', { username: userData.username });
 }
 // function handleImageUpload(event) {
 //     const file = event.target.files[0];
@@ -317,6 +317,7 @@ async function saveUsername() {
         document.getElementById('displaynameTitle').textContent = newUsername;
 		try {
 			const response = await makeRequest('POST', 'api/menu/updateDisplayName/', { username: userData.username, displayName: newUsername });
+			console.log(response.message);
 		}
 		catch (error) {	
 			console.error('Change Dispaly name error:', error);
