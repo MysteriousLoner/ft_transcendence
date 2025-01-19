@@ -6,7 +6,6 @@ import GameScene from "./gameScene.js";
 
 class SceneRegistry {
     constructor () {
-        this.updateHistory = true;
         this.currentScene = null;
         this.history = [];
         this.globalVars = {
@@ -43,27 +42,19 @@ class SceneRegistry {
                 console.error('Invalid scene:', scene);
                 return;
         }
-        if (this.updateHistory == true) {
-            this.history.push(scene);
-            window.history.pushState({ scene }, '', `#${scene}`);
-            this.updateHistory = false;
-        }
-        // console.log(history);
+        this.history.push(scene);
     }
 
     handlePopState(event) { 
-        const { scene } = event.state || {}; 
-        if (scene) { 
-            this.updateHistory = true;
-            this.sceneRouterCallback(scene); 
-        } 
+        event.preventDefault();
+        let scene = this.history.pop();
+        this.sceneRouterCallback(scene);
     }
 
     startApp() {
         const initialScene = 'homeScene';
         this.currentScene = new HomeScene(this.sceneRouterCallback.bind(this));
         this.history.push(initialScene); 
-        window.history.replaceState({ scene: initialScene }, '', `#${initialScene}`);
         // console.log(history);
     }
 }

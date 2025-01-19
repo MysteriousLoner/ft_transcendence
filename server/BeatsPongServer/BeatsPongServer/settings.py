@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'game',
     'BPAuthService',
 	'BPFriendService',
+    'BPAccountService',
     'BPDAL'
 ]
 
