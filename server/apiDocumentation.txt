@@ -1,0 +1,75 @@
+Api documentation
+
+Auth apis:
+Registering a new user
+path: {hostIp}/auth/register/
+parameters:
+{
+    username: "Username", username of the user
+    email: "xxx@xx.com", email of the user, used to receive verification code
+    password: "xxxx@123!", password of the user
+}
+
+verifying the code sent to the email
+path: {hostIp}/auth/verify/
+parameters:
+{
+    username: "username", username of the user being registered
+    verificationCode: "code", the 6 digit code sent to the user's email
+}
+
+login to the application
+path: {hostIp}/auth/login/
+parameters:
+{
+    username: "username", username
+    password: "password", password
+}
+
+User account apis:
+obtain user profile data
+path: {hostIp}/account/getProfileData/
+parameters:
+{
+    username: "username", username
+}
+
+obtain profile picture
+path: {hostIp}/account/getProfilePicture
+parameters:
+{
+    username: "username", username
+}
+
+Friends service related Apis:
+send friend request
+path: {hostIp}/friends/sendFriendRequest/
+parameters:
+{
+    selfUsername: "username of the sender",
+    targetUsername: "Username of the target"
+}
+
+accept frieend request
+path: {hostIp}/friends/acceptFriendRequest/
+parameters:
+{
+    selfUsername: "username of the sender",
+    targetUsername: "Username of the target"
+}
+
+decline frieend request
+path: {hostIp}/friends/declineFriendRequest/
+parameters:
+{
+    selfUsername: "username of the sender",
+    targetUsername: "Username of the target"
+}
+
+remove friend
+path: {hostIp}/friends/removeFriend/
+parameters:
+{
+    selfUsername: "username of the sender",
+    targetUsername: "Username of the target"
+}

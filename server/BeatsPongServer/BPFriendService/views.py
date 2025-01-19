@@ -1,11 +1,6 @@
 # Data access layer functions
 from BPDAL.views import query_profile_data
 from BPDAL.views import query_user
-from BPDAL.views import query_friend_request_list
-from BPDAL.views import add_friend_request
-from BPDAL.views import remove_friend_request
-from BPDAL.views import query_profile_picture
-from BPDAL.views import update_profile_picture
 
 # django rest framework dependencies
 from django.views.decorators.csrf import csrf_exempt
@@ -21,175 +16,99 @@ import os
 '''
 Conrtroller for friends related services
 '''
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def addFriend(request):
-    requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    profileData = query_profile_data(requestData['username'])
-    if requestData['friend'] in profileData.friendList:
-        return JsonResponse({"error": "Friend already added."}, status=400)
-    profileData.friendList.append(requestData['friend'])
-    profileData.save()
-    profileData.refresh_from_db()
-    return JsonResponse({"message": "Friend added."}, status=200)
-
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def removeFriend(request):
+    # load request data
     requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    profileData = query_profile_data(requestData['username'])
-    if requestData['friend'] not in profileData.friendList:
-        return JsonResponse({"error": "Friend not found."}, status=400)
-    profileData.friendList.remove(requestData['friend'])
-    profileData.save()
-    profileData.refresh_from_db()
+    friendUsername = requestData['friendUsername']
+    selfUsername = requestData['selfUsername']
+    # error checking
+    if not query_user(friendUsername) or not query_user(selfUsername):
+        return JsonResponse({"error": "User or friend does not exist."}, status=400)
+    # get self profile data and friend profile data
+    friendProfileData = query_profile_data(friendUsername)
+    selfProfileData = query_profile_data(selfUsername)
+    if selfUsername not in friendProfileData.friendList or friendUsername not in selfProfileData.friendList:
+        return JsonResponse({"error": "not friends."}, status=400)
+    # remove friend username from self friend list and remove self username from friend's friend list
+    friendProfileData.friendList.remove(selfUsername)
+    friendProfileData.save()
+    selfProfileData.friendList.remove(friendUsername)
+    selfProfileData.save()
+    selfProfileData.refresh_from_db()
+    friendProfileData.refresh_from_db()
     return JsonResponse({"message": "Friend removed."}, status=200)
 
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def getProfilePicture(request):
-    requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    profilePicture = query_profile_picture(username)
-    return JsonResponse({"image": profilePicture.image, "code": "success"}, status=200)
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def getProfileData(request):
-    requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    profileData = query_profile_data(requestData['username'])
-
-    return JsonResponse({"username": profileData.username, "displayName": profileData.displayName, "winRate": profileData.winRate}, status=200)
-
-# request body should contain username and displayName
-# {
-#     "username": "username",
-#     "displayName": "displayName"
-# }
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def updateDisplayName(request):
-    requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    profileData = query_profile_data(requestData['username'])
-    profileData.displayName = requestData['displayName']
-    profileData.save()
-    profileData.refresh_from_db()
-    return JsonResponse({"message": "Display name updated to:" + profileData.displayName}, status=200)   
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def getFriendList(request):        
-    requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    profileData = query_profile_data(requestData['username'])
-
-    return JsonResponse(profileData.friendList, status=200)
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def sendFriendRequest(request):
+    # load request data
     requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    
-    friendRequestList = query_friend_request_list(username)
-    if not friendRequestList:
-        return JsonResponse({"error": "Friend Request List does not exist."}, status=400)
-    
-    if username not in friendRequestList.pendingRequests:
-        add_friend_request(username, requestData['friend'])
-        return JsonResponse({"success": "Friend request sent."}, status=200)
-    
-    return JsonResponse({"error": "Friend request already sent."}, status=400)
-    
+    targetUsername = requestData['targetUsername']
+    selfUsername = requestData['selfUsername']
+    # error checking
+    if not query_user(targetUsername) or not query_user(selfUsername):
+        return JsonResponse({"error": "Users does not exist."}, status=400)
+    # get target profile data and self profile data
+    targetProfileData = query_profile_data(targetUsername)
+    if targetUsername in targetProfileData.pendingRequests:
+        return JsonResponse({"error": "Friend request already sent."}, status=400)
+    # add self username to target's pending requests
+    targetProfileData.pendingRequests.append(selfUsername)
+    targetProfileData.save()
+    targetProfileData.refresh_from_db()
+    return JsonResponse({"message": "Friend request sent."}, status=200)
 
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def rejectFriendRequest(request):
+def acceptFriendRequest(request):
+    # load request data
     requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    
-    friendRequestList = query_friend_request_list(username)
-    if not friendRequestList:
-        return JsonResponse({"error": "Friend Request List does not exist."}, status=400)
-    
-    if requestData['friend'] in friendRequestList.pendingRequests:
-        remove_friend_request(username, requestData['friend'])
-        return JsonResponse({"success": "Friend request rejected."}, status=200)
-    
-    return JsonResponse({"error": "Friend request not found."}, status=400)
-
-@csrf_exempt
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def getFriendRequestList(request):
-    requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    
-    friendRequestList = query_friend_request_list(username)
-    if not friendRequestList:
-        return JsonResponse({"error": "Friend Request List does not exist."}, status=400)
-    
-    return JsonResponse(friendRequestList.pendingRequests, status=200)
+    selfUsername = requestData['selfUsername']
+    requestUsername = requestData['requestUsername']
+    # error checking
+    if not query_user(requestUsername) or not query_user(selfUsername):
+        selfProfileData = query_profile_data(selfUsername)
+        if requestUsername in selfProfileData.pendingRequests:
+            selfProfileData.pendingRequests.remove(requestUsername)
+            return JsonResponse({"message": "Friend account deleted"}, status=200)
+        return JsonResponse({"error": "Friend or User does not exist."}, status=400)
+    # get friend profile data and self profile data
+    requestProfileData = query_profile_data(requestUsername)
+    selfProfileData = query_profile_data(selfUsername)
+    if requestUsername not in selfProfileData.pendingRequests:
+        return JsonResponse({"error": "Friend request not found."}, status=400)
+    # remove friend username from self pending requests, add friend username to self friend list, and add self username to friend friend list
+    requestProfileData.pendingRequests.remove(requestUsername)
+    selfProfileData.friendList.append(requestUsername)
+    requestProfileData.friendList.append(selfUsername)
+    selfProfileData.save()
+    requestProfileData.refresh_from_db()
+    return JsonResponse({"message": "Friend request accepted."}, status=200)
 
 @csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def searchUser(request):
+def declineFriendRequest(request):
+    # load request data
     requestData = json.loads(request.body)
-    username = requestData['username']
-    if (not username.strip()):
-        return JsonResponse({"error": "Invalid username."}, status=400)
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    
-    profileData = query_profile_data(username)
-    if (not profileData):
-        return JsonResponse({"error": "Profile Data does not exist"}, status=400)
-    
-    return serialize('json', [profileData])
-
-@csrf_exempt
-@api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def updateProfilePicture(request):
-    requestData = json.loads(request.body)
-    username = requestData['username']
-    if not query_user(username):
-        return JsonResponse({"error": "User does not exist."}, status=400)
-    profilePicture = query_profile_picture(username)
-    if not profilePicture:
-        return JsonResponse({"error": "Profile Picture does not exist."}, status=400)
-    
-    update_profile_picture(username, requestData['image'])
-    return JsonResponse({"success": "Profile Picture updated."}, status=200)
+    requestUsername = requestData['requestUsername']
+    selfUsername = requestData['selfUsername']
+    # error checking
+    if not query_user(requestUsername) or not query_user(selfUsername):
+        selfProfileData = query_profile_data(selfUsername)
+        if requestUsername in selfProfileData.pendingRequests:
+            selfProfileData.pendingRequests.remove(requestUsername)
+            return JsonResponse({"message": "Friend request declined."}, status=200)
+        return JsonResponse({"error": "Friend or User does not exist."}, status=400)
+    selfProfileData = query_profile_data(requestData['selfUsername'])
+    if requestUsername not in selfProfileData.pendingRequests:
+        return JsonResponse({"error": "Friend request not found."}, status=400)
+    selfProfileData.pendingRequests.remove(requestUsername)
+    selfProfileData.save()
+    selfProfileData.refresh_from_db()
+    return JsonResponse({"message": "Friend request declined."}, status=200)

@@ -35,7 +35,7 @@ async function initPage(inputUser) {
 	const req = { username: userName };
 	console.log(req);
 	try {
-		userData = await makeRequest('POST', 'api/menu/getProfileData/', req);
+		userData = await makeRequest('POST', 'api/account/getProfileData/', req);
 		document.getElementById("usernameTitle1").textContent = userData.username;
 		document.getElementById("displaynameTitle").textContent = userData.displayName;
 		console.log("winn rate: " + userData.winRate);
@@ -48,7 +48,7 @@ async function initPage(inputUser) {
 
 	// get profile picture
 	try {
-		profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', req);
+		profilePicture = await makeRequest('POST', 'api/account/getProfilePicture/', req);
 		document.getElementById("profilePictureMenu1").src = profilePicture.image;
 	}
 	catch (error) {
@@ -257,14 +257,14 @@ function addFriend(friend) {
 }
 
 async function openEditProfileModal() {
-	profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', { username: userData.username });
+	profilePicture = await makeRequest('POST', 'api/account/getProfilePicture/', { username: userData.username });
 	const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
     profileImagePreview.src = profilePicture.image // Default image source
     document.getElementById('editProfileModal').style.display = 'block';
 }
 
 async function closeEditProfileModal() {
-	profilePicture = await makeRequest('POST', 'api/menu/getProfilePicture/', { username: userData.username });
+	profilePicture = await makeRequest('POST', 'api/account/getProfilePicture/', { username: userData.username });
 	document.getElementById("profilePictureMenu1").src = profilePicture.image;
     document.getElementById('editProfileModal').style.display = 'none';
 }
@@ -301,7 +301,7 @@ function handleImageUpload(event) {
         reader.onload = async function(e) {
             console.log("File read successfully."); // Log when the file is read successfully
             profileImagePreview.src = e.target.result; // Set the image preview to the uploaded file
-			const response = await makeRequest('POST', 'api/menu/updateProfilePicture/', { username: userData.username, image: e.target.result });
+			const response = await makeRequest('POST', 'api/account/updateProfilePicture/', { username: userData.username, image: e.target.result });
         }
         reader.readAsDataURL(file); // Read the file as a data URL
     } else {
@@ -317,7 +317,7 @@ async function saveUsername() {
         userData.displayName = newUsername;
         document.getElementById('displaynameTitle').textContent = newUsername;
 		try {
-			const response = await makeRequest('POST', 'api/menu/updateDisplayName/', { username: userData.username, displayName: newUsername });
+			const response = await makeRequest('POST', 'api/account/updateDisplayName/', { username: userData.username, displayName: newUsername });
 		}
 		catch (error) {	
 			console.error('Change Dispaly name error:', error);

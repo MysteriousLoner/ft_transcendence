@@ -10,43 +10,8 @@ No additional logic should be present in this module, keep them at the controlle
 Strictly insert, query, update and delete only.
 '''
 
-# Query funcitons
-def query_profile_data(username):
-    try:
-        profileData = ProfileData.objects.get(username=username)
-        return profileData
-    except ObjectDoesNotExist:
-        return None
-    
-def query_verification_code(username):
-    try:
-        codeObj = VerificationCode.objects.filter(username=username).first()
-        return codeObj
-    except ObjectDoesNotExist:
-        return None
-    
-def query_user(username):
-    try:
-        user = User.objects.get(username=username)
-        return user
-    except ObjectDoesNotExist:
-        return None
-    
-def query_friend_request_list(username):
-    try:
-        friendRequestList = FriendRequestList.objects.get(username=username)
-        return friendRequestList
-    except FriendRequestList.DoesNotExist:
-        return None
-    
-def query_profile_picture(username):
-    try:
-        profilePicture = ProfilePicture.objects.get(username=username)
-        return profilePicture
-    except ProfilePicture.DoesNotExist:
-        return None
-    
-# insert functions
+# registration funcitons
+# creates a user object
 def create_user(username, email, password):
     user = User.objects.create_user(
         username=username, 
@@ -72,20 +37,15 @@ def create_user(username, email, password):
 
     return user
 
-def create_profile(username, profilePicture):
-    profile = ProfileData.objects.create(
-        username=username,
-        profilePicture=profilePicture,
-    )
-    return profile
+# user object functions
+def query_user(username):
+    try:
+        user = User.objects.get(username=username)
+        return user
+    except ObjectDoesNotExist:
+        return None
 
-def create_profile_picture(username, image):
-    profilePicture = ProfilePicture.objects.create(
-        username=username,
-        image=image,
-    )
-    return profilePicture
-
+# verification code
 def create_verification_code(username, email, code, password, expDate):
     codeObj = VerificationCode.objects.create(
         username = username,
@@ -96,22 +56,40 @@ def create_verification_code(username, email, code, password, expDate):
     )
     return codeObj
 
-def create_friend_request_list(username):
+# used to search created verification code
+def query_verification_code(username):
     try:
-        friendRequestList = FriendRequestList.objects.create(username=username)
-        return friendRequestList
-    except FriendRequestList.DoesNotExist:
-        return None
-
-# update functions
-def update_profile_picture(username, newProfilePicture):
-    try:
-        profilePic = ProfilePicture.objects.get(username=username)
-        profilePic.image = newProfilePicture
-        profilePic.save()
+        codeObj = VerificationCode.objects.filter(username=username).first()
+        return codeObj
     except ObjectDoesNotExist:
         return None
-    
+
+# used to delete verification code after verification
+def remove_verification_code(username):
+    while True: 
+        try:
+            code = VerificationCode.objects.get(username=username)
+            print(f"Deleting verification code for {username}", flush=True)
+            code.delete()
+        except VerificationCode.DoesNotExist:
+            print(f"No more codes for {username}", flush=True)
+            break
+
+# profile data functions
+def create_profile(username, profilePicture):
+    profile = ProfileData.objects.create(
+        username=username,
+        profilePicture=profilePicture,
+    )
+    return profile
+
+def query_profile_data(username):
+    try:
+        profileData = ProfileData.objects.get(username=username)
+        return profileData
+    except ObjectDoesNotExist:
+        return None
+
 def update_win_rate(username, newWinRate):
     try:
         profile = ProfileData.objects.get(username=username)
@@ -121,6 +99,30 @@ def update_win_rate(username, newWinRate):
     except ObjectDoesNotExist:
         return None
     
+# profile picture functions
+def query_profile_picture(username):
+    try:
+        profilePicture = ProfilePicture.objects.get(username=username)
+        return profilePicture
+    except ProfilePicture.DoesNotExist:
+        return None
+
+def create_profile_picture(username, image):
+    profilePicture = ProfilePicture.objects.create(
+        username=username,
+        image=image,
+    )
+    return profilePicture
+
+def update_profile_picture(username, newProfilePicture):
+    try:
+        profilePic = ProfilePicture.objects.get(username=username)
+        profilePic.image = newProfilePicture
+        profilePic.save()
+    except ObjectDoesNotExist:
+        return None
+
+# friend functions
 def add_friend(username, friend_username):
     try:
         profile = ProfileData.objects.get(username=username)
@@ -130,28 +132,7 @@ def add_friend(username, friend_username):
         return profile
     except ProfileData.DoesNotExist:
         return None
-    
-def add_friend_request(username, friend_username):
-    try:
-        friendRequestList = FriendRequestList.objects.get(username=username)
-        if friend_username not in friendRequestList.pendingRequests:
-            friendRequestList.pendingRequests.append(friend_username)
-            friendRequestList.save()
-        return friendRequestList
-    except FriendRequestList.DoesNotExist:
-        return None
-    
-def remove_friend_request(username, friend_username):
-    try:
-        friendRequestList = FriendRequestList.objects.get(username=username)
-        if friend_username in friendRequestList.pendingRequests:
-            friendRequestList.pendingRequests.remove(friend_username)
-            friendRequestList.save()
-        return friendRequestList
-    except FriendRequestList.DoesNotExist:
-        return None
-    
-# delete functions
+
 def remove_friend(username, friend_username):
     try:
         profile = ProfileData.objects.get(username=username)
@@ -162,12 +143,33 @@ def remove_friend(username, friend_username):
     except ProfileData.DoesNotExist:
         return None
 
-def remove_verification_code(username):
-    while True: 
-        try:
-            code = VerificationCode.objects.get(username=username)
-            print(f"Deleting verification code for {username}", flush=True)
-            code.delete()
-        except VerificationCode.DoesNotExist:
-            print(f"No more codes for {username}", flush=True)
-            break
+def send_friend_request(username, friend_username):
+    try:
+        profile = ProfileData.objects.get(username=username)
+        if friend_username not in profile.pendingRequests:
+            profile.pendingRequests.append(friend_username)
+            profile.save()
+        return profile
+    except ProfileData.DoesNotExist:
+        return None
+    
+def accept_friend_request(username, friend_username):
+    try:
+        profile = ProfileData.objects.get(username=username)
+        if friend_username in profile.pendingRequests:
+            profile.pendingRequests.remove(friend_username)
+            profile.friendList.append(friend_username)
+            profile.save()
+        return profile
+    except ProfileData.DoesNotExist:
+        return None
+    
+def decline_friend_request(username, friend_username):
+    try:
+        profile = ProfileData.objects.get(username=username)
+        if friend_username in profile.pendingRequests:
+            profile.pendingRequests.remove(friend_username)
+            profile.save()
+        return profile
+    except ProfileData.DoesNotExist:
+        return None

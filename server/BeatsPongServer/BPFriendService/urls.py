@@ -1,15 +1,9 @@
 from django.urls import path
-from .views import getFriendList, sendFriendRequest, rejectFriendRequest, getProfileData, getProfilePicture, updateProfilePicture, updateDisplayName
-from .views import addFriend, removeFriend
+from .views import removeFriend, sendFriendRequest, acceptFriendRequest, declineFriendRequest
 
 urlpatterns = [
-    path('getFriendList/', getFriendList, name='getFriendList'),
+    path('removeFriend/', removeFriend, name='removeFriend'),
     path('sendFriendRequest/', sendFriendRequest, name='sendFriendRequest'),
-    path('rejectFriendRequest/', rejectFriendRequest, name='rejectFriendRequest'),
-    path('getProfileData/', getProfileData, name='getProfileData'),
-    path('getProfilePicture/', getProfilePicture, name='getProfilePicture'),
-    path('updateProfilePicture/', updateProfilePicture, name='updateProfilePicture'),
-    path('updateDisplayName/', updateDisplayName, name='updateDisplayName'),
-    path('addFriend/', addFriend, name='addFriend'),
-    path('removeFriend/', removeFriend, name='removeFriend')
+    path('acceptFriendRequest/', acceptFriendRequest, name='acceptFriendRequest'),
+    path('declineFriendRequest/', declineFriendRequest, name='declineFriendRequest')
 ]
