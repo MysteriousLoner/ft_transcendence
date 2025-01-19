@@ -20,7 +20,7 @@ class LandingScreen {
     }
 
     switchToLoginScene() {
-        // console.log('switching to login scene');
+        this.clean();
         this.sceneRouterCallback('loginScene');
     }
 

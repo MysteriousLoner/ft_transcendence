@@ -22,6 +22,12 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
     # active rooms with games running
     rooms = []
 
+    # Vanilla players
+    que_vanilla = []
+
+    # Game modes
+    game_mode = ''
+
     # websocket functions-----------------------------------------------------------------------------
 
     # handles a new connection, put them into a que, pop them when enough players to start game
@@ -32,21 +38,37 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         # parse url parameter to determine which game mode the user is queing for.
         query_string = self.scope['query_string'].decode()
         query_params = parse_qs(query_string)
-        game_mode = query_params.get('gameMode', [None])[0]
-        if game_mode == 'solo':
+        self.game_mode = query_params.get('gameMode', [None])[0]
+        
+        if self.game_mode == 'solo':
             BPSlaveMaster.que_solo.append(self)
             print("added to list")
             sys.stdout.flush()
             await self.check_ques()
-        elif game_mode == 'tourney':
+        elif self.game_mode == 'tourney':
             BPSlaveMaster.que_tourney.append(self)
             await self.check_ques()
+        elif self.game_mode == 'vanilla':
+            print("added to vanilla player to list")
+            BPSlaveMaster.que_vanilla.append(self)
+            await self.check_ques_vanilla()
 
     async def receive_json(self, content):
         sender_channel = self.channel_name  # Get the name of the channel sending the message
         # Loop through the list of rooms to find the matching game
         for game in BPSlaveMaster.rooms:
-            if sender_channel in [game.channel1_name, game.channel2_name]:
+
+            # If the game mode is vanilla, only allow messages from channel1
+            if self.game_mode == 'vanilla' and sender_channel in [game.channel1_name]:
+                print("message received!")
+                print("sender: " + sender_channel)
+                print(content)
+                # If the sender channel matches either player's channel name, pass the content to the game
+                await game.receive_json(content, self)
+                break
+
+            # If the game mode is not vanilla, allow messages from both channel1 and channel2
+            if self.game_mode != 'vanilla' and sender_channel in [game.channel1_name, game.channel2_name]:
                 print("message received!")
                 print("sender: " + sender_channel)
                 print(content)
@@ -60,6 +82,8 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
             BPSlaveMaster.que_solo.remove(self)
         if self in BPSlaveMaster.que_tourney:
             BPSlaveMaster.que_tourney.remove(self)
+        if self in BPSlaveMaster.que_vanilla:
+            BPSlaveMaster.que_vanilla.remove(self)
 
         # # Find and remove from the room 
         # for game in BPSlaveMaster.rooms: 
@@ -93,6 +117,29 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
 
         # start game
         asyncio.create_task(game.start_game())
+
+# Vanilla game mode -------------------------------------------------------------------------------------
+
+    async def check_ques_vanilla(self):
+        print("checking vanilla que...")
+        sys.stdout.flush() # Ensure the message is printed immediately
+        if len(BPSlaveMaster.que_vanilla) >= 1:
+            player = BPSlaveMaster.que_vanilla.pop(0)
+            await self.start_game_vanilla(player)
+
+    async def start_game_vanilla(self, player1):
+        # create a simple, valid room name using the index in the list of active rooms
+        room_index = len(BPSlaveMaster.rooms)
+        room_name = f"game_room_{room_index}"
+
+        # add players to the room, create game object and add players to it
+        game = PongGame(room_name=room_name, player1=player1, player2='AI') # 'AI' determines if the game is single player or multiplayer
+        BPSlaveMaster.rooms.append(game)
+
+        # start game
+        asyncio.create_task(game.start_game())
+
+# End of vanilla game mode ------------------------------------------------------------------------------
 
     async def game_message(self, event):
         message = event['message']
