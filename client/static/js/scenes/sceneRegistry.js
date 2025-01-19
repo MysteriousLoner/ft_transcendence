@@ -10,7 +10,9 @@ class SceneRegistry {
         this.currentScene = null;
         this.history = [];
         this.globalVars = {
-            username: null
+            username: null,
+            game_mode: null,
+            ai_lvl: null,
         }
         window.addEventListener('popstate', this.handlePopState.bind(this));
     }
@@ -37,7 +39,7 @@ class SceneRegistry {
                 this.currentScene = new MenuScene(this.sceneRouterCallback.bind(this), this.globalVars);
                 break;
             case 'gameScene':
-                this.currentScene = new GameScene(this.sceneRouterCallback.bind(this));
+                this.currentScene = new GameScene(this.sceneRouterCallback.bind(this), this.globalVars);
                 break
             default:
                 console.error('Invalid scene:', scene);

@@ -37,12 +37,18 @@ class MenuScreen {
 
     playFriendsPong() {
         console.log('playFriendsPong');
+        this.sceneVars.game_mode = 'friends';
+        console.log("MenuScreen game_mode: " + this.sceneVars.game_mode);
         this.sceneRouterCallback('gameScene');
+        // game_mode = 'friends';
     }
 
     playVanillaPong() {
         console.log('playVanillaPong');
+        this.sceneVars.game_mode = 'vanilla';
+        console.log("MenuScreen game_mode: " + this.sceneVars.game_mode);
         this.sceneRouterCallback('gameScene');
+        // game_mode = 'vanilla';
     }
 
     getUsername() {

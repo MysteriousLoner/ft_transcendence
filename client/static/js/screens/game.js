@@ -2,7 +2,7 @@
 // Getting all variables and functions from new_design.js and putting them in this class
 
 class Game {
-    constructor() {
+    constructor(username, game_mode, ai_lvl) {
         this.initScene();
         this.initCamera();
         this.initRenderer();
@@ -17,7 +17,20 @@ class Game {
         this.scoreLeft = 4;
         this.scoreRight = 2;
 
-        this.socket = new WebSocket('ws://localhost:8000/ws/game/pong?gameMode=solo');
+        this.ws_url = null
+        
+        if (game_mode == 'vanilla')
+            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=vanilla';
+        else if (game_mode == 'solo') {
+            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=solo';
+        }
+        else if (game_mode == 'tourney') {
+            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=tourney';
+        }
+        else if (game_mode == 'demo') {
+            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo';
+        }
+        
         this.DOMloaded = true; // Set to true if DOMContentLoaded event is fired before starting
 
         this.keys = {
@@ -30,7 +43,7 @@ class Game {
             Ball_Predict_Point: false,
             Collision_Particles: false,
             Snowfall: false,
-            AI_Mode: false, // true: smart AI, false: dumb AI
+            ai_lvl: ai_lvl,
         };
 
         this.key_rotate = {
@@ -45,11 +58,76 @@ class Game {
             r: false
         }
 
-        setInterval(this.updateElement.bind(this), 250);
+        this.intervalID = setInterval(this.updateElement.bind(this), 250);
         this.connectWebSocket();
         this.animate();
     }
 
+    cleanup() {
+            // Remove the renderer's DOM element
+            document.body.removeChild(this.renderer.domElement);
+        
+            // Dispose of geometries, materials, and textures
+            const disposeObject = (obj) => {
+                if (obj.geometry) obj.geometry.dispose();
+                if (obj.material) {
+                    if (Array.isArray(obj.material)) {
+                        obj.material.forEach((material) => material.dispose());
+                    } else {
+                        obj.material.dispose();
+                    }
+                }
+                if (obj.texture) obj.texture.dispose();
+            };
+        
+            // Traverse the scene to dispose of all objects
+            // recursively visits every child object in the scene graph
+            this.scene.traverse((obj) => {
+                if (obj.isMesh || obj.isLine || obj.isSprite) {
+                    disposeObject(obj);
+                }
+            });
+
+            // Remove event listeners
+            window.removeEventListener('resize', this.boundOnWindowResize, false);
+            document.removeEventListener('DOMContentLoaded', () => (this.DOMloaded = true));
+            document.removeEventListener('keydown', this.boundHandleKeydown);
+            document.removeEventListener('keyup', this.boundHandleKeyup);
+            document.removeEventListener('click', this.boundHandleClick);
+
+            /*
+            document.removeEventListener('keydown', (event) => {
+                this.boundHandleKeydown(event);
+                if (event.key === 'Escape') {
+                    this.paused = !this.paused;
+                    console.log('Game paused:', this.paused);
+                }
+            });
+            */
+
+            // Clear interval
+            clearInterval(this.intervalID);
+
+            // Cancel the animation frame
+            cancelAnimationFrame(this.animationFrameId);
+
+            // Dispose of the scene and renderer
+            this.scene = null;
+            this.renderer.dispose();
+        
+            // Release references to objects
+            this.group = null;
+            this.camera = null;
+            this.renderer = null;
+            this.cuboid = null;
+            this.leftPaddle = null;
+            this.rightPaddle = null;
+            this.ball = null;
+            this.ballTarget = null;
+
+            this.disconnectWebSocket();
+        }
+        
     initScene() {
         this.scene = new THREE.Scene();
         this.group = new THREE.Group();
@@ -114,14 +192,22 @@ class Game {
         this.group.add(this.ballTarget);
     }
 
+
     initEventListeners() {
-        window.addEventListener('resize', this.onWindowResize.bind(this), false);
+        
+        this.boundOnWindowResize = this.onWindowResize.bind(this);
+        this.boundHandleKeydown = this.handleKeydown.bind(this);
+        this.boundHandleKeyup = this.handleKeyup.bind(this);
+        this.boundHandleClick = this.handleClick.bind(this);
+        
+        window.addEventListener('resize', this.boundOnWindowResize, false);
         document.addEventListener('DOMContentLoaded', () => this.DOMloaded = true);
-        document.addEventListener('keydown', (event) => this.handleKeydown(event));
-        document.addEventListener('keyup', (event) => this.handleKeyup(event));
-        document.addEventListener('click', (event) => this.handleClick(event));
-        // document.addEventListener('keydown', (event) => { this.handleKeydown(event); if (event.key === 'Escape') { this.paused = !this.paused; console.log('Game paused:', this.paused); } });
+        document.addEventListener('keydown', this.boundHandleKeydown);
+        document.addEventListener('keyup', this.boundHandleKeyup);
+        document.addEventListener('click', this.boundHandleClick);
+        // document.addEventListener('keydown', (event) => { this.boundHandleKeydown(event); if (event.key === 'Escape') { this.paused = !this.paused; console.log('Game paused:', this.paused); } });
     }
+    
 
     onWindowResize() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -157,7 +243,7 @@ class Game {
         this.toggle(event.target, 'Ball_Predict_Point', 'Ball_Predict_Point', 'Show Ball Prediction', 'Hide Ball Prediction');
         this.toggle(event.target, 'Collision_Particles', 'Collision_Particles', 'Enable Collision Particles', 'Disable Collision Particles');
         this.toggle(event.target, 'Snowfall', 'Snowfall', 'Enable Snowfall', 'Disable Snowfall');
-        this.toggle(event.target, 'AI_Prediction', 'AI_Mode', 'Enable Pro AI', 'Disable Pro AI');
+        // this.toggle(event.target, 'AI_Prediction', 'AI_Mode', 'Enable Pro AI', 'Disable Pro AI');
     }
     
     toggle(target, buttonId, key, enableText, disableText) {
@@ -179,14 +265,24 @@ class Game {
     }
 
     connectWebSocket() {
-        this.socket.onmessage = function(event) {
-            const gameState = JSON.parse(event.data);
-            this.updateGameObjects(gameState);
+        this.socket = new WebSocket(this.ws_url);
+        this.socket.onopen = function () {
+            console.log('WebSocket connection established');
+        
+            this.socket.onmessage = function (event) {
+                const gameState = JSON.parse(event.data);
+                this.updateGameObjects(gameState);
+            }.bind(this);
+        
+            this.socket.onclose = function (event) {
+                console.error('WebSocket closed:', event);
+            }.bind(this);
         }.bind(this);
-    
-        this.socket.onclose = function(event) {
-            console.error('WebSocket closed:', event);
+        
+        this.socket.onerror = function (error) {
+            console.error('WebSocket error:', error);
         }.bind(this);
+        
     }
 
     disconnectWebSocket() {
@@ -205,8 +301,8 @@ class Game {
         [this.leftPaddle.position.x, this.leftPaddle.position.y, this.leftPaddle.position.z] = gameState.leftPaddle.split(',').map(Number);
         [this.rightPaddle.position.x, this.rightPaddle.position.y, this.rightPaddle.position.z] = gameState.rightPaddle.split(',').map(Number);
         [this.scoreLeft, this.scoreRight] = gameState.score.split(',').map(Number);
-        // [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
-        // [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
+        [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
+        [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
     }
 
     sendMessage() {
@@ -428,7 +524,7 @@ class Game {
         this.rotateBoard();
         this.visualToogle();
 
-        requestAnimationFrame(this.animate.bind(this));
+        this.animationFrameId = requestAnimationFrame(this.animate.bind(this));
         this.renderer.render(this.scene, this.camera);
     }
 
