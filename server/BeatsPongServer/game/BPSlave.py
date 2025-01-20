@@ -1,4 +1,4 @@
-import asyncio, random
+import asyncio, random, time
 from channels.layers import get_channel_layer
 
 '''
@@ -23,9 +23,9 @@ class PongGame:
     paddleDepth = 0.25
     ballRadius = 0.125
     cameraZ = 10
-    leftPaddleSpeed = 0.1
-    rightPaddleSpeed = 0.1
-    ballSpeed = 0.075
+    leftPaddleSpeed = 0.125
+    rightPaddleSpeed = 0.125
+    ballSpeed = 0.125
     waitTime = 3
 
     def __init__(self, room_name, player1, player2):
@@ -82,7 +82,8 @@ class PongGame:
             'speedY': random.choice([-PongGame.ballSpeed, PongGame.ballSpeed]),
             'x': 0,
             'y': 0,
-            'z': 0
+            'z': 0,
+            'last_update': time.time(), # Store the last update time
         }
         self.score = {
             'left': 0,
@@ -181,9 +182,13 @@ class PongGame:
     #         self.rightPaddle['y'] -= PongGame.rightPaddleSpeed
 
     def update_ball_position(self):
-        steps = 10
-        step_size_x = self.ball['speedX'] / steps
-        step_size_y = self.ball['speedY'] / steps
+        current_time = time.time()
+        delta_time = current_time - self.ball['last_update'] # Calculate time elapsed since last update
+        self.ball['last_update'] = current_time # Update last update time
+
+        steps = 20
+        step_size_x = (self.ball['speedX'] * delta_time) / steps
+        step_size_y = (self.ball['speedY'] * delta_time) / steps
 
         for _ in range(steps):
             self.ball['x'] += step_size_x
@@ -198,11 +203,11 @@ class PongGame:
             self.ball['speedY'] = -self.ball['speedY']
             return True
         # Ball collision with cuboid side edges
-        elif self.ball['x'] + self.ball['radius'] > self.cuboid['width'] / 2:
+        elif self.ball['x'] + self.ball['radius'] > (self.cuboid['width'] / 2):
             self.score['left'] += 1
             self.reset_game()
             return True
-        elif self.ball['x'] - self.ball['radius'] < -self.cuboid['width'] / 2:
+        elif self.ball['x'] - self.ball['radius'] < (-self.cuboid['width'] / 2):
             self.score['right'] += 1
             self.reset_game()
             return True
