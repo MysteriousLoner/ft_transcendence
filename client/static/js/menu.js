@@ -14,18 +14,19 @@ let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
-let friendList = [];	
+let friendList = [];
 let userName = "";
 let userData = {};
 let profilePicture = {};
+
 
 // Initialize the page
 async function initPage(inputUser) {
 
 	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
 	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
-	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
-	document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
+	// document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
+	// document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
 
 
 	// get profile data
@@ -36,7 +37,6 @@ async function initPage(inputUser) {
 		userData = await makeRequest('POST', 'api/account/getProfileData/', req);
 		document.getElementById("usernameTitle1").textContent = userData.username;
 		document.getElementById("displaynameTitle").textContent = userData.displayName;
-		console.log("winn rate: " + userData.winRate);
 		updateWinRate(userData.winRate);
 	}
 	catch (error) {
@@ -53,16 +53,21 @@ async function initPage(inputUser) {
 		console.error('Error:', error);
 	}
 
-	
+
 	updateFriendList();
-	// updateFriendRequests();
+	updateFriendRequests();
 
 	// edit modal
 	document.getElementById('profilePictureMenu1').addEventListener('click', openEditProfileModal);
-    document.getElementById('closeModalBtn').addEventListener('click', closeEditProfileModal);
-    document.getElementById('profileImageUpload').addEventListener('change', handleImageUpload);
-    document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('profileImageUpload').click());
-    document.getElementById('saveUsernameBtn').addEventListener('click', saveUsername);
+	document.getElementById('closeModalBtn').addEventListener('click', closeEditProfileModal);
+	document.getElementById('profileImageUpload').addEventListener('change', handleImageUpload);
+	document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('profileImageUpload').click());
+	document.getElementById('saveUsernameBtn').addEventListener('click', saveUsername);
+
+	document.getElementById('addNewFriend').addEventListener('click', addNewFriend);
+	document.getElementById('searchFriends').addEventListener('click', searchFriends);
+
+	document.getElementById('refresh').addEventListener('click', refresh);
 }
 
 // Update win rate
@@ -80,32 +85,22 @@ async function updateFriendList() {
 	const startIndex = (currentPage - 1) * friendsPerPage;
 	const endIndex = startIndex + friendsPerPage;
 
-	const req = { username: userName };
-	try {
-		// friendList = await makeRequest('POST', 'api/menu/getFriendList/', req);
-		friendList = userData1.friendList;
-		// console.log(friendList);
-	}
-	catch (error) {
-		console.error('Error:', error);
-	}
+
+	friendList = userData.friendList || [];
 
 	if (friendList.length > 0) {
 		const displayedFriends = friendList.slice(startIndex, endIndex);
-		// const displayedFriends = userData.friendList.slice(startIndex, endIndex);
 
 		displayedFriends.forEach(friend => {
 			const li = document.createElement("li");
 			li.innerHTML = `
             <span>${friend}</span>
             <div>
-                <button class="invite-friend"">Invite</button>
                 <button class="delete-friend">Delete</button>
             </div>
         `;
 			friendsList.appendChild(li);
-			li.querySelector(".invite-friend").addEventListener("click", () => inviteFriend(friend));
-   			 li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
+			li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 		});
 
 	}
@@ -116,9 +111,35 @@ async function updateFriendList() {
 	updatePagination(friendList.length, currentPage, "currentPage", "prevPage", "nextPage");
 }
 
+// Update friend requests
+function updateFriendRequests() {
+	const requestsList = document.getElementById("friendRequests");
+	requestsList.innerHTML = "";
+
+	const friendRequests = userData.pendingRequests || [];
+
+	if (friendRequests.length > 0) {
+		friendRequests.forEach(friend => {
+			const li = document.createElement("li");
+			li.innerHTML = `
+			<span>${friend}</span>
+			<button class="accept-friend">Accept</button>
+			<button class="decline-friend">Decline</button>
+		`;
+			requestsList.appendChild(li);
+			li.querySelector(".accept-friend").addEventListener("click", () => acceptFriend(friend));
+			li.querySelector(".decline-friend").addEventListener("click", () => declineFriend(friend));
+		});
+	}
+	else {
+		console.log('No friend requests found');
+	}
+}
+
+
 // Update pagination
 function updatePagination(totalItems, currentPageNum, currentPageId, prevPageId, nextPageId) {
-	const totalPages = Math.ceil(totalItems / friendsPerPage);
+	const totalPages = Math.ceil(totalItems / friendsPerPage) || 1;
 	document.getElementById(currentPageId).textContent = `${currentPageNum} / ${totalPages}`;
 	document.getElementById(prevPageId).disabled = currentPageNum === 1;
 	document.getElementById(nextPageId).disabled = currentPageNum === totalPages;
@@ -142,19 +163,6 @@ function changeNewPage(direction) {
 	displayNewFriends();
 }
 
-// Update friend requests
-function updateFriendRequests() {
-	const requestsList = document.getElementById("friendRequests");
-	requestsList.innerHTML = "";
-	friendRequests.forEach(friend => {
-		const li = document.createElement("li");
-		li.innerHTML = `
-            <span>${friend}</span>
-            <button onclick="acceptFriend('${friend}')">Accept</button>
-        `;
-		requestsList.appendChild(li);
-	});
-}
 
 // Search friends
 function searchFriends() {
@@ -175,11 +183,11 @@ function searchFriends() {
 		li.innerHTML = `
             <span>${friend}</span>
             <div>
-                <button class="invite-friend" onclick="inviteFriend('${friend}')">Invite</button>
-                <button class="delete-friend" onclick="deleteFriend('${friend}')">Delete</button>
+                <button class="delete-friend">Delete</button>
             </div>
         `;
 		friendsList.appendChild(li);
+		li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 	});
 
 	currentPage = 1;
@@ -187,38 +195,79 @@ function searchFriends() {
 }
 
 // Accept friend request
-function acceptFriend(friend) {
-	userData.friendList.push(friend);
-	friendRequests.splice(friendRequests.indexOf(friend), 1);
-	updateFriendList();
-	updateFriendRequests();
-}
+async function acceptFriend(friend) {
 
-// Delete friend
-function deleteFriend(friend) {
-	const index = userData.friendList.indexOf(friend);
-	if (index > -1) {
-		userData.friendList.splice(index, 1);
+	try {
+		const response = await makeRequest('POST', 'api/friends/acceptFriendRequest/', { selfUsername: userName, targetUsername: friend });
+		if (response.error) {
+			alert(response.error);
+			return;
+		}
+		userData.friendList.push(friend);
+		userData.requestsList.splice(userData.requestsList.indexOf(friend), 1);
 		updateFriendList();
+		updateFriendRequests();
+	}
+	catch (error) {
+		console.error('Accept Friend Error:', error);
 	}
 }
 
-// Invite friend
-function inviteFriend(friend) {
-	alert(`Invited ${friend} to play a game!`);
-	// Add code here to handle the game invitation
+async function declineFriend(friend) {
+
+	try {
+		const response = await makeRequest('POST', 'api/friends/declineFriendRequest/', { selfUsername: userName, targetUsername: friend });
+		if (response.error) {
+			alert(response.error);
+			return;
+		}
+		userData.requestsList.splice(userData.requestsList.indexOf(friend), 1);
+		updateFriendRequests();
+	}
+	catch (error) {
+		console.error('Decline Friend Error:', error);
+	}
+}
+
+// Delete friend
+async function deleteFriend(friend) {
+	try {
+		const response = await makeRequest('POST', 'api/friends/removeFriend/', { selfUsername: userName, targetUsername: friend });
+		if (response.error) {
+			alert(response.error);
+			return;
+		}
+		const index = userData.friendList.indexOf(friend);
+		if (index > -1) {
+			userData.friendList.splice(index, 1);
+			updateFriendList();
+		}
+	} catch (error) {
+		console.error('Delete Friend Error:', error);
+	}
 }
 
 
 // Search new friends
-let filteredNewFriends = [];
-function searchNewFriends() {
-	const searchTerm = document.getElementById("addFriendSearch").value.toLowerCase();
-	filteredNewFriends = allUsers.filter(user =>
-		user.toLowerCase().includes(searchTerm) && !userData.friendList.includes(user)
-	);
-	currentNewPage = 1;
-	displayNewFriends();
+async function addNewFriend() {
+	const searchTerm = document.getElementById("addFriendSearch").value;
+
+	if (searchTerm === "") {
+		alert("Please enter a username to search.");
+		return;
+	}
+	try {
+		const response = await makeRequest('POST', 'api/friends/sendFriendRequest/', { selfUsername: userName, targetUsername: searchTerm });
+
+		if (response.error) {
+			alert(response.error);
+		}
+	}
+	catch (error) {
+		alert('Add Friend Error:', error);
+	}
+
+
 }
 
 // Display new friends
@@ -243,90 +292,77 @@ function displayNewFriends() {
 }
 
 // Add friend
-function addFriend(friend) {
-	if (!userData.friendList.includes(friend)) {
-		userData.friendList.push(friend);
-		updateFriendList();
-		alert(`${friend} has been added to your friend list!`);
-	} else {
-		alert(`${friend} is already in your friend list.`);
-	}
-	searchNewFriends(); // Refresh the new friends list
-}
+// function addFriend(friend) {
+// 	if (!userData.friendList.includes(friend)) {
+// 		userData.friendList.push(friend);
+// 		updateFriendList();
+// 		alert(`${friend} has been added to your friend list!`);
+// 	} else {
+// 		alert(`${friend} is already in your friend list.`);
+// 	}
+// 	searchNewFriends(); // Refresh the new friends list
+// }
 
 async function openEditProfileModal() {
 	profilePicture = await makeRequest('POST', 'api/account/getProfilePicture/', { username: userData.username });
 	const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
-    profileImagePreview.src = profilePicture.image // Default image source
-    document.getElementById('editProfileModal').style.display = 'block';
+	profileImagePreview.src = profilePicture.image // Default image source
+	document.getElementById('editProfileModal').style.display = 'block';
 }
 
 async function closeEditProfileModal() {
 	profilePicture = await makeRequest('POST', 'api/account/getProfilePicture/', { username: userData.username });
 	document.getElementById("profilePictureMenu1").src = profilePicture.image;
-    document.getElementById('editProfileModal').style.display = 'none';
+	document.getElementById('editProfileModal').style.display = 'none';
 
-	userData = await makeRequest('POST', 'api/menu/getProfileData/', { username: userData.username });
+	userData = await makeRequest('POST', 'api/account/getProfileData/', { username: userData.username });
 }
-// function handleImageUpload(event) {
-//     const file = event.target.files[0];
-//     const profilePic = document.getElementById('profilePicture');
-//     const profileImagePreview = document.getElementById('profileImagePreview');
-//     const defaultSrc = profilePic.getAttribute("data-default-src");
 
-//     if (file) {
-//         const reader = new FileReader();
-//         reader.onload = function(e) {
-//             profilePic.src = e.target.result;
-//             profileImagePreview.src = e.target.result;
-//             userData.profilePicture = e.target.result;
-// 			console.log("PROFILE PICTURE" + userData.profilePicture);
-//         }
-//         reader.readAsDataURL(file);
-//     } else {
-//         profilePic.src = defaultSrc;
-//         profileImagePreview.src = defaultSrc;
-//         userData.profilePicture = "";
-//     }
-// }
 
 function handleImageUpload(event) {
-    const file = event.target.files[0]; // Get the uploaded file
-    const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
-    const defaultSrc = profilePicture.image // Default image source
+	const file = event.target.files[0]; // Get the uploaded file
+	const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
+	const defaultSrc = profilePicture.image // Default image source
 
-    if (file) {
-        console.log("File selected:", file.name); // Log the name of the selected file
-        const reader = new FileReader(); // Create a FileReader object
-        reader.onload = async function(e) {
-            console.log("File read successfully."); // Log when the file is read successfully
-            profileImagePreview.src = e.target.result; // Set the image preview to the uploaded file
+	if (file) {
+		console.log("File selected:", file.name); // Log the name of the selected file
+		const reader = new FileReader(); // Create a FileReader object
+		reader.onload = async function (e) {
+			console.log("File read successfully."); // Log when the file is read successfully
+			profileImagePreview.src = e.target.result; // Set the image preview to the uploaded file
 			const response = await makeRequest('POST', 'api/account/updateProfilePicture/', { username: userData.username, image: e.target.result });
-        }
-        reader.readAsDataURL(file); // Read the file as a data URL
-    } else {
-        console.log("No file selected, using default image."); // Log when no file is selected
-        profileImagePreview.src = defaultSrc; // Set to default image if no file is selected
-    }
+		}
+		reader.readAsDataURL(file); // Read the file as a data URL
+	} else {
+		console.log("No file selected, using default image."); // Log when no file is selected
+		profileImagePreview.src = defaultSrc; // Set to default image if no file is selected
+	}
 }
 
 
 async function saveUsername() {
-    const newUsername = document.getElementById('usernameInput').value;
-    if (newUsername) {
-        userData.displayName = newUsername;
-        document.getElementById('displaynameTitle').textContent = newUsername;
+	const newUsername = document.getElementById('usernameInput').value;
+	if (newUsername) {
+		userData.displayName = newUsername;
+		document.getElementById('displaynameTitle').textContent = newUsername;
 		try {
-			const response = await makeRequest('POST', 'api/menu/updateDisplayName/', { username: userData.username, displayName: newUsername });
+			const response = await makeRequest('POST', 'api/account/updateDisplayName/', { username: userData.username, displayName: newUsername });
 			console.log(response.message);
 		}
-		catch (error) {	
+		catch (error) {
 			console.error('Change Dispaly name error:', error);
 		}
-        closeEditProfileModal();
-    } else {
-        alert('Please enter a valid display Name');
-    }
+		closeEditProfileModal();
+	} else {
+		alert('Please enter a valid display Name');
+	}
+}
+
+
+async function refresh() {
+	userData = await makeRequest('POST', 'api/account/getProfileData/', { username: userData.username });
+	updateFriendRequests();
+	updateFriendList();
 }
 
 export default initPage;

@@ -174,7 +174,7 @@
 						<h2>Friend List</h2>
 						<div class="search-bar">
 							<input type="text" id="friendSearch" placeholder="Search friends...">
-							<button onclick="searchFriends()">Search</button>
+							<button id="searchFriends">Search</button>
 						</div>
 						<ul id="friendsList"></ul>
 						<div class="pagination">
@@ -185,20 +185,27 @@
 					</div>
 					<div class="friend-requests">
 						<h2>Friend Requests</h2>
+						<button id="refresh" class="refresh">Refresh</button>
+						<br>
 						<ul id="friendRequests"></ul>
+						<!-- <div class="pagination">
+							<button id="prevNewPage">Previous</button>
+							<span id="currentNewPage">1</span>
+							<button id="nextNewPage">Next</button>
+						</div> -->
 					</div>
 					<div class="add-friend">
 						<h2>Add Friend</h2>
 						<div class="search-bar">
-							<input type="text" id="addFriendSearch" placeholder="Search for new friends...">
-							<button onclick="searchNewFriends()">Search</button>
+							<input type="text" id="addFriendSearch" placeholder="Add New Friends...">
+							<button id="addNewFriend">Add</button>
 						</div>
 						<ul id="newFriendsList"></ul>
-						<div class="pagination">
+						<!-- <div class="pagination">
 							<button id="prevNewPage">Previous</button>
 							<span id="currentNewPage">1</span>
 							<button id="nextNewPage">Next</button>
-						</div>
+						</div> -->
 					</div>
 				</div>
 			</div>	

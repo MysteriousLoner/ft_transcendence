@@ -22,7 +22,7 @@ Conrtroller for friends related services
 def removeFriend(request):
     # load request data
     requestData = json.loads(request.body)
-    friendUsername = requestData['friendUsername']
+    friendUsername = requestData['targetUsername']
     selfUsername = requestData['selfUsername']
     # error checking
     if not query_user(friendUsername) or not query_user(selfUsername):
@@ -31,7 +31,7 @@ def removeFriend(request):
     friendProfileData = query_profile_data(friendUsername)
     selfProfileData = query_profile_data(selfUsername)
     if selfUsername not in friendProfileData.friendList or friendUsername not in selfProfileData.friendList:
-        return JsonResponse({"error": "not friends."}, status=400)
+        return JsonResponse({"error": "Not friends with this user."}, status=400)
     # remove friend username from self friend list and remove self username from friend's friend list
     friendProfileData.friendList.remove(selfUsername)
     friendProfileData.save()
@@ -70,7 +70,7 @@ def acceptFriendRequest(request):
     # load request data
     requestData = json.loads(request.body)
     selfUsername = requestData['selfUsername']
-    requestUsername = requestData['requestUsername']
+    requestUsername = requestData['targetUsername']
     # error checking
     if not query_user(requestUsername) or not query_user(selfUsername):
         selfProfileData = query_profile_data(selfUsername)
@@ -84,7 +84,7 @@ def acceptFriendRequest(request):
     if requestUsername not in selfProfileData.pendingRequests:
         return JsonResponse({"error": "Friend request not found."}, status=400)
     # remove friend username from self pending requests, add friend username to self friend list, and add self username to friend friend list
-    requestProfileData.pendingRequests.remove(requestUsername)
+    selfProfileData.pendingRequests.remove(requestUsername)
     selfProfileData.friendList.append(requestUsername)
     requestProfileData.friendList.append(selfUsername)
     selfProfileData.save()
@@ -97,7 +97,7 @@ def acceptFriendRequest(request):
 def declineFriendRequest(request):
     # load request data
     requestData = json.loads(request.body)
-    requestUsername = requestData['requestUsername']
+    requestUsername = requestData['targetUsername']
     selfUsername = requestData['selfUsername']
     # error checking
     if not query_user(requestUsername) or not query_user(selfUsername):
