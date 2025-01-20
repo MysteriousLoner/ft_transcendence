@@ -22,7 +22,10 @@ EXPOSE 443
 COPY ./conf/nginx.conf /etc/nginx/conf.d/nginx.conf
 
 # Copy frontend static files to the appropriate Nginx directory
-COPY ./static /usr/share/nginx/html
+COPY ./static/html /usr/share/nginx/html
+COPY ./static/css /usr/share/nginx/html/css
+COPY ./static/js /usr/share/nginx/html/js
+COPY ./static/pages /usr/share/nginx/html/pages
 
 # Start Nginx in the foreground (important for Docker containers)
 CMD ["nginx", "-g", "daemon off;"]

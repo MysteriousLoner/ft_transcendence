@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   db:
     image: postgres
@@ -40,8 +38,12 @@ services:
     container_name: ft_transcendence-nginx-1
     ports:
       - "443:443"
+      - "80:80"
     volumes:
-      - ./client/static/html:/var/www/html
+      - ./client/static/html:/usr/share/nginx/html
+      - ./client/static/css:/usr/share/nginx/html/css
+      - ./client/static/js:/usr/share/nginx/html/js
+      - ./client/static/pages:/usr/share/nginx/html/pages
       - ./client/conf:/etc/nginx/conf.d
     networks:
       - transcendence-network
