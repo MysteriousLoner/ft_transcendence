@@ -65,6 +65,9 @@ async function initPage(inputUser) {
 	document.getElementById('saveUsernameBtn').addEventListener('click', saveUsername);
 
 	document.getElementById('addNewFriend').addEventListener('click', addNewFriend);
+	document.getElementById('searchFriends').addEventListener('click', searchFriends);
+
+	document.getElementById('refresh').addEventListener('click', refresh);
 }
 
 // Update win rate
@@ -82,15 +85,8 @@ async function updateFriendList() {
 	const startIndex = (currentPage - 1) * friendsPerPage;
 	const endIndex = startIndex + friendsPerPage;
 
-	// const req = { username: userName };
-	try {
-		// friendList = await makeRequest('POST', 'api/account/getFriendList/', req);
-		friendList = userData.friendList | [];
-		// console.log(friendList);
-	}
-	catch (error) {
-		console.error('Error:', error);
-	}
+
+	friendList = userData.friendList || [];
 
 	if (friendList.length > 0) {
 		const displayedFriends = friendList.slice(startIndex, endIndex);
@@ -100,12 +96,10 @@ async function updateFriendList() {
 			li.innerHTML = `
             <span>${friend}</span>
             <div>
-                <button class="invite-friend"">Invite</button>
                 <button class="delete-friend">Delete</button>
             </div>
         `;
 			friendsList.appendChild(li);
-			li.querySelector(".invite-friend").addEventListener("click", () => inviteFriend(friend));
 			li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 		});
 
@@ -117,9 +111,35 @@ async function updateFriendList() {
 	updatePagination(friendList.length, currentPage, "currentPage", "prevPage", "nextPage");
 }
 
+// Update friend requests
+function updateFriendRequests() {
+	const requestsList = document.getElementById("friendRequests");
+	requestsList.innerHTML = "";
+
+	const friendRequests = userData.pendingRequests || [];
+
+	if (friendRequests.length > 0) {
+		friendRequests.forEach(friend => {
+			const li = document.createElement("li");
+			li.innerHTML = `
+			<span>${friend}</span>
+			<button class="accept-friend">Accept</button>
+			<button class="decline-friend">Decline</button>
+		`;
+			requestsList.appendChild(li);
+			li.querySelector(".accept-friend").addEventListener("click", () => acceptFriend(friend));
+			li.querySelector(".decline-friend").addEventListener("click", () => declineFriend(friend));
+		});
+	}
+	else {
+		console.log('No friend requests found');
+	}
+}
+
+
 // Update pagination
 function updatePagination(totalItems, currentPageNum, currentPageId, prevPageId, nextPageId) {
-	const totalPages = Math.ceil(totalItems / friendsPerPage) | 1;
+	const totalPages = Math.ceil(totalItems / friendsPerPage) || 1;
 	document.getElementById(currentPageId).textContent = `${currentPageNum} / ${totalPages}`;
 	document.getElementById(prevPageId).disabled = currentPageNum === 1;
 	document.getElementById(nextPageId).disabled = currentPageNum === totalPages;
@@ -143,27 +163,6 @@ function changeNewPage(direction) {
 	displayNewFriends();
 }
 
-// Update friend requests
-function updateFriendRequests() {
-	const requestsList = document.getElementById("friendRequests");
-	requestsList.innerHTML = "";
-
-	const friendRequests = userData.pendingRequests | [];
-
-	if (friendRequests.length > 0) {
-		friendRequests.forEach(friend => {
-			const li = document.createElement("li");
-			li.innerHTML = `
-            <span>${friend}</span>
-            <button onclick="acceptFriend('${friend}')">Accept</button>
-        `;
-			requestsList.appendChild(li);
-		});
-	}
-	else {
-		console.log('No friend requests found');
-	}
-}
 
 // Search friends
 function searchFriends() {
@@ -184,11 +183,11 @@ function searchFriends() {
 		li.innerHTML = `
             <span>${friend}</span>
             <div>
-                <button class="invite-friend" onclick="inviteFriend('${friend}')">Invite</button>
-                <button class="delete-friend" onclick="deleteFriend('${friend}')">Delete</button>
+                <button class="delete-friend">Delete</button>
             </div>
         `;
 		friendsList.appendChild(li);
+		li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 	});
 
 	currentPage = 1;
@@ -196,26 +195,56 @@ function searchFriends() {
 }
 
 // Accept friend request
-function acceptFriend(friend) {
-	userData.friendList.push(friend);
-	friendRequests.splice(friendRequests.indexOf(friend), 1);
-	updateFriendList();
-	updateFriendRequests();
-}
+async function acceptFriend(friend) {
 
-// Delete friend
-function deleteFriend(friend) {
-	const index = userData.friendList.indexOf(friend);
-	if (index > -1) {
-		userData.friendList.splice(index, 1);
+	try {
+		const response = await makeRequest('POST', 'api/friends/acceptFriendRequest/', { selfUsername: userName, targetUsername: friend });
+		if (response.error) {
+			alert(response.error);
+			return;
+		}
+		userData.friendList.push(friend);
+		userData.requestsList.splice(userData.requestsList.indexOf(friend), 1);
 		updateFriendList();
+		updateFriendRequests();
+	}
+	catch (error) {
+		console.error('Accept Friend Error:', error);
 	}
 }
 
-// Invite friend
-function inviteFriend(friend) {
-	alert(`Invited ${friend} to play a game!`);
-	// Add code here to handle the game invitation
+async function declineFriend(friend) {
+
+	try {
+		const response = await makeRequest('POST', 'api/friends/declineFriendRequest/', { selfUsername: userName, targetUsername: friend });
+		if (response.error) {
+			alert(response.error);
+			return;
+		}
+		userData.requestsList.splice(userData.requestsList.indexOf(friend), 1);
+		updateFriendRequests();
+	}
+	catch (error) {
+		console.error('Decline Friend Error:', error);
+	}
+}
+
+// Delete friend
+async function deleteFriend(friend) {
+	try {
+		const response = await makeRequest('POST', 'api/friends/removeFriend/', { selfUsername: userName, targetUsername: friend });
+		if (response.error) {
+			alert(response.error);
+			return;
+		}
+		const index = userData.friendList.indexOf(friend);
+		if (index > -1) {
+			userData.friendList.splice(index, 1);
+			updateFriendList();
+		}
+	} catch (error) {
+		console.error('Delete Friend Error:', error);
+	}
 }
 
 
@@ -327,6 +356,13 @@ async function saveUsername() {
 	} else {
 		alert('Please enter a valid display Name');
 	}
+}
+
+
+async function refresh() {
+	userData = await makeRequest('POST', 'api/account/getProfileData/', { username: userData.username });
+	updateFriendRequests();
+	updateFriendList();
 }
 
 export default initPage;

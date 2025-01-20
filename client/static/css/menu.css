@@ -111,8 +111,37 @@
     transition: background-color 0.3s;
 }
 
+.Menu .refresh {
+	background-color: #2ecc71;
+	color: rgb(255, 255, 255);
+	border: none;
+	padding: 10px 10px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 15px;
+	margin: 4px 2px;
+	cursor: pointer;
+	border-radius: 5px;
+	width: 100px;
+	height: 35px;
+	line-height: 18%;
+	transition: background-color 0.3s;
+}
+
+.refresh:hover {
+	background-color: #27ae60;
+}
+
 .Menu .game-buttons button:hover {
     background-color: #2980b9;
+}
+
+.Menu .decline-friend {
+    background-color: #e74c3c;
+}
+.Menu .decline-friend:hover {
+    background-color: #c0392b;
 }
 
 .Menu .delete-friend {
