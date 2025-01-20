@@ -1,20 +1,20 @@
 import makeRequest from "./utils/requestWrapper.js";
 
 
-const userData1 = {
+const exampleUserData = {
 	username: "JohnDoe",
 	profilePicture: "https://example.com/profile.jpg",
 	friendList: ["leeyang2004", "etlaw", "folim", "David", "Eve", "Frank", "Grace", "Henry", "Ivy", "Jack"],
 	winRate: 65.5
 };
 
-const friendRequests = ["Kevin", "Liam"];
 
 let currentPage = 1;
 let currentNewPage = 1;
 const friendsPerPage = 5;
 
 let friendList = [];
+let friendRequests = [];
 let userName = "";
 let userData = {};
 let profilePicture = {};
@@ -25,8 +25,8 @@ async function initPage(inputUser) {
 
 	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
 	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
-	// document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
-	// document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
+	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
+	document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
 
 
 	// get profile data
@@ -116,10 +116,15 @@ function updateFriendRequests() {
 	const requestsList = document.getElementById("friendRequests");
 	requestsList.innerHTML = "";
 
-	const friendRequests = userData.pendingRequests || [];
+	const startIndex = (currentNewPage - 1) * friendsPerPage;
+	const endIndex = startIndex + friendsPerPage;
+
+	friendRequests = userData.pendingRequests || [];
 
 	if (friendRequests.length > 0) {
-		friendRequests.forEach(friend => {
+
+		const displayedRequests = friendRequests.slice(startIndex, endIndex);
+		displayedRequests.forEach(friend => {
 			const li = document.createElement("li");
 			li.innerHTML = `
 			<span>${friend}</span>
@@ -134,6 +139,8 @@ function updateFriendRequests() {
 	else {
 		console.log('No friend requests found');
 	}
+
+	updatePagination(friendRequests.length, currentNewPage, "currentNewPage", "prevNewPage", "nextNewPage");
 }
 
 
@@ -147,7 +154,7 @@ function updatePagination(totalItems, currentPageNum, currentPageId, prevPageId,
 
 // Change page
 function changePage(direction) {
-	const totalPages = Math.ceil(userData1.friendList.length / friendsPerPage);
+	const totalPages = Math.ceil(userData.friendList.length / friendsPerPage);
 	currentPage += direction;
 	if (currentPage < 1) currentPage = 1;
 	if (currentPage > totalPages) currentPage = totalPages;
@@ -156,11 +163,11 @@ function changePage(direction) {
 
 // Change new friends page
 function changeNewPage(direction) {
-	const totalPages = Math.ceil(filteredNewFriends.length / friendsPerPage);
+	const totalPages = Math.ceil(userData.pendingRequests.length / friendsPerPage);
 	currentNewPage += direction;
 	if (currentNewPage < 1) currentNewPage = 1;
 	if (currentNewPage > totalPages) currentNewPage = totalPages;
-	displayNewFriends();
+	updateFriendRequests();
 }
 
 
@@ -203,8 +210,9 @@ async function acceptFriend(friend) {
 			alert(response.error);
 			return;
 		}
+		alert('Friend request from ' + friend + ' accepted');
 		userData.friendList.push(friend);
-		userData.requestsList.splice(userData.requestsList.indexOf(friend), 1);
+		userData.pendingRequests.splice(userData.pendingRequests.indexOf(friend), 1);
 		updateFriendList();
 		updateFriendRequests();
 	}
@@ -221,7 +229,8 @@ async function declineFriend(friend) {
 			alert(response.error);
 			return;
 		}
-		userData.requestsList.splice(userData.requestsList.indexOf(friend), 1);
+		userData.pendingRequests.splice(userData.pendingRequests.indexOf(friend), 1);
+		alert('Friend request from ' + friend + ' declined');
 		updateFriendRequests();
 	}
 	catch (error) {
@@ -237,6 +246,7 @@ async function deleteFriend(friend) {
 			alert(response.error);
 			return;
 		}
+		alert('Friend: ' + friend + ' removed');
 		const index = userData.friendList.indexOf(friend);
 		if (index > -1) {
 			userData.friendList.splice(index, 1);
@@ -262,6 +272,9 @@ async function addNewFriend() {
 		if (response.error) {
 			alert(response.error);
 		}
+		else {
+			alert('Friend request sent to ' + searchTerm);
+		}
 	}
 	catch (error) {
 		alert('Add Friend Error:', error);
@@ -271,37 +284,26 @@ async function addNewFriend() {
 }
 
 // Display new friends
-function displayNewFriends() {
-	const newFriendsList = document.getElementById("newFriendsList");
-	newFriendsList.innerHTML = "";
+// function displayNewFriends() {
+// 	const newFriendsList = document.getElementById("newFriendsList");
+// 	newFriendsList.innerHTML = "";
 
-	const startIndex = (currentNewPage - 1) * friendsPerPage;
-	const endIndex = startIndex + friendsPerPage;
-	const displayedNewFriends = filteredNewFriends.slice(startIndex, endIndex);
+// 	const startIndex = (currentNewPage - 1) * friendsPerPage;
+// 	const endIndex = startIndex + friendsPerPage;
+// 	const displayedNewFriends = filteredNewFriends.slice(startIndex, endIndex);
 
-	displayedNewFriends.forEach(friend => {
-		const li = document.createElement("li");
-		li.innerHTML = `
-            <span>${friend}</span>
-            <button class="add-friend-button" onclick="addFriend('${friend}')">Add Friend</button>
-        `;
-		newFriendsList.appendChild(li);
-	});
+// 	displayedNewFriends.forEach(friend => {
+// 		const li = document.createElement("li");
+// 		li.innerHTML = `
+//             <span>${friend}</span>
+//             <button class="add-friend-button" onclick="addFriend('${friend}')">Add Friend</button>
+//         `;
+// 		newFriendsList.appendChild(li);
+// 	});
 
-	updatePagination(filteredNewFriends.length, currentNewPage, "currentNewPage", "prevNewPage", "nextNewPage");
-}
-
-// Add friend
-// function addFriend(friend) {
-// 	if (!userData.friendList.includes(friend)) {
-// 		userData.friendList.push(friend);
-// 		updateFriendList();
-// 		alert(`${friend} has been added to your friend list!`);
-// 	} else {
-// 		alert(`${friend} is already in your friend list.`);
-// 	}
-// 	searchNewFriends(); // Refresh the new friends list
+// 	updatePagination(filteredNewFriends.length, currentNewPage, "currentNewPage", "prevNewPage", "nextNewPage");
 // }
+
 
 async function openEditProfileModal() {
 	profilePicture = await makeRequest('POST', 'api/account/getProfilePicture/', { username: userData.username });
@@ -350,7 +352,7 @@ async function saveUsername() {
 			console.log(response.message);
 		}
 		catch (error) {
-			console.error('Change Dispaly name error:', error);
+			console.error('Change Display name error:', error);
 		}
 		closeEditProfileModal();
 	} else {

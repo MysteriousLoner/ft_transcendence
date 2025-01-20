@@ -88,6 +88,7 @@ def acceptFriendRequest(request):
     selfProfileData.friendList.append(requestUsername)
     requestProfileData.friendList.append(selfUsername)
     selfProfileData.save()
+    requestProfileData.save()
     requestProfileData.refresh_from_db()
     return JsonResponse({"message": "Friend request accepted."}, status=200)
 

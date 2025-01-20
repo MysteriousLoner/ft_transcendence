@@ -17,21 +17,12 @@ class MenuScreen {
         // Add event listeners for game buttons
         document.getElementById("vanillaPong").addEventListener("click", this.playVanillaPong.bind(this));
         document.getElementById("friendsPong").addEventListener("click", this.playFriendsPong.bind(this));
-        
-        // Add event listeners for pagination
-        // document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
-        // document.getElementById("nextPage").addEventListener("click", () => changePage(1));
-        // document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
-        // document.getElementById("nextNewPage").addEventListener("click", () => changeNewPage(1));
-        
-        // default page values
-        // document.getElementById("usernameTitle1").textContent = this.sceneVars.username || "Default";
-        // console.log("MenuScreen username: " + this.sceneVars.username);
 
-        // this.test();
+		document.getElementById("logoutButton").addEventListener("click", this.logout.bind(this));
+        
+
         initPage(this.sceneVars.username);
-        // this.getFriendList();
-        // this.addFriend();
+
     }
 
     clean() {
@@ -39,6 +30,10 @@ class MenuScreen {
         document.getElementById('menuScreen').classList.add('d-none');
     }
 
+	logout() {
+		this.clean();
+		this.sceneRouterCallback('homeScene');
+	}
 
     playFriendsPong() {
         console.log('playFriendsPong');
