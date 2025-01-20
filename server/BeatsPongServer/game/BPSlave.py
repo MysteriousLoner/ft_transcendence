@@ -1,5 +1,9 @@
 import asyncio, random
 from channels.layers import get_channel_layer
+from BPDAL.views import update_match_data
+from concurrent.futures import ThreadPoolExecutor
+import threading
+
 
 '''
 This class is an object to represent an instance of a running game in regular mode.
@@ -28,10 +32,17 @@ class PongGame:
     ballSpeed = 0.075
     waitTime = 3
 
-    def __init__(self, room_name, player1, player2):
+    def __init__(self, room_name, player1, player2, player1Username, player2Username):
         print("Game object created", flush=True)
+        print(f"Player 1: {player1Username} Player 2: {player2Username}", flush=True)
 
         self.game_mode = 'AI' if player2 == 'AI' else 'PvP'
+
+        # make usernames local
+        self.player1Username = player1Username
+        self.player2Username = player2Username
+        self.winner = None
+        self.executor = ThreadPoolExecutor(max_workers=10)
 
         # identity of the room "I identify as a ......."
         self.room_name = room_name
@@ -119,7 +130,7 @@ class PongGame:
 
     async def receive_json(self, content, socket):
         sender_channel = socket.channel_name
-        print(f"Data received from WebSocket with channel name: {sender_channel}")
+        # print(f"Data received from WebSocket with channel name: {sender_channel}")
 
         f_keys = content.get('keys')
         paused = content.get('paused')
@@ -151,13 +162,13 @@ class PongGame:
             elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
                 self.rightPaddle['y'] -= self.rightPaddleSpeed
 
-        if paused and self.running:
-            print("Game paused", flush=True)
-            self.running = False
+        # if paused and self.running:
+        #     print("Game paused", flush=True)
+        #     self.running = False
 
-        if not paused and not self.running:
-            self.running = True
-            await self.game_loop()
+        # if not paused and not self.running:
+        #     self.running = True
+        #     await self.game_loop()
 
 # Game State Functions Set ------------------------------------------------------------------------------------------------------------
 
@@ -191,7 +202,31 @@ class PongGame:
 
             if self.wall_collision() or self.paddle_collision():
                 break
-
+    
+    # left side channel is self.channel1_name
+    # right side channel is self.channel2_name
+    def checkWinCondition(self):
+        if self.score['left'] == 5: 
+            print(f"Player 1: {self.player1Username} wins!", flush=True)
+            self.running = False
+            self.winner = self.player1Username
+            if not self.game_mode == 'AI':
+                self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
+            return True
+        if self.score['right'] == 5:
+            print(f"Player 2: {self.player2Username} wins!", flush=True)
+            self.running = False
+            self.winner = self.player2Username
+            if not self.game_mode == 'AI':
+                self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
+            return True
+        print("no one wins", flush=True)
+        return False
+    
+    def run_in_thread(self, func, *args): 
+        loop = asyncio.get_event_loop() 
+        return loop.run_in_executor(self.executor, func, *args)
+    
     def wall_collision(self):
         # Ball collision with cuboid top edges
         if self.ball['y'] + self.ball['radius'] > self.cuboid['height'] / 2 or self.ball['y'] - self.ball["radius"] < -self.cuboid['height'] / 2:
@@ -200,11 +235,13 @@ class PongGame:
         # Ball collision with cuboid side edges
         elif self.ball['x'] + self.ball['radius'] > self.cuboid['width'] / 2:
             self.score['left'] += 1
-            self.reset_game()
+            if not self.checkWinCondition():
+                self.reset_game()
             return True
         elif self.ball['x'] - self.ball['radius'] < -self.cuboid['width'] / 2:
             self.score['right'] += 1
-            self.reset_game()
+            if not self.checkWinCondition():
+                self.reset_game()
             return True
         return False
 
@@ -331,6 +368,7 @@ class PongGame:
         if self.ball['speedX'] < 0:
             paddle = self.leftPaddle['x']
 
+        # todo: use the new information from the message to make a game over screen and display the player 1 and player 2 username on the respective sides
         game_state = {
             "cuboid": f"{self.cuboid['width']:.2f},{self.cuboid['height']:.2f},{self.cuboid['depth']:.2f}",
             "ball": f"{self.ball['radius']:.2f},{self.ball['x']:.2f},{self.ball['y']:.2f},{self.ball['z']:.2f}",
@@ -340,6 +378,11 @@ class PongGame:
             "score": f"{self.score['left']},{self.score['right']}",
             "ballTarget": f"{paddle:.2f},{self.AI_target},{0}",
             "ballSpeed": f"{self.ball['speedX']:.4f},{self.ball['speedY']:.4f}",
+            "running": self.running,
+            "game_mode": self.game_mode,
+            "player1": self.player1Username,
+            "player2": self.player2Username,
+            "winner": self.winner
         }
         await self.channel_layer.group_send(
             self.room_name,

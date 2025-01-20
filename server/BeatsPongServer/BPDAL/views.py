@@ -2,6 +2,8 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import ProfileData, VerificationCode, FriendRequestList, ProfilePicture
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
+from asgiref.sync import sync_to_async
+
 
 '''
 Functions that interact with the database
@@ -89,14 +91,40 @@ def query_profile_data(username):
         return profileData
     except ObjectDoesNotExist:
         return None
-
-def update_win_rate(username, newWinRate):
+    
+# @sync_to_async
+def async_query_profile_data(username):
     try:
-        profile = ProfileData.objects.get(username=username)
-        profile.winRate = newWinRate
-        profile.save()
-        return profile
+        profileData = ProfileData.objects.get(username=username)
+        return profileData
     except ObjectDoesNotExist:
+        return None
+
+# @sync_to_async
+def update_match_data(winnerUsername, loserUsername):
+    print(f"Updating match data for {winnerUsername} and {loserUsername}", flush=True)
+    try:
+        winnerProfileData = async_query_profile_data(winnerUsername)
+        loserProfileData = async_query_profile_data(loserUsername)
+
+        # update data for winner first
+        winnerProfileData.matchesPlayed += 1
+        winnerProfileData.matchesWon += 1
+        winnerProfileData.winRate = winnerProfileData.matchesWon / winnerProfileData.matchesPlayed * 100
+        winnerProfileData.save()
+
+        # update data for loser
+        loserProfileData.matchesPlayed += 1
+        loserProfileData.matchesLost += 1
+        loserProfileData.winRate = loserProfileData.matchesWon / loserProfileData.matchesPlayed * 100
+        loserProfileData.save()
+
+        print(f"Updated match data for {winnerUsername} and {loserUsername}", flush=True)
+        print(f"Winner: {winnerProfileData.matchesPlayed} {winnerProfileData.matchesWon} {winnerProfileData.winRate}", flush=True)
+        print(f"Loser: {loserProfileData.matchesPlayed} {loserProfileData.matchesLost} {loserProfileData.winRate}", flush=True)
+        return
+    except ObjectDoesNotExist:
+        print(f"Error updating match data for {winnerUsername} and {loserUsername}", flush=True)
         return None
     
 # profile picture functions

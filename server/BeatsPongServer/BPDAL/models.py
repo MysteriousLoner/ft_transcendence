@@ -18,6 +18,9 @@ class ProfileData(models.Model):
     friendList = ArrayField(models.CharField(max_length=100), blank=True, default=list)
     pendingRequests = ArrayField(models.CharField(max_length=100), blank=True, default=list)
     winRate = models.FloatField(default=100)
+    matchesPlayed = models.IntegerField(default=0)
+    matchesWon = models.IntegerField(default=0)
+    matchesLost = models.IntegerField(default=0)
     
     def save(self, *args, **kwargs): 
         self.displayName = self.displayName or self.username 

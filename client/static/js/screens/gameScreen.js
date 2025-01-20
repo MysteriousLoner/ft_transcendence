@@ -17,7 +17,7 @@ class GameScreen {
         console.log('GameScreen ai_lvl: ' + this.sceneVars.ai_lvl);
 
         // Here the game_mode options are 'vanilla, solo, tournaments and demo
-        this.game = new Game(this.sceneVars.username, this.sceneVars.game_mode, this.sceneVars.ai_lvl);
+        this.game = new Game(this.sceneVars.username, this.sceneVars.game_mode, this.sceneVars.ai_lvl, this.sceneRouterCallback, this.screenRouterCallback);
     }
 
     clean() {

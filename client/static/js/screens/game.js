@@ -2,7 +2,7 @@
 // Getting all variables and functions from new_design.js and putting them in this class
 
 class Game {
-    constructor(username, game_mode, ai_lvl) {
+    constructor(username, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback) {
         this.initScene();
         this.initCamera();
         this.initRenderer();
@@ -11,25 +11,29 @@ class Game {
         this.snowfallActive = false;
         this.snowfallFunctions = null;
         this.paused = false;
+        this.sceneRouterCallback = sceneRouterCallback;
+        this.screenRouterCallback = screenRouterCallback;
 
         this.ballSpeedX = 0;
         this.ballSpeedY = 0;
         this.scoreLeft = 4;
         this.scoreRight = 2;
 
+        this.username = username;
+
         this.ws_url = null
         
         if (game_mode == 'vanilla')
-            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=vanilla';
+            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=vanilla&username=${username}`;
         else if (game_mode == 'solo') {
-            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=solo';
+            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=solo&username=${username}`;
         }
         else if (game_mode == 'tourney') {
-            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=tourney';
+            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=tourney&username=${username}`;
         }
-        else if (game_mode == 'demo') {
-            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo';
-        }
+        // else if (game_mode == 'demo') {
+        //     this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo&username=${username}';
+        // }
         
         this.DOMloaded = true; // Set to true if DOMContentLoaded event is fired before starting
 
@@ -294,7 +298,14 @@ class Game {
     updateGameObjects(gameState) {
         // console.log("Game state received:", gameState);
         const gameStateString = JSON.stringify(gameState);
-        // console.log(gameStateString);
+        console.log(gameStateString);
+        // console.log(gameState.running);
+        if (gameState.running == false) {
+            console.log('Game Over');
+            this.cleanup();
+            this.sceneRouterCallback("menuScene");
+            return;
+        }
     
         [this.cuboidWidth, this.cuboidHeight, this.cuboidDepth] = gameState.cuboid.split(',').map(Number);
         [this.ballRadius, this.ball.position.x, this.ball.position.y, this.ball.position.z] = gameState.ball.split(',').map(Number);
