@@ -324,20 +324,43 @@
 	align-items: center;    /* Center child elements horizontally */     
 	text-align: center;     /* Center-align text inside elements */
   }
-  
   .profile-picture-container {
-    width: 100px; /* Set the desired width */
-    height: 100px; /* Set the desired height */
-    overflow: hidden; /* Hide any overflow */
-    border-radius: 50%; /* Make the container circular */
-    display: flex; /* Center the image */
-    justify-content: center; /* Center the image horizontally */
-    align-items: center; /* Center the image vertically */
-	padding-bottom: 30px;
+
+    width: 100px;
+    height: 100px; 
+	/* padding-bottom: 110px; */
+
+	display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+#profilePictureMenu1 {	
+    width: 100%; /* Make the image take the full width of the container */
+    height: 100%; /* Maintain aspect ratio */
+    border-radius: 50%; /* Make the image circular */
+	object-fit: cover;
 }
 
-#profilePictureMenu1 {
-    width: 100%; /* Make the image take the full width of the container */
-    height: auto; /* Maintain aspect ratio */
-    border-radius: 50%; /* Make the image circular */
+
+.Menu .logout {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+}
+
+.Menu .logout button {
+    padding: 10px 20px;
+    background-color: #ff4b5c; /* Bright red for visibility */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.Menu .logout button:hover {
+    background-color: #e63e50; /* Slightly darker red on hover */
 }
