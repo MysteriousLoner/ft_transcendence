@@ -44,18 +44,37 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         query_params = parse_qs(query_string)
         self.game_mode = query_params.get('gameMode', [None])[0]
         self.username = query_params.get('username', [None])[0]
+        self.displayName = query_params.get('displayName', [None])[0]
         
         if self.game_mode == 'solo':
-            BPSlaveMaster.que_solo.append({ "self": self, "username": self.username })
+            BPSlaveMaster.que_solo.append(
+                { 
+                    "self": self, 
+                    "username": self.username ,
+                    "displayName": self.displayName
+                }
+            )
             print("added to list")
             sys.stdout.flush()
             await self.check_ques()
         elif self.game_mode == 'tourney':
-            BPSlaveMaster.que_tourney.append({ "self": self, "username": self.username })
+            BPSlaveMaster.que_tourney.append(
+                { 
+                    "self": self, 
+                    "username": self.username ,
+                    "displayName": self.displayName
+                }
+            )
             await self.check_ques()
         elif self.game_mode == 'vanilla':
             print("added to vanilla player to list")
-            BPSlaveMaster.que_vanilla.append({ "self": self, "username": self.username })
+            BPSlaveMaster.que_vanilla.append(
+                { 
+                    "self": self, 
+                    "username": self.username ,
+                    "displayName": self.displayName
+                }
+            )
             await self.check_ques_vanilla()
             
     # if enough players exist in the que, pop the first two players and put them into a room with a game.
@@ -67,7 +86,7 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
             player2 = BPSlaveMaster.que_solo.pop(0)
             print("starting game")
             sys.stdout.flush()
-            await self.start_game(player1.get("self"), player2.get("self"), player1.get("username"), player2.get("username"))
+            await self.start_game(player1.get("self"), player2.get("self"), player1.get("username"), player2.get("username"), player1.get("displayName"), player2.get("displayName"))
 
     async def receive_json(self, content):
         sender_channel = self.channel_name  # Get the name of the channel sending the message
@@ -112,13 +131,21 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
     # room management functions--------------------------------------------------------------------------
 
 
-    async def start_game(self, player1, player2, username1, username2):
+    async def start_game(self, player1, player2, username1, username2, displayName1, displayName2):
         # create a simple, valid room name using the index in the list of active rooms
         room_index = len(BPSlaveMaster.rooms)
         room_name = f"game_room_{room_index}"
 
         # add players to the room, create game object and add players to it
-        game = PongGame(room_name=room_name, player1=player1, player2=player2, player1Username=username1, player2Username=username2) # 'AI' determines if the game is single player or multiplayer
+        game = PongGame(
+            room_name=room_name, 
+            player1=player1, 
+            player2=player2, 
+            player1Username=username1, 
+            player2Username=username2,
+            player1DisplayName=displayName1,
+            player2DisplayName=displayName2
+        ) # 'AI' determines if the game is single player or multiplayer
         BPSlaveMaster.rooms.append(game)
 
         # start game
@@ -131,15 +158,23 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         sys.stdout.flush() # Ensure the message is printed immediately
         if len(BPSlaveMaster.que_vanilla) >= 1:
             player = BPSlaveMaster.que_vanilla.pop(0)
-            await self.start_game_vanilla(player.get("self"), player.get("username"))
+            await self.start_game_vanilla(player.get("self"), player.get("username"), player.get("displayName"))
 
-    async def start_game_vanilla(self, player1, username):
+    async def start_game_vanilla(self, player1, username, displayName):
         # create a simple, valid room name using the index in the list of active rooms
         room_index = len(BPSlaveMaster.rooms)
         room_name = f"game_room_{room_index}"
 
         # add players to the room, create game object and add players to it
-        game = PongGame(room_name=room_name, player1=player1, player2='AI', player1Username=username, player2Username="AI") # 'AI' determines if the game is single player or multiplayer
+        game = PongGame(
+            room_name=room_name, 
+            player1=player1, 
+            player2='AI', 
+            player1Username=username,
+            player2Username="AI",
+            player1DisplayName=displayName,
+            player2DisplayName="AI"         
+        ) # 'AI' determines if the game is single player or multiplayer
         BPSlaveMaster.rooms.append(game)
 
         # start game

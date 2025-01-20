@@ -10,6 +10,7 @@ class SceneRegistry {
         this.history = [];
         this.globalVars = {
             username: null,
+            displayName: null,
             game_mode: null,
             ai_lvl: null,
         }

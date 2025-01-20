@@ -1,8 +1,9 @@
 // Creating class for new_design.js
 // Getting all variables and functions from new_design.js and putting them in this class
+import makeRequest from "../utils/requestWrapper.js";
 
 class Game {
-    constructor(username, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback) {
+    constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback) {
         this.initScene();
         this.initCamera();
         this.initRenderer();
@@ -20,16 +21,17 @@ class Game {
         this.scoreRight = 2;
 
         this.username = username;
+        this.displayName = displayName;
 
         this.ws_url = null
         
         if (game_mode == 'vanilla')
-            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=vanilla&username=${username}`;
+            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
         else if (game_mode == 'solo') {
-            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=solo&username=${username}`;
+            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
         }
         else if (game_mode == 'tourney') {
-            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=tourney&username=${username}`;
+            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=tourney&username=${this.username}&displayName=${this.displayName}`;
         }
         // else if (game_mode == 'demo') {
         //     this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo&username=${username}';
@@ -65,6 +67,12 @@ class Game {
         this.intervalID = setInterval(this.updateElement.bind(this), 250);
         this.connectWebSocket();
         this.animate();
+    }
+
+    async getDisplayName() {
+        console.log(this.username);
+        const userData = await makeRequest('POST', 'api/account/getProfileData/', { username: this.username });
+        return userData.displayName;
     }
     
     cleanup() {

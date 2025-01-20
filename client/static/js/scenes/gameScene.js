@@ -13,6 +13,9 @@ class GameScene {
             get username() {
                 return globalVars.username;
             },
+            get displayName() {
+                return globalVars.displayName;
+            },
             get game_mode() {
                 return globalVars.game_mode;
             },

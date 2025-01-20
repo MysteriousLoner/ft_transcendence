@@ -32,15 +32,18 @@ class PongGame:
     ballSpeed = 0.075
     waitTime = 3
 
-    def __init__(self, room_name, player1, player2, player1Username, player2Username):
+    def __init__(self, room_name, player1, player2, player1Username, player2Username, player1DisplayName, player2DisplayName):
         print("Game object created", flush=True)
-        print(f"Player 1: {player1Username} Player 2: {player2Username}", flush=True)
+        # print(f"Player 1: {player1Username} Player 2: {player2Username}", flush=True)
+        print(f"Player 1: {player1DisplayName} Player 2: {player2DisplayName}", flush=True)
 
         self.game_mode = 'AI' if player2 == 'AI' else 'PvP'
 
         # make usernames local
         self.player1Username = player1Username
         self.player2Username = player2Username
+        self.player1DisplayName = player1DisplayName
+        self.player2DisplayName = player2DisplayName
         self.winner = None
         self.executor = ThreadPoolExecutor(max_workers=10)
 
@@ -382,6 +385,8 @@ class PongGame:
             "game_mode": self.game_mode,
             "player1": self.player1Username,
             "player2": self.player2Username,
+            "player1DisplayName": self.player1DisplayName,
+            "player2DisplayName": self.player2DisplayName,
             "winner": self.winner
         }
         await self.channel_layer.group_send(

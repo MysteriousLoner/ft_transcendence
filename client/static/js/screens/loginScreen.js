@@ -43,6 +43,8 @@ class LoginScreen {
                 document.getElementById('errorMessage').classList.remove('d-none');
             } else {
                 this.sceneVars.username = data.username;
+                const profileData = await makeRequest('POST', 'api/account/getProfileData/', { username: this.sceneVars.username });
+                this.sceneVars.displayName = profileData.displayName;
                 this.clean();
                 this.sceneRouterCallback('menuScene');
             }
