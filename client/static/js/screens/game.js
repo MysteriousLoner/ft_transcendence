@@ -57,76 +57,78 @@ class Game {
             '-': false,
             r: false
         }
-
+        
         this.intervalID = setInterval(this.updateElement.bind(this), 250);
         this.connectWebSocket();
         this.animate();
     }
-
+    
     cleanup() {
-            // Remove the renderer's DOM element
-            document.body.removeChild(this.renderer.domElement);
-        
-            // Dispose of geometries, materials, and textures
-            const disposeObject = (obj) => {
-                if (obj.geometry) obj.geometry.dispose();
-                if (obj.material) {
-                    if (Array.isArray(obj.material)) {
-                        obj.material.forEach((material) => material.dispose());
-                    } else {
-                        obj.material.dispose();
-                    }
+        this.disconnectWebSocket();
+        console.log('Cleaning up game');
+        // Remove the renderer's DOM element
+        document.body.removeChild(this.renderer.domElement);
+    
+        // Dispose of geometries, materials, and textures
+        const disposeObject = (obj) => {
+            if (obj.geometry) obj.geometry.dispose();
+            if (obj.material) {
+                if (Array.isArray(obj.material)) {
+                    obj.material.forEach((material) => material.dispose());
+                } else {
+                    obj.material.dispose();
                 }
-                if (obj.texture) obj.texture.dispose();
-            };
-        
-            // Traverse the scene to dispose of all objects
-            // recursively visits every child object in the scene graph
-            this.scene.traverse((obj) => {
-                if (obj.isMesh || obj.isLine || obj.isSprite) {
-                    disposeObject(obj);
-                }
-            });
+            }
+            if (obj.texture) obj.texture.dispose();
+        };
+    
+        // Traverse the scene to dispose of all objects
+        // recursively visits every child object in the scene graph
+        this.scene.traverse((obj) => {
+            if (obj.isMesh || obj.isLine || obj.isSprite) {
+                disposeObject(obj);
+            }
+        });
 
-            // Remove event listeners
-            window.removeEventListener('resize', this.boundOnWindowResize, false);
-            document.removeEventListener('DOMContentLoaded', () => (this.DOMloaded = true));
-            document.removeEventListener('keydown', this.boundHandleKeydown);
-            document.removeEventListener('keyup', this.boundHandleKeyup);
-            document.removeEventListener('click', this.boundHandleClick);
+        // Remove event listeners
+        window.removeEventListener('resize', this.boundOnWindowResize, false);
+        document.removeEventListener('DOMContentLoaded', () => (this.DOMloaded = true));
+        document.removeEventListener('keydown', this.boundHandleKeydown);
+        document.removeEventListener('keyup', this.boundHandleKeyup);
+        document.removeEventListener('click', this.boundHandleClick);
 
-            /*
-            document.removeEventListener('keydown', (event) => {
-                this.boundHandleKeydown(event);
-                if (event.key === 'Escape') {
-                    this.paused = !this.paused;
-                    console.log('Game paused:', this.paused);
-                }
-            });
-            */
+        /*
+        document.removeEventListener('keydown', (event) => {
+            this.boundHandleKeydown(event);
+            if (event.key === 'Escape') {
+                this.paused = !this.paused;
+                console.log('Game paused:', this.paused);
+            }
+        });
+        */
 
-            // Clear interval
-            clearInterval(this.intervalID);
+        // Clear interval
+        clearInterval(this.intervalID);
 
-            // Cancel the animation frame
-            cancelAnimationFrame(this.animationFrameId);
+        // Cancel the animation frame
+        cancelAnimationFrame(this.animationFrameId);
 
-            // Dispose of the scene and renderer
-            this.scene = null;
-            this.renderer.dispose();
-        
-            // Release references to objects
-            this.group = null;
-            this.camera = null;
-            this.renderer = null;
-            this.cuboid = null;
-            this.leftPaddle = null;
-            this.rightPaddle = null;
-            this.ball = null;
-            this.ballTarget = null;
+        // Dispose of the scene and renderer
+        this.scene = null;
+        // this.renderer.dispose();
+    
+        // Release references to objects
+        this.group = null;
+        this.camera = null;
+        this.renderer = null;
+        this.cuboid = null;
+        this.leftPaddle = null;
+        this.rightPaddle = null;
+        this.ball = null;
+        this.ballTarget = null;
 
-            this.disconnectWebSocket();
-        }
+        console.log('Game cleaned up');
+    }
         
     initScene() {
         this.scene = new THREE.Scene();

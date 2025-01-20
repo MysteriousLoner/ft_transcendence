@@ -32,7 +32,14 @@ def getProfileData(request):
         return JsonResponse({"error": "User does not exist."}, status=400)
     profileData = query_profile_data(requestData['username'])
 
-    return JsonResponse({"username": profileData.username, "displayName": profileData.displayName, "winRate": profileData.winRate}, status=200)
+    return JsonResponse(
+        {
+         "username": profileData.username, 
+         "displayName": profileData.displayName, 
+         "winRate": profileData.winRate, 
+         "friendList": profileData.friendList, 
+         "pendingRequests": profileData.pendingRequests
+        }, status=200)
 
 # request body should contain username and displayName
 # {

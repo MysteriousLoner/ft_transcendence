@@ -30,8 +30,6 @@ class GameScreen {
         } catch (error) {
             console.error('Error cleaning up game', error);
         }
-        delete this.game;
-        this.game = null;
         document.getElementById('gameContainer').classList.add('d-none');
         console.log('Game screen cleaned');
 

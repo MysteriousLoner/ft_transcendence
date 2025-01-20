@@ -54,12 +54,13 @@ def sendFriendRequest(request):
         return JsonResponse({"error": "Users does not exist."}, status=400)
     # get target profile data and self profile data
     targetProfileData = query_profile_data(targetUsername)
-    if targetUsername in targetProfileData.pendingRequests:
+    if selfUsername in targetProfileData.pendingRequests:
         return JsonResponse({"error": "Friend request already sent."}, status=400)
     # add self username to target's pending requests
     targetProfileData.pendingRequests.append(selfUsername)
     targetProfileData.save()
     targetProfileData.refresh_from_db()
+    print(targetProfileData.pendingRequests, flush=True)
     return JsonResponse({"message": "Friend request sent."}, status=200)
 
 @csrf_exempt
