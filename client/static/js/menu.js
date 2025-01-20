@@ -68,6 +68,7 @@ async function initPage(inputUser) {
 	document.getElementById('searchFriends').addEventListener('click', searchFriends);
 
 	document.getElementById('refresh').addEventListener('click', refresh);
+	document.getElementById('closeInfo').addEventListener('click', closeFriendProfileModal);
 }
 
 // Update win rate
@@ -96,10 +97,12 @@ async function updateFriendList() {
 			li.innerHTML = `
             <span>${friend}</span>
             <div>
+				<button class="info-button">Info</button>
                 <button class="delete-friend">Delete</button>
             </div>
         `;
 			friendsList.appendChild(li);
+			li.querySelector(".info-button").addEventListener("click", () => openFriendProfileModal(friend));
 			li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 		});
 
@@ -283,28 +286,6 @@ async function addNewFriend() {
 
 }
 
-// Display new friends
-// function displayNewFriends() {
-// 	const newFriendsList = document.getElementById("newFriendsList");
-// 	newFriendsList.innerHTML = "";
-
-// 	const startIndex = (currentNewPage - 1) * friendsPerPage;
-// 	const endIndex = startIndex + friendsPerPage;
-// 	const displayedNewFriends = filteredNewFriends.slice(startIndex, endIndex);
-
-// 	displayedNewFriends.forEach(friend => {
-// 		const li = document.createElement("li");
-// 		li.innerHTML = `
-//             <span>${friend}</span>
-//             <button class="add-friend-button" onclick="addFriend('${friend}')">Add Friend</button>
-//         `;
-// 		newFriendsList.appendChild(li);
-// 	});
-
-// 	updatePagination(filteredNewFriends.length, currentNewPage, "currentNewPage", "prevNewPage", "nextNewPage");
-// }
-
-
 async function openEditProfileModal() {
 	profilePicture = await makeRequest('POST', 'api/account/getProfilePicture/', { username: userData.username });
 	const profileImagePreview = document.getElementById('profileImagePreview'); // Get the image preview element
@@ -367,4 +348,30 @@ async function refresh() {
 	updateFriendList();
 }
 
+
+async function openFriendProfileModal(friend) {
+	const modal = document.getElementById("friendProfileModal")
+	const friendProfilePicture = document.getElementById("friendProfilePicture")
+	const friendUsername = document.getElementById("friendUsername")
+	const friendDisplayName = document.getElementById("friendDisplayName")
+	const friendWinRate = document.getElementById("friendWinRate")
+	const friendWinRateProgress = document.getElementById("friendWinRateProgress")
+  
+
+	const friendData = await makeRequest('POST', 'api/account/getProfileData/', { username: friend })
+	const friendProfilePictureData = await makeRequest('POST', 'api/account/getProfilePicture/', { username: friend })
+  
+	friendProfilePicture.src = friendProfilePictureData.image
+	friendUsername.textContent = friendData.username
+	friendDisplayName.textContent = friendData.displayName
+	friendWinRate.textContent = friendData.winRate.toFixed(1)
+  	friendWinRateProgress.style.width = `${friendData.winRate}%`
+  
+	modal.style.display = "block"
+  }
+  
+  function closeFriendProfileModal() {
+	const modal = document.getElementById("friendProfileModal")
+	modal.style.display = "none"
+  }
 export default initPage;
