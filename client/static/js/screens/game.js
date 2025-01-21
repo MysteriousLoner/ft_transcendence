@@ -3,7 +3,7 @@
 import makeRequest from "../utils/requestWrapper.js";
 
 class Game {
-    constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback, sceneVars) {
+    constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback) {
         this.initScene();
         this.initCamera();
         this.initRenderer();
@@ -14,7 +14,6 @@ class Game {
         this.paused = false;
         this.sceneRouterCallback = sceneRouterCallback;
         this.screenRouterCallback = screenRouterCallback;
-        this.sceneVars = sceneVars;
 
         this.ballSpeedX = 0;
         this.ballSpeedY = 0;
@@ -52,7 +51,7 @@ class Game {
             Snowfall: false,
             ai_lvl: ai_lvl,
         };
-        
+
         this.key_rotate = {
             i: false,
             k: false,
@@ -63,16 +62,6 @@ class Game {
             '=': false,
             '-': false,
             r: false
-        }
-
-        this.info = {
-            player1: '',
-            player2: '',
-            player1DisplayName: '',
-            player2DisplayName: '',
-            winner: '',
-            game_mode: game_mode,
-            message_received: false,
         }
         
         this.intervalID = setInterval(this.updateElement.bind(this), 250);
@@ -330,7 +319,6 @@ class Game {
         const gameStateString = JSON.stringify(gameState);
         console.log(gameStateString);
         // console.log(gameState.running);
-<<<<<<< HEAD
         // tournament mode, not the winner, return to menu
         if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
             console.log("Tournament mode, not the winner, return to menu");
@@ -347,8 +335,6 @@ class Game {
             return;
         }
     
-=======
->>>>>>> end_game
         [this.cuboidWidth, this.cuboidHeight, this.cuboidDepth] = gameState.cuboid.split(',').map(Number);
         [this.ballRadius, this.ball.position.x, this.ball.position.y, this.ball.position.z] = gameState.ball.split(',').map(Number);
     
