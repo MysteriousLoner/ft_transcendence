@@ -141,12 +141,11 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         print(f"Disconnected with code: {code}")
         
         # Remove the player from the appropriate queue
-        for queue in BPTourneyMaster.que_tourney:
-            for player in queue:
-                if player['self'] == self:
-                    queue.remove(player)
+        for player in BPTourneyMaster.que_tourney:
+            if isinstance(player, dict) and player['self'] == self:
+                BPTourneyMaster.que_tourney.remove(player)
         
-        # Find the game room this player is a part of
+        # Find the game room this player is part of and handle the disconnect
         if self.game1 and self in [self.game1.player1, self.game1.player2]:
             await self.game1.handle_player_disconnect(self)
         if self.game2 and self in [self.game2.player1, self.game2.player2]:
@@ -154,6 +153,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         if self.finalGame and self in [self.finalGame.player1, self.finalGame.player2]:
             await self.finalGame.handle_player_disconnect(self)
             BPTourneyMaster.activeTourneys -= 1
+
 
     async def game_message(self, event):
         message = event['message']

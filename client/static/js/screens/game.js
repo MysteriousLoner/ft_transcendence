@@ -3,7 +3,7 @@
 import makeRequest from "../utils/requestWrapper.js";
 
 class Game {
-    constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback) {
+    constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback, sceneVars) {
         this.initScene();
         this.initCamera();
         this.initRenderer();
@@ -14,6 +14,7 @@ class Game {
         this.paused = false;
         this.sceneRouterCallback = sceneRouterCallback;
         this.screenRouterCallback = screenRouterCallback;
+        this.sceneVars = sceneVars;
 
         this.ballSpeedX = 0;
         this.ballSpeedY = 0;
@@ -64,6 +65,16 @@ class Game {
             r: false
         }
         
+        this.info = {
+            player1: '',
+            player2: '',
+            player1DisplayName: '',
+            player2DisplayName: '',
+            winner: '',
+            game_mode: game_mode,
+            message_received: false,
+        }
+
         this.intervalID = setInterval(this.updateElement.bind(this), 250);
         this.connectWebSocket();
         this.animate();
@@ -320,37 +331,44 @@ class Game {
         console.log(gameStateString);
         // console.log(gameState.running);
         // tournament mode, not the winner, return to menu
-        if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
-            console.log("Tournament mode, not the winner, return to menu");
-            this.sceneRouterCallback("menuScene");
-            return;
-        }
-        else if (gameState.game_mode != "Tourney" && !gameState.running) {
-            console.log("Game not running, return to menu");
-            this.sceneRouterCallback("menuScene");
-            return;
-        } else if (gameState.game_mode === "Tourney" && gameState.winner === this.username && !gameState.running && gameState.roomName.includes("final")) {
-            console.log("Tournament mode, winner of final, return to menu");
-            this.sceneRouterCallback("menuScene");
-            return;
-        }
-    
+        
         [this.cuboidWidth, this.cuboidHeight, this.cuboidDepth] = gameState.cuboid.split(',').map(Number);
         [this.ballRadius, this.ball.position.x, this.ball.position.y, this.ball.position.z] = gameState.ball.split(',').map(Number);
-    
+        
         [this.paddleWidth, this.paddleHeight, this.paddleDepth] = gameState.paddle_dimensions.split(',').map(Number);
         [this.leftPaddle.position.x, this.leftPaddle.position.y, this.leftPaddle.position.z] = gameState.leftPaddle.split(',').map(Number);
         [this.rightPaddle.position.x, this.rightPaddle.position.y, this.rightPaddle.position.z] = gameState.rightPaddle.split(',').map(Number);
         [this.scoreLeft, this.scoreRight] = gameState.score.split(',').map(Number);
         [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
         [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
-
+        
         // new info
         [this.info.player1] = gameState.player1.split(',').map(String);
         [this.info.player2] = gameState.player2.split(',').map(String);
         [this.info.player1DisplayName] = gameState.player1DisplayName.split(',').map(String);
         [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
         this.info.winner = gameState.winner;
+        
+        if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
+            console.log("Tournament mode, not the winner, return to menu");
+            this.sceneVars.game_outcome = this.returnInfo();
+            this.cleanup();
+            this.screenRouterCallback("gameOverScreen");
+            return;
+        }
+        else if (gameState.game_mode != "Tourney" && !gameState.running) {
+            console.log("Game not running, return to menu");
+            this.sceneVars.game_outcome = this.returnInfo();
+            this.cleanup();
+            this.screenRouterCallback("gameOverScreen");
+            return;
+        } else if (gameState.game_mode === "Tourney" && gameState.winner === this.username && !gameState.running && gameState.roomName.includes("final")) {
+            console.log("Tournament mode, winner of final, return to menu");
+            this.sceneVars.game_outcome = this.returnInfo();
+            this.cleanup();
+            this.screenRouterCallback("gameOverScreen");
+            return;
+        }
         
         if (gameState.running == false) {
             console.log('Game Over');

@@ -392,3 +392,4 @@ class PongGame:
                 'message': game_state
             }
         )
+        print("Game state sent", game_state, flush=True)
