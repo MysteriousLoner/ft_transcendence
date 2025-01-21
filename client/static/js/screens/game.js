@@ -3,7 +3,7 @@
 import makeRequest from "../utils/requestWrapper.js";
 
 class Game {
-    constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback) {
+    constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback, sceneVars) {
         this.initScene();
         this.initCamera();
         this.initRenderer();
@@ -14,6 +14,7 @@ class Game {
         this.paused = false;
         this.sceneRouterCallback = sceneRouterCallback;
         this.screenRouterCallback = screenRouterCallback;
+        this.sceneVars = sceneVars;
 
         this.ballSpeedX = 0;
         this.ballSpeedY = 0;
@@ -51,7 +52,7 @@ class Game {
             Snowfall: false,
             ai_lvl: ai_lvl,
         };
-
+        
         this.key_rotate = {
             i: false,
             k: false,
@@ -62,6 +63,16 @@ class Game {
             '=': false,
             '-': false,
             r: false
+        }
+
+        this.info = {
+            player1: '',
+            player2: '',
+            player1DisplayName: '',
+            player2DisplayName: '',
+            winner: '',
+            game_mode: game_mode,
+            message_received: false,
         }
         
         this.intervalID = setInterval(this.updateElement.bind(this), 250);
@@ -282,8 +293,19 @@ class Game {
         this.socket = new WebSocket(this.ws_url);
         this.socket.onopen = function () {
             console.log('WebSocket connection established');
-        
+            
+            if (this.info.message_received == false) {
+                document.getElementById('gameContainer').classList.add('d-none');
+                document.getElementById('loadingScreen').classList.remove('d-none');
+            }
+
             this.socket.onmessage = function (event) {
+                if (this.info.message_received == false) {
+                    document.getElementById('loadingScreen').classList.add('d-none');
+                    document.getElementById('gameContainer').classList.remove('d-none');
+                    this.info.message_received = true;
+                } // Hide loading screen and show game container when first message is received
+
                 const gameState = JSON.parse(event.data);
                 this.updateGameObjects(gameState);
             }.bind(this);
@@ -308,13 +330,6 @@ class Game {
         const gameStateString = JSON.stringify(gameState);
         console.log(gameStateString);
         // console.log(gameState.running);
-        if (gameState.running == false) {
-            console.log('Game Over');
-            this.cleanup();
-            this.sceneRouterCallback("menuScene");
-            return;
-        }
-    
         [this.cuboidWidth, this.cuboidHeight, this.cuboidDepth] = gameState.cuboid.split(',').map(Number);
         [this.ballRadius, this.ball.position.x, this.ball.position.y, this.ball.position.z] = gameState.ball.split(',').map(Number);
     
@@ -324,6 +339,50 @@ class Game {
         [this.scoreLeft, this.scoreRight] = gameState.score.split(',').map(Number);
         [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
         [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
+
+        // new info
+        [this.info.player1] = gameState.player1.split(',').map(String);
+        [this.info.player2] = gameState.player2.split(',').map(String);
+        [this.info.player1DisplayName] = gameState.player1DisplayName.split(',').map(String);
+        [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
+        this.info.winner = gameState.winner;
+        
+        if (gameState.running == false) {
+            console.log('Game Over');
+            this.sceneVars.game_outcome = this.returnInfo();
+            this.cleanup();
+            this.screenRouterCallback("gameOverScreen");
+            return;
+        }
+
+        // if (gameState.countDown == 1) {
+        //     // Set the countdown duration in seconds
+        //     let countdownDuration = 3;
+
+        //     // Get the countdown element
+        //     let countdownElement = document.getElementById('countdown');
+        //     document.getElementById('countdown').classList.remove('d-none');
+
+        //     // Function to update the countdown
+        //     function updateCountdown() {
+        //         if (countdownDuration > 0) {
+        //             countdownElement.textContent = countdownDuration;
+        //             countdownDuration--;
+        //         } else {
+        //             countdownElement.textContent = 'Go!';
+        //             clearInterval(countdownInterval);
+        //         }
+        //     }
+
+        //     // Update the countdown every second
+        //     let countdownInterval = setInterval(updateCountdown, 1000);
+        //     document.getElementById('countdown').classList.add('d-none');
+        // }
+    }
+
+
+    returnInfo() {
+        return this.info;
     }
 
     sendMessage() {
@@ -521,7 +580,11 @@ class Game {
         document.getElementById('rightPaddlePosition').textContent = `Right Paddle (y: ${this.rightPaddle.position.y.toFixed(2)})`;
         // document.getElementById('ballPosition').textContent = `Ball (x: ${this.ball.position.x.toFixed(2)}, y: ${this.ball.position.y.toFixed(2)})`;
         document.getElementById('ballSpeed').textContent = `Ball Speed (x: ${this.ballSpeedX.toFixed(4)}, y: ${this.ballSpeedY.toFixed(4)})`;
-        
+
+        // info
+        document.getElementById('leftPlayerName').textContent = `${this.info.player1DisplayName}`;
+        document.getElementById('rightPlayerName').textContent = `${this.info.player2DisplayName}`;
+        document.getElementById('gameMode').textContent = `${this.info.game_mode.toUpperCase()}`;
     }
 
 

@@ -13,6 +13,7 @@ class SceneRegistry {
             displayName: null,
             game_mode: null,
             ai_lvl: null,
+            game_outcome: null,
         }
         window.addEventListener('popstate', this.handlePopState.bind(this));
     }

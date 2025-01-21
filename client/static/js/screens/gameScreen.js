@@ -17,22 +17,12 @@ class GameScreen {
         console.log('GameScreen ai_lvl: ' + this.sceneVars.ai_lvl);
 
         // Here the game_mode options are 'vanilla, solo, tournaments and demo
-        this.game = new Game(this.sceneVars.username, this.sceneVars.displayName, this.sceneVars.game_mode, this.sceneVars.ai_lvl, this.sceneRouterCallback, this.screenRouterCallback);
+        this.game = new Game(this.sceneVars.username, this.sceneVars.displayName, this.sceneVars.game_mode, this.sceneVars.ai_lvl, this.sceneRouterCallback, this.screenRouterCallback, this.sceneVars); // Yes its bit ugly lol
     }
 
     clean() {
-        console.log('Cleaning game screen');
-        try {
-            if (this.game){
-                this.game.cleanup();
-                console.log('Game cleaned up');
-            }
-        } catch (error) {
-            console.error('Error cleaning up game', error);
-        }
+        console.log('closing gameScreen');
         document.getElementById('gameContainer').classList.add('d-none');
-        console.log('Game screen cleaned');
-
     }
 }
 

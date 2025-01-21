@@ -124,10 +124,18 @@ body {
     display: block;
     margin: 20px auto;
 }
+
+/* Container for feature buttons */
 .feature-buttons {
-    margin-top: 20px;
+    display: flex;
+    align-items: center;  /* Center vertically */
+    justify-content: center;  /* Center horizontally */
+    height:auto;  /* Full height of the viewport, adjust as needed */
 }
+
+/* Button styling */
 .feature-buttons button {
+    margin-top: 20px;
     padding: 10px 20px;
     font-size: 1.1em;
     cursor: pointer;
@@ -135,9 +143,11 @@ body {
     color: white;
     border: none;
     border-radius: 5px;
-    margin: 5px;
+    margin: 20px;
     transition: background-color 0.3s ease;
+    width: 400px;
 }
+
 .feature-buttons button:hover {
     background-color: #218838;
 }
@@ -153,7 +163,7 @@ body {
 }
 .scoreboard {
     position: absolute;
-    top: 200px;
+    top: 12.5%;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(255, 255, 255, 0.8);
