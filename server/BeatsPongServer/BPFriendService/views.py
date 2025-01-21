@@ -50,12 +50,16 @@ def sendFriendRequest(request):
     targetUsername = requestData['targetUsername']
     selfUsername = requestData['selfUsername']
     # error checking
+    if targetUsername == selfUsername:
+        return JsonResponse({"error": "Cannot send friend request to self."}, status=400)
     if not query_user(targetUsername) or not query_user(selfUsername):
         return JsonResponse({"error": "Users does not exist."}, status=400)
     # get target profile data and self profile data
     targetProfileData = query_profile_data(targetUsername)
     if selfUsername in targetProfileData.pendingRequests:
         return JsonResponse({"error": "Friend request already sent."}, status=400)
+    if selfUsername in targetProfileData.friendList:
+        return JsonResponse({"error": "Already friends with this user."}, status=400)
     # add self username to target's pending requests
     targetProfileData.pendingRequests.append(selfUsername)
     targetProfileData.save()

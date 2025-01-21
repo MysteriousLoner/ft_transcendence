@@ -193,10 +193,12 @@ function searchFriends() {
 		li.innerHTML = `
             <span>${friend}</span>
             <div>
+				<button class="info-button">Info</button>
                 <button class="delete-friend">Delete</button>
             </div>
         `;
 		friendsList.appendChild(li);
+		li.querySelector(".info-button").addEventListener("click", () => openFriendProfileModal(friend));
 		li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 	});
 
