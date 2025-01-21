@@ -297,12 +297,18 @@ class Game {
             if (this.info.message_received == false) {
                 document.getElementById('gameContainer').classList.add('d-none');
                 document.getElementById('loadingScreen').classList.remove('d-none');
+                this.scene.visible = false;
+                if (this.renderer && this.renderer.domElement)
+                    document.body.removeChild(this.renderer.domElement);
             }
 
             this.socket.onmessage = function (event) {
                 if (this.info.message_received == false) {
                     document.getElementById('loadingScreen').classList.add('d-none');
                     document.getElementById('gameContainer').classList.remove('d-none');
+                    if (this.renderer && this.renderer.domElement)
+                        document.body.appendChild(this.renderer.domElement);
+                    this.scene.visible = true;
                     this.info.message_received = true;
                 } // Hide loading screen and show game container when first message is received
 
