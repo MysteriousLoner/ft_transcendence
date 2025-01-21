@@ -16,17 +16,14 @@ class AILvlSelectScreen {
         document.getElementById('easyAIButton').addEventListener('click', () => {
             this.sceneVars.ai_lvl = 'easy';
             console.log("AI Level: " + this.sceneVars.ai_lvl);
-            this.clean();
             this.screenRouterCallback("gameScreen");
         });
         document.getElementById('hardAIButton').addEventListener('click', () => {
             this.sceneVars.ai_lvl = 'hard';
             console.log("AI Level: " + this.sceneVars.ai_lvl);
-            this.clean();
             this.screenRouterCallback("gameScreen");
         });
         document.getElementById('backToMenuButton_1').addEventListener('click', () => {
-            this.clean();
             this.screenRouterCallback("menuScreen");
         });
     }

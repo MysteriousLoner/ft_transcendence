@@ -1,8 +1,9 @@
 // Creating class for new_design.js
 // Getting all variables and functions from new_design.js and putting them in this class
+import makeRequest from "../utils/requestWrapper.js";
 
 class Game {
-    constructor(username, game_mode, ai_lvl) {
+    constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback) {
         this.initScene();
         this.initCamera();
         this.initRenderer();
@@ -11,25 +12,30 @@ class Game {
         this.snowfallActive = false;
         this.snowfallFunctions = null;
         this.paused = false;
+        this.sceneRouterCallback = sceneRouterCallback;
+        this.screenRouterCallback = screenRouterCallback;
 
         this.ballSpeedX = 0;
         this.ballSpeedY = 0;
         this.scoreLeft = 4;
         this.scoreRight = 2;
 
+        this.username = username;
+        this.displayName = displayName;
+
         this.ws_url = null
         
         if (game_mode == 'vanilla')
-            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=vanilla';
+            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
         else if (game_mode == 'solo') {
-            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=solo';
+            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
         }
         else if (game_mode == 'tourney') {
-            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=tourney';
+            this.ws_url = `ws://localhost:8000/ws/game/tourney?username=${this.username}`;
         }
-        else if (game_mode == 'demo') {
-            this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo';
-        }
+        // else if (game_mode == 'demo') {
+        //     this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo&username=${username}';
+        // }
         
         this.DOMloaded = true; // Set to true if DOMContentLoaded event is fired before starting
 
@@ -57,76 +63,84 @@ class Game {
             '-': false,
             r: false
         }
-
+        
         this.intervalID = setInterval(this.updateElement.bind(this), 250);
         this.connectWebSocket();
         this.animate();
     }
 
+    async getDisplayName() {
+        console.log(this.username);
+        const userData = await makeRequest('POST', 'api/account/getProfileData/', { username: this.username });
+        return userData.displayName;
+    }
+    
     cleanup() {
-            // Remove the renderer's DOM element
-            document.body.removeChild(this.renderer.domElement);
-        
-            // Dispose of geometries, materials, and textures
-            const disposeObject = (obj) => {
-                if (obj.geometry) obj.geometry.dispose();
-                if (obj.material) {
-                    if (Array.isArray(obj.material)) {
-                        obj.material.forEach((material) => material.dispose());
-                    } else {
-                        obj.material.dispose();
-                    }
+        this.disconnectWebSocket();
+        console.log('Cleaning up game');
+        // Remove the renderer's DOM element
+        document.body.removeChild(this.renderer.domElement);
+    
+        // Dispose of geometries, materials, and textures
+        const disposeObject = (obj) => {
+            if (obj.geometry) obj.geometry.dispose();
+            if (obj.material) {
+                if (Array.isArray(obj.material)) {
+                    obj.material.forEach((material) => material.dispose());
+                } else {
+                    obj.material.dispose();
                 }
-                if (obj.texture) obj.texture.dispose();
-            };
-        
-            // Traverse the scene to dispose of all objects
-            // recursively visits every child object in the scene graph
-            this.scene.traverse((obj) => {
-                if (obj.isMesh || obj.isLine || obj.isSprite) {
-                    disposeObject(obj);
-                }
-            });
+            }
+            if (obj.texture) obj.texture.dispose();
+        };
+    
+        // Traverse the scene to dispose of all objects
+        // recursively visits every child object in the scene graph
+        this.scene.traverse((obj) => {
+            if (obj.isMesh || obj.isLine || obj.isSprite) {
+                disposeObject(obj);
+            }
+        });
 
-            // Remove event listeners
-            window.removeEventListener('resize', this.boundOnWindowResize, false);
-            document.removeEventListener('DOMContentLoaded', () => (this.DOMloaded = true));
-            document.removeEventListener('keydown', this.boundHandleKeydown);
-            document.removeEventListener('keyup', this.boundHandleKeyup);
-            document.removeEventListener('click', this.boundHandleClick);
+        // Remove event listeners
+        window.removeEventListener('resize', this.boundOnWindowResize, false);
+        document.removeEventListener('DOMContentLoaded', () => (this.DOMloaded = true));
+        document.removeEventListener('keydown', this.boundHandleKeydown);
+        document.removeEventListener('keyup', this.boundHandleKeyup);
+        document.removeEventListener('click', this.boundHandleClick);
 
-            /*
-            document.removeEventListener('keydown', (event) => {
-                this.boundHandleKeydown(event);
-                if (event.key === 'Escape') {
-                    this.paused = !this.paused;
-                    console.log('Game paused:', this.paused);
-                }
-            });
-            */
+        /*
+        document.removeEventListener('keydown', (event) => {
+            this.boundHandleKeydown(event);
+            if (event.key === 'Escape') {
+                this.paused = !this.paused;
+                console.log('Game paused:', this.paused);
+            }
+        });
+        */
 
-            // Clear interval
-            clearInterval(this.intervalID);
+        // Clear interval
+        clearInterval(this.intervalID);
 
-            // Cancel the animation frame
-            cancelAnimationFrame(this.animationFrameId);
+        // Cancel the animation frame
+        cancelAnimationFrame(this.animationFrameId);
 
-            // Dispose of the scene and renderer
-            this.scene = null;
-            this.renderer.dispose();
-        
-            // Release references to objects
-            this.group = null;
-            this.camera = null;
-            this.renderer = null;
-            this.cuboid = null;
-            this.leftPaddle = null;
-            this.rightPaddle = null;
-            this.ball = null;
-            this.ballTarget = null;
+        // Dispose of the scene and renderer
+        this.scene = null;
+        // this.renderer.dispose();
+    
+        // Release references to objects
+        this.group = null;
+        this.camera = null;
+        this.renderer = null;
+        this.cuboid = null;
+        this.leftPaddle = null;
+        this.rightPaddle = null;
+        this.ball = null;
+        this.ballTarget = null;
 
-            this.disconnectWebSocket();
-        }
+        console.log('Game cleaned up');
+    }
         
     initScene() {
         this.scene = new THREE.Scene();
@@ -268,8 +282,19 @@ class Game {
         this.socket = new WebSocket(this.ws_url);
         this.socket.onopen = function () {
             console.log('WebSocket connection established');
-        
+            
+            if (this.info.message_received == false) {
+                document.getElementById('gameContainer').classList.add('d-none');
+                document.getElementById('loadingScreen').classList.remove('d-none');
+            }
+
             this.socket.onmessage = function (event) {
+                if (this.info.message_received == false) {
+                    document.getElementById('loadingScreen').classList.add('d-none');
+                    document.getElementById('gameContainer').classList.remove('d-none');
+                    this.info.message_received = true;
+                } // Hide loading screen and show game container when first message is received
+
                 const gameState = JSON.parse(event.data);
                 this.updateGameObjects(gameState);
             }.bind(this);
@@ -292,7 +317,23 @@ class Game {
     updateGameObjects(gameState) {
         // console.log("Game state received:", gameState);
         const gameStateString = JSON.stringify(gameState);
-        // console.log(gameStateString);
+        console.log(gameStateString);
+        // console.log(gameState.running);
+        // tournament mode, not the winner, return to menu
+        if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
+            console.log("Tournament mode, not the winner, return to menu");
+            this.sceneRouterCallback("menuScene");
+            return;
+        }
+        else if (gameState.game_mode != "Tourney" && !gameState.running) {
+            console.log("Game not running, return to menu");
+            this.sceneRouterCallback("menuScene");
+            return;
+        } else if (gameState.game_mode === "Tourney" && gameState.winner === this.username && !gameState.running && gameState.roomName.includes("final")) {
+            console.log("Tournament mode, winner of final, return to menu");
+            this.sceneRouterCallback("menuScene");
+            return;
+        }
     
         [this.cuboidWidth, this.cuboidHeight, this.cuboidDepth] = gameState.cuboid.split(',').map(Number);
         [this.ballRadius, this.ball.position.x, this.ball.position.y, this.ball.position.z] = gameState.ball.split(',').map(Number);
@@ -303,6 +344,50 @@ class Game {
         [this.scoreLeft, this.scoreRight] = gameState.score.split(',').map(Number);
         [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
         [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
+
+        // new info
+        [this.info.player1] = gameState.player1.split(',').map(String);
+        [this.info.player2] = gameState.player2.split(',').map(String);
+        [this.info.player1DisplayName] = gameState.player1DisplayName.split(',').map(String);
+        [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
+        this.info.winner = gameState.winner;
+        
+        if (gameState.running == false) {
+            console.log('Game Over');
+            this.sceneVars.game_outcome = this.returnInfo();
+            this.cleanup();
+            this.screenRouterCallback("gameOverScreen");
+            return;
+        }
+
+        // if (gameState.countDown == 1) {
+        //     // Set the countdown duration in seconds
+        //     let countdownDuration = 3;
+
+        //     // Get the countdown element
+        //     let countdownElement = document.getElementById('countdown');
+        //     document.getElementById('countdown').classList.remove('d-none');
+
+        //     // Function to update the countdown
+        //     function updateCountdown() {
+        //         if (countdownDuration > 0) {
+        //             countdownElement.textContent = countdownDuration;
+        //             countdownDuration--;
+        //         } else {
+        //             countdownElement.textContent = 'Go!';
+        //             clearInterval(countdownInterval);
+        //         }
+        //     }
+
+        //     // Update the countdown every second
+        //     let countdownInterval = setInterval(updateCountdown, 1000);
+        //     document.getElementById('countdown').classList.add('d-none');
+        // }
+    }
+
+
+    returnInfo() {
+        return this.info;
     }
 
     sendMessage() {
@@ -500,7 +585,11 @@ class Game {
         document.getElementById('rightPaddlePosition').textContent = `Right Paddle (y: ${this.rightPaddle.position.y.toFixed(2)})`;
         // document.getElementById('ballPosition').textContent = `Ball (x: ${this.ball.position.x.toFixed(2)}, y: ${this.ball.position.y.toFixed(2)})`;
         document.getElementById('ballSpeed').textContent = `Ball Speed (x: ${this.ballSpeedX.toFixed(4)}, y: ${this.ballSpeedY.toFixed(4)})`;
-        
+
+        // info
+        document.getElementById('leftPlayerName').textContent = `${this.info.player1DisplayName}`;
+        document.getElementById('rightPlayerName').textContent = `${this.info.player2DisplayName}`;
+        document.getElementById('gameMode').textContent = `${this.info.game_mode.toUpperCase()}`;
     }
 
 

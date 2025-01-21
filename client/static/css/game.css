@@ -1,0 +1,37 @@
+/* Container for the game board */
+
+/* Player names positioning */
+.leftplayer, .rightplayer, .gamemode {
+    position: absolute;
+    width: auto;   /* Adjust the width as needed */
+    height: 50px;   /* Adjust the height as needed */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;    /* Text color */
+    font-size: 18px; /* Adjust font size as needed */
+    background-color: rgba(0, 0, 0, 0.5); /* Background color with some transparency */
+    border-radius: 5px;  /* Rounded corners */
+}
+
+/* Left player name */
+.leftplayer {
+    top: 20%;      /* Position from the top */
+    left: 10%;     /* Position from the left */
+}
+
+/* Right player name */
+.rightplayer {
+    top: 20%;      /* Position from the top */
+    right: 10%;    /* Position from the right */
+}
+
+.gamemode {
+    top: 20%;      /* Position from the top */
+    left: 50%;     /* Position from the left */
+    transform: translateX(-50%); /* Center horizontally */
+}
+
+#countdown {
+    font-size: 3em; text-align: center; margin-top: 20%;
+}

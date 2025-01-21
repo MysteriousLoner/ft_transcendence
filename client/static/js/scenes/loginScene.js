@@ -11,6 +11,12 @@ class LoginScene {
       },
       set username(value) {
         globalVars.username = value;
+      },
+      get displayName() {
+        return globalVars.displayName;
+      },
+      set displayName(value) {
+        globalVars.displayName = value;
       }
     };
 

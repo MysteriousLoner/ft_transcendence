@@ -14,6 +14,7 @@
 	<link rel="stylesheet" href="../css/index.css">
 	<link rel="stylesheet" href="../css/login.css">
 	<link rel="stylesheet" href="../css/menu.css">
+	<link rel="stylesheet" href="../css/game.css">
 </head>
 
 <body>
@@ -166,7 +167,7 @@
 					<div class="game-buttons large-buttons">
 						<button id="vanillaPong">Play Vanilla Pong</button>
 						<button id="friendsPong">Play Friends Pong</button>
-						<button id="demoPong">Demo Pong</button>
+						<!-- <button id="demoPong">Demo Pong</button> -->
 					</div>
 				</div>
 				<div class="friend-section">
@@ -295,15 +296,9 @@
 
 		<!-- Game Container -->
 		<div id="gameContainer" class="container d-none">
-			<h1>Game Screen</h1>
-			<canvas id="pong-game-canvas" height="25"></canvas>
 			<div class="feature-buttons">
-				<button id="AI_Left">Enable AI L</button>
-				<button id="AI_Right">Enable AI R</button>
-				<button id="Ball_Predict_Point">Show Ball Prediction</button>
 				<button id="Collision_Particles">Enable Collision Particles</button>
 				<button id="Snowfall">Enable Snowfall</button>
-				<button id="AI_Prediction">Enable Pro AI</button>
 			</div>
 			<div class="scoreboard" id="score"></div>
 			<div class="info">
@@ -314,6 +309,33 @@
 				<div id="leftPaddlePosition"></div>
 				<div id="rightPaddlePosition"></div>
 				<div id="ballSpeed"></div>
+			</div>
+			<div class="gamemode" id="gameMode"></div>
+			<div class="leftplayer" id="leftPlayerName"></div>
+			<div class="rightplayer" id="rightPlayerName"></div>
+		</div>
+
+		<!-- Game Over Screen -->
+		<div id="gameOverScreen"
+			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
+			<div class="margin-top login">
+				<h1>Game Over!</h1>
+				<h2 id="gameOverText"></h2>
+				<button id="backToMenuButton_3" class="btn btn-custom mx-3 Scifi">Back to Menu</button>
+			</div>
+		</div>
+
+		<!-- Loading Screen -->
+		<div id="loadingScreen" class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
+			<div class="margin-top login">
+				<h1>Preparing match ...</h1>
+			</div>
+		</div>
+
+		<!-- Countdown -->
+		<div id="countdownDisplay" class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
+			<div class="countdown">
+				<div id="countdown">3</div>
 			</div>
 		</div>
 

@@ -3,6 +3,7 @@ import AILvlSelectScreen from "../screens/ailvlselectScreen.js";
 import GameScreen from "../screens/gameScreen.js";
 import FriendsModeSelectScreen from "../screens/friendsmodeselectScreen.js"
 import MenuScreen from "../screens/menuScreen.js";
+import GameOverScreen from "../screens/gameoverScreen.js";
 
 class GameScene {
     constructor(sceneRouterCallback, globalVars) {
@@ -12,6 +13,9 @@ class GameScene {
         this.sceneVars = {
             get username() {
                 return globalVars.username;
+            },
+            get displayName() {
+                return globalVars.displayName;
             },
             get game_mode() {
                 return globalVars.game_mode;
@@ -24,6 +28,12 @@ class GameScene {
             },
             set ai_lvl(value) {
                 globalVars.ai_lvl = value;
+            },
+            get game_outcome() {
+                return globalVars.game_outcome;
+            },
+            set game_outcome(value) {
+                globalVars.game_outcome = value;
             },
         }
     
@@ -70,13 +80,20 @@ class GameScene {
                 this.screenRouterCallback.bind(this),
                 this.sceneVars
             );
+        } else if (screen == 'gameOverScreen') {
+            this.cleanScreens();
+            this.currentScreen = new GameOverScreen(
+                this.sceneRouterCallback.bind(this), 
+                this.screenRouterCallback.bind(this),
+                this.sceneVars
+            );
         } else if (screen === 'menuScreen') { 
             this.cleanScreens();
             this.currentScreen = new MenuScreen(
                 this.sceneRouterCallback.bind(this), 
                 this.screenRouterCallback.bind(this),
                 this.sceneVars
-            )
+            );
         } else {
             console.error("No available screens for this sceene");
             this.currentScreen = null;

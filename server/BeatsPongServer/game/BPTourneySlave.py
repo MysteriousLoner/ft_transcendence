@@ -2,6 +2,7 @@ import asyncio, random
 from channels.layers import get_channel_layer
 from BPDAL.views import update_match_data
 from concurrent.futures import ThreadPoolExecutor
+from BPDAL.views import async_query_profile_data
 import threading
 
 
@@ -16,7 +17,7 @@ Constructor builds the object with 3 arguements: room_name, player1 and player2
 Note: AsyncJsonWebsocketConsumer is used. No need to dump.
 '''
 
-class PongGame:
+class TourneyGame:
     # Class-level variables for default game settings
 
     cuboidWidth = 15
@@ -32,23 +33,21 @@ class PongGame:
     ballSpeed = 0.075
     waitTime = 3
 
-    def __init__(self, room_name, player1, player2, player1Username, player2Username, player1DisplayName, player2DisplayName):
-        print("Game object created", flush=True)
-        # print(f"Player 1: {player1Username} Player 2: {player2Username}", flush=True)
-        print(f"Player 1: {player1DisplayName} Player 2: {player2DisplayName}", flush=True)
-
-        self.game_mode = 'AI' if player2 == 'AI' else 'PvP'
+    def __init__(self, room_name, player1, player2, channelLayer, player1Username, player2Username):
+        self.game_mode = "Tourney"
 
         # make usernames local
+        self.executor = ThreadPoolExecutor(max_workers=10)
         self.player1Username = player1Username
         self.player2Username = player2Username
-        self.player1DisplayName = player1DisplayName
-        self.player2DisplayName = player2DisplayName
+        self.player1DisplayName = self.getProfileData(player1Username)
+        self.player2DisplayName = self.getProfileData(player2Username)
+        print(f"Player 1: {self.player1Username} vs Player 2: {self.player2Username}", flush=True)
         self.winner = None
-        self.executor = ThreadPoolExecutor(max_workers=10)
 
         # identity of the room "I identify as a ......."
         self.room_name = room_name
+        self.channelLayer = channelLayer
         # identifies if the game is running
         self.running = False
 
@@ -56,47 +55,40 @@ class PongGame:
         self.player2 = player2
 
         # identifies the name of the websocket sending message
-        self.channel1_name = player1.channel_name
-        self.channel2_name = player2.channel_name if self.game_mode == 'PvP' else None
-
-
-        self.ai_last_refresh_time = 0
-        self.ai_refresh_interval = 1
-        self.AI_target = 0
-        self.predicted_target = 0
-
-        # create group for websockets, add websockets from players to group
-        self.channel_layer = get_channel_layer()
-        asyncio.create_task(self.channel_layer.group_add(self.room_name, player1.channel_name))
-        if (self.game_mode == 'PvP'):
-            asyncio.create_task(self.channel_layer.group_add(self.room_name, player2.channel_name))
+        if ("final" in room_name):
+            self.channel1_name = player1
+            self.channel2_name = player2
+        else:
+            self.channel1_name = player1.channel_name
+            self.channel2_name = player2.channel_name
+        self.tourneyWinnerChannel = None
 
         # Initialize game state and game objects
         self.cuboid = {
-            'width': PongGame.cuboidWidth,
-            'height': PongGame.cuboidHeight,
-            'depth': PongGame.cuboidDepth
+            'width': TourneyGame.cuboidWidth,
+            'height': TourneyGame.cuboidHeight,
+            'depth': TourneyGame.cuboidDepth
         }
         self.leftPaddle = {
-            'width': PongGame.paddleWidth,
-            'height': PongGame.paddleHeight,
-            'depth': PongGame.paddleDepth,
-            'x': -PongGame.cuboidWidth / 2,
+            'width': TourneyGame.paddleWidth,
+            'height': TourneyGame.paddleHeight,
+            'depth': TourneyGame.paddleDepth,
+            'x': -TourneyGame.cuboidWidth / 2,
             'y': 0,
             'z': 0
         }
         self.rightPaddle = {
-            'width': PongGame.paddleWidth,
-            'height': PongGame.paddleHeight,
-            'depth': PongGame.paddleDepth,
-            'x': PongGame.cuboidWidth / 2,
+            'width': TourneyGame.paddleWidth,
+            'height': TourneyGame.paddleHeight,
+            'depth': TourneyGame.paddleDepth,
+            'x': TourneyGame.cuboidWidth / 2,
             'y': 0,
             'z': 0
         }
         self.ball = {
-            'radius': PongGame.ballRadius,
-            'speedX': random.choice([-PongGame.ballSpeed, PongGame.ballSpeed]),
-            'speedY': random.choice([-PongGame.ballSpeed, PongGame.ballSpeed]),
+            'radius': TourneyGame.ballRadius,
+            'speedX': random.choice([-TourneyGame.ballSpeed, TourneyGame.ballSpeed]),
+            'speedY': random.choice([-TourneyGame.ballSpeed, TourneyGame.ballSpeed]),
             'x': 0,
             'y': 0,
             'z': 0
@@ -124,11 +116,6 @@ class PongGame:
         while self.running:
             start_time = asyncio.get_event_loop().time()
             self.update_game_state()
-
-            # AI Control for AI mode
-            if self.game_mode == 'AI':
-                await self.AI_Control('Right')
-
             await self.send_game_state()
             elapsed_time = asyncio.get_event_loop().time() - start_time
             sleep_time = target_interval - elapsed_time
@@ -136,32 +123,18 @@ class PongGame:
 
     async def receive_json(self, content, socket):
         sender_channel = socket.channel_name
-        # print(f"Data received from WebSocket with channel name: {sender_channel}")
-
         f_keys = content.get('keys')
 
         self.keys['w'] = f_keys['w']
         self.keys['s'] = f_keys['s']
-        self.keys['ai_lvl'] = f_keys['ai_lvl']
 
-        if self.game_mode == 'AI' and sender_channel == self.channel1_name:
-            if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
-                self.leftPaddle['y'] += self.leftPaddleSpeed
-            elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
-                self.leftPaddle['y'] -= self.leftPaddleSpeed
-        
-            if self.keys['ArrowUp'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
-                self.rightPaddle['y'] += PongGame.rightPaddleSpeed
-            elif self.keys['ArrowDown'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
-                self.rightPaddle['y'] -= PongGame.rightPaddleSpeed
-
-        elif self.game_mode == 'PvP' and sender_channel == self.channel1_name:
+        if sender_channel == self.channel1_name:
             if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
                 self.leftPaddle['y'] += self.leftPaddleSpeed
             elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
                 self.leftPaddle['y'] -= self.leftPaddleSpeed
 
-        elif self.game_mode == 'PvP' and sender_channel == self.channel2_name:
+        elif sender_channel == self.channel2_name:
             if self.keys['w'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
                 self.rightPaddle['y'] += self.rightPaddleSpeed
             elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
@@ -196,6 +169,7 @@ class PongGame:
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
             self.winner = self.player1Username
+            self.tourneyWinnerChannel = self.channel1_name
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
             return True
@@ -203,6 +177,7 @@ class PongGame:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
             self.running = False
             self.winner = self.player2Username
+            self.tourneyWinnerChannel = self.channel2_name
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
             return True
@@ -356,11 +331,15 @@ class PongGame:
     def reset_game(self):
         self.ball['x'] = 0
         self.ball['y'] = 0
-        self.ball['speedX'] = random.choice([-PongGame.ballSpeed, PongGame.ballSpeed])
-        self.ball['speedY'] = random.choice([-PongGame.ballSpeed, PongGame.ballSpeed])
+        self.ball['speedX'] = random.choice([-TourneyGame.ballSpeed, TourneyGame.ballSpeed])
+        self.ball['speedY'] = random.choice([-TourneyGame.ballSpeed, TourneyGame.ballSpeed])
         self.leftPaddle['y'] = 0
         self.rightPaddle['y'] = 0
 
+    async def getProfileData(self, username):
+        profileData = self.run_in_thread(async_query_profile_data, username)
+        return profileData.get("displayName")
+    
     async def send_game_state(self):
         # Determines which ball target to show
         paddle = self.rightPaddle['x']
@@ -371,24 +350,25 @@ class PongGame:
         game_state = {
             "cuboid": f"{self.cuboid['width']:.2f},{self.cuboid['height']:.2f},{self.cuboid['depth']:.2f}",
             "ball": f"{self.ball['radius']:.2f},{self.ball['x']:.2f},{self.ball['y']:.2f},{self.ball['z']:.2f}",
-            "paddle_dimensions": f"{PongGame.paddleWidth:.2f},{PongGame.paddleHeight:.2f},{PongGame.paddleDepth:.2f}",
+            "paddle_dimensions": f"{TourneyGame.paddleWidth:.2f},{TourneyGame.paddleHeight:.2f},{TourneyGame.paddleDepth:.2f}",
             "leftPaddle": f"{self.leftPaddle['x']:.2f},{self.leftPaddle['y']:.2f},{self.leftPaddle['z']:.2f}",
             "rightPaddle": f"{self.rightPaddle['x']:.2f},{self.rightPaddle['y']:.2f},{self.rightPaddle['z']:.2f}",
             "score": f"{self.score['left']},{self.score['right']}",
-            "ballTarget": f"{paddle:.2f},{self.AI_target},{0}",
             "ballSpeed": f"{self.ball['speedX']:.4f},{self.ball['speedY']:.4f}",
             "running": self.running,
             "game_mode": self.game_mode,
             "player1": self.player1Username,
             "player2": self.player2Username,
-            "player1DisplayName": self.player1DisplayName,
-            "player2DisplayName": self.player2DisplayName,
-            "winner": self.winner
+            # "player1DisplayName": self.player1DisplayName,
+            # "player2DisplayName": self.player2DisplayName,
+            "winner": self.winner,
+            "roomName": self.room_name
         }
-        await self.channel_layer.group_send(
+        await self.channelLayer.group_send(
             self.room_name,
             {
                 'type': 'game_message',
-                'message': game_state
+                'message': game_state,
+                'tourneyWinnerChannel': {"self": self.tourneyWinnerChannel, "username": self.winner }
             }
         )

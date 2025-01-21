@@ -60,6 +60,7 @@ def sendFriendRequest(request):
     targetProfileData.pendingRequests.append(selfUsername)
     targetProfileData.save()
     targetProfileData.refresh_from_db()
+    print(targetProfileData.pendingRequests, flush=True)
     return JsonResponse({"message": "Friend request sent."}, status=200)
 
 @csrf_exempt
