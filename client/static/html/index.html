@@ -148,16 +148,16 @@
 					<div class="centered-container">
 						<div class="profile-picture-container">
 							<img id="profilePictureMenu1" src="" alt="Profile Pic">
-							</div>
-						<div style="display: flex; align-items: center;">
-						  <h2>Username:&nbsp;</h2>
-						  <h2 id="usernameTitle1">placeholder</h2>
 						</div>
 						<div style="display: flex; align-items: center;">
-						  <h2>Display name:&nbsp;</h2>
-						  <h2 id="displaynameTitle">placeholder</h2>
+							<h2>Username:&nbsp;</h2>
+							<h2 id="usernameTitle1">placeholder</h2>
 						</div>
-					  </div>
+						<div style="display: flex; align-items: center;">
+							<h2>Display name:&nbsp;</h2>
+							<h2 id="displaynameTitle">placeholder</h2>
+						</div>
+					</div>
 					<p class="win-rate">Win Rate: <span id="winRate">0.0</span>%</p>
 					<div class="win-rate-container center">
 						<div class="win-rate-bar">
@@ -202,18 +202,14 @@
 							<button id="addNewFriend">Add</button>
 						</div>
 						<ul id="newFriendsList"></ul>
-						<!-- <div class="pagination">
-							<button id="prevNewPage">Previous</button>
-							<span id="currentNewPage">1</span>
-							<button id="nextNewPage">Next</button>
-						</div> -->
 					</div>
 				</div>
 				<div class="logout">
 					<button id="logoutButton">Logout</button>
 				</div>
-			</div>	
+			</div>
 			<script src="../js/menu.js"></script>
+
 			<div id="editProfileModal" class="editProfile modal">
 				<div class="modal-content">
 					<h2>Edit Profile</h2>
@@ -227,6 +223,25 @@
 						<button id="saveUsernameBtn">Save Display Name</button>
 					</div>
 					<button id="closeModalBtn">Close</button>
+				</div>
+			</div>
+
+			<div id="friendProfileModal" class="friendProfile modal">
+				<div class="modal-content">
+					<span id="closeInfo" class="close">&times;</span>
+					<div class="friend-profile-info">
+						<img id="friendProfilePicture" src="" alt="Friend's Profile Picture" class="profile-picture">
+						<h2>Username</h2>
+						<h2 id="friendUsername"></h2>
+						<h2>Display Name</h2>
+						<p id="friendDisplayName"></p>
+						<div class="friend-win-rate-container">
+							<div class="friend-win-rate-bar">
+								<div id="friendWinRateProgress"></div>
+							</div>
+							<p class="friend-win-rate">Win Rate: <span id="friendWinRate">0.0</span>%</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -250,24 +265,32 @@
 		<!-- Vanilla Pong AI Selection -->
 		<div id="ailvlSelectScreen"
 			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
-			<h1>Welcome to Vanilla Pong!</h1>
-			<h2>Choose your level:</h2>
-			<div class="button-container">
-				<button class="btn btn-custom mx-3" id="easyAIButton">Easy</button>
-				<button class="btn btn-custom mx-3" id="hardAIButton">Hard</button>
-				<button class="btn btn-custom mx-3" id="backToMenuButton_1">Back to Menu</button>
+			<div class="centered-container">
+				<br><br>
+				<h1 class="CN-font">Welcome to Vanilla Pong.</h1>
+				<h2 class="CN-font">Choose your level:</h2>
+				<br>
+				<div class="button-container">
+					<button class="btn btn-custom mx-3" id="easyAIButton">EASY</button>
+					<button class="btn btn-custom mx-3" id="hardAIButton">HARD</button>
+					<button class="btn btn-custom mx-3" id="backToMenuButton_1">BACK</button>
+				</div>
 			</div>
 		</div>
 
 		<!-- Friends Pong Mode PvP Selection -->
 		<div id="friendsModeSelectScreen"
 			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
-			<h1>Welcome to Friends Pong!</h1>
-			<h2>Choose your mode:</h2>
-			<div class="button-container">
-				<button class="btn btn-custom mx-3" id="soloButton">Solo</button>
-				<button class="btn btn-custom mx-3" id="tournamentButton">Tournament</button>
-				<button class="btn btn-custom mx-3" id="backToMenuButton_2">Back to Menu</button>
+			<div class="centered-container">
+				<br><br>
+				<h1 class="CN-font">Welcome to Friends Pong.</h1>
+				<h2 class="CN-font">Choose your mode:</h2>
+				<br>
+				<div class="button-container">
+					<button class="btn btn-custom mx-3" id="soloButton">SOLO</button>
+					<button class="btn btn-custom mx-3" id="tournamentButton">TOURNAMENT</button>
+					<button class="btn btn-custom mx-3" id="backToMenuButton_2">BACK</button>
+				</div>
 			</div>
 		</div>
 
@@ -296,16 +319,16 @@
 		<div id="gameOverScreen"
 			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
 			<div class="margin-top login">
-				<h1>Game Over!</h1>
+				<h1>GAME OVER!</h1>
 				<h2 id="gameOverText"></h2>
-				<button id="backToMenuButton_3" class="btn btn-custom mx-3 Scifi">Back to Menu</button>
+				<button id="backToMenuButton_3" class="btn btn-custom mx-3 Scifi">MENU</button>
 			</div>
 		</div>
 
 		<!-- Loading Screen -->
 		<div id="loadingScreen" class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
 			<div class="margin-top login">
-				<h1>Preparing match ...</h1>
+				<h1>PREPARING MATCH ...</h1>
 			</div>
 		</div>
 
