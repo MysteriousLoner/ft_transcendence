@@ -37,8 +37,9 @@ services:
     image: nginx-server
     container_name: ft_transcendence-nginx-1
     ports:
-      - "5500:443"
-      - "8080:80"
+      - "5500:5500"
+      - "8080:8080"
+      - "443:443"
     volumes:
       - ./client/static/html:/usr/share/nginx/html/
       - ./client/static/css:/usr/share/nginx/html/css/

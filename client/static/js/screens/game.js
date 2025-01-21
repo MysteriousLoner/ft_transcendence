@@ -346,13 +346,17 @@ class Game {
         [this.rightPaddle.position.x, this.rightPaddle.position.y, this.rightPaddle.position.z] = gameState.rightPaddle.split(',').map(Number);
         [this.scoreLeft, this.scoreRight] = gameState.score.split(',').map(Number);
         [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
-        [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
+        if (gameState.game_mode == "AI") {
+            [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
+        }
         
         // new info
         [this.info.player1] = gameState.player1.split(',').map(String);
         [this.info.player2] = gameState.player2.split(',').map(String);
-        [this.info.player1DisplayName] = gameState.player1DisplayName.split(',').map(String);
-        [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
+        if (gameState.game_mode != "Tourney") {
+            [this.info.player1DisplayName] = gameState.player1DisplayName.split(',').map(String);
+            [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
+        }
         this.info.winner = gameState.winner;
         
         if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
@@ -370,14 +374,6 @@ class Game {
             return;
         } else if (gameState.game_mode === "Tourney" && gameState.winner === this.username && !gameState.running && gameState.roomName.includes("final")) {
             console.log("Tournament mode, winner of final, return to menu");
-            this.sceneVars.game_outcome = this.returnInfo();
-            this.cleanup();
-            this.screenRouterCallback("gameOverScreen");
-            return;
-        }
-        
-        if (gameState.running == false) {
-            console.log('Game Over');
             this.sceneVars.game_outcome = this.returnInfo();
             this.cleanup();
             this.screenRouterCallback("gameOverScreen");
@@ -611,8 +607,10 @@ class Game {
         document.getElementById('ballSpeed').textContent = `Ball Speed (x: ${this.ballSpeedX.toFixed(4)}, y: ${this.ballSpeedY.toFixed(4)})`;
 
         // info
+        if (this.gameState != "Tourney") {
         document.getElementById('leftPlayerName').textContent = `${this.info.player1DisplayName}`;
         document.getElementById('rightPlayerName').textContent = `${this.info.player2DisplayName}`;
+        }
         document.getElementById('gameMode').textContent = `${this.info.game_mode.toUpperCase()}`;
     }
 
