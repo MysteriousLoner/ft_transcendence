@@ -24,7 +24,7 @@ async function makeRequest(method, url, jsonMessage) {
     try {
         let refreshToken = getCookie('refresh');
         let accessToken = getCookie('access');
-        // let csrfToken = getCookie('csrftoken');
+        let csrfToken = getCookie('csrftoken');
 
         // Ensures user is authenticated
         if ((refreshToken === null || accessToken === null) && !isPublicEndpoint(url)) {
@@ -51,7 +51,7 @@ async function makeRequest(method, url, jsonMessage) {
 
         if (!isPublicEndpoint(url)) {
             request.headers['Authorization'] = 'Bearer ' + accessToken;
-            // request.headers['X-CSRFToken'] = csrfToken;
+            request.headers['X-CSRFToken'] = csrfToken;
         }
 
         if (verbose)

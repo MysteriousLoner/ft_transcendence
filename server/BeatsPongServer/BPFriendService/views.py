@@ -16,7 +16,6 @@ import os
 '''
 Conrtroller for friends related services
 '''
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def removeFriend(request):
@@ -41,7 +40,6 @@ def removeFriend(request):
     friendProfileData.refresh_from_db()
     return JsonResponse({"message": "Friend removed."}, status=200)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def sendFriendRequest(request):
@@ -67,7 +65,6 @@ def sendFriendRequest(request):
     print(targetProfileData.pendingRequests, flush=True)
     return JsonResponse({"message": "Friend request sent."}, status=200)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def acceptFriendRequest(request):
@@ -96,7 +93,6 @@ def acceptFriendRequest(request):
     requestProfileData.refresh_from_db()
     return JsonResponse({"message": "Friend request accepted."}, status=200)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def declineFriendRequest(request):

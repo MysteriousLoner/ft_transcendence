@@ -22,6 +22,7 @@ services:
       context: ./server
     ports:
       - "8000:8000"
+      - "8001:8001"
     volumes:
       - ./server:/app
     depends_on:

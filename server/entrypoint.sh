@@ -1,15 +1,17 @@
 #!/bin/bash
 
-set -e
+CERT_FILE="cert.pem"
+KEY_FILE="key.pem"
 
-host="$1"
-shift
-cmd="$@"
+CERT_DIR="/etc/certs"
 
-until pg_isready -h "$host" -U "postgres"; do
-  >&2 echo "Postgres is unavailable - retrying in 5 seconds"
-  sleep 5
-done
+# IP address of the backend server
+BACKEND_IP=$BACKEND_IP
 
->&2 echo "Postgres is up - executing command"
-exec $cmd
+# Check if certificate and key exist
+if [ ! -f "$CERT_DIR/$CERT_FILE" ] || [ ! -f "$CERT_DIR/$KEY_FILE" ]; then
+    # Generate SSL/TLS certificates
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout "$CERT_DIR/$KEY_FILE" -out "$CERT_DIR/$CERT_FILE" -addext "subjectAltName=DNS:$CERT_COMMON_NAME" -subj "/C=$CERT_COUNTRY/ST=$CERT_STATE/L=$CERT_LOCATION/O=$CERT_ORG/OU=$CERT_ORG_UNIT/CN=$CERT_COMMON_NAME"
+fi
+
+exec "$@"

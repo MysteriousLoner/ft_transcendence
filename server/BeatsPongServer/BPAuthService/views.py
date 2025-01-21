@@ -30,7 +30,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from BeatsPongServer.customJwtSerializer import CustomTokenObtainPairSerializer
 
 # Handles request to register a user
-@csrf_exempt
 @api_view(['POST'])
 def register_user(request):
     print("current time: " + str(timezone.now()), flush=True)
@@ -74,7 +73,6 @@ def register_user(request):
     return JsonResponse({ "message": "Verification code sent to email.", 
                          "username": username }, status=201)
 
-@csrf_exempt
 @api_view(['POST'])
 def verify_code(request):
     print("current time: " + str(timezone.now()), flush=True)
@@ -107,7 +105,6 @@ def verify_code(request):
 
     return JsonResponse({ "message": "account created"}, status=201)
     
-@csrf_exempt
 @api_view(['POST'])
 def login(request):
     data = json.loads(request.body)

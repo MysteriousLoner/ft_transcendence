@@ -11,7 +11,6 @@ from BPDAL.views import query_profile_data
 '''
 Conrtroller for user account related services
 '''
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getProfilePicture(request):
@@ -22,7 +21,6 @@ def getProfilePicture(request):
     profilePicture = query_profile_picture(username)
     return JsonResponse({"image": profilePicture.image, "code": "success"}, status=200)
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def getProfileData(request):
@@ -48,7 +46,6 @@ def getProfileData(request):
 #     "username": "username",
 #     "displayName": "displayName"
 # }
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def updateDisplayName(request):
@@ -62,7 +59,6 @@ def updateDisplayName(request):
     profileData.refresh_from_db()
     return JsonResponse({"message": "Display name updated to:" + profileData.displayName}, status=200)   
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def updateProfilePicture(request):
