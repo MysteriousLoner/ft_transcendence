@@ -40,10 +40,9 @@ services:
       - "443:443"
       - "80:80"
     volumes:
-      - ./client/static/html:/usr/share/nginx/html
-      - ./client/static/css:/usr/share/nginx/html/css
-      - ./client/static/js:/usr/share/nginx/html/js
-      - ./client/static/pages:/usr/share/nginx/html/pages
+      - ./client/static/html:/usr/share/nginx/html/
+      # - ./client/static/css:/usr/share/nginx/html/
+      # - ./client/static/js:/usr/share/nginx/html/
       - ./client/conf:/etc/nginx/conf.d
     networks:
       - transcendence-network

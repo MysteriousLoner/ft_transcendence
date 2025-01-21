@@ -1,9 +1,10 @@
-FROM debian:bullseye
+FROM nginx:1.15.8-alpine
 
-# Install dependencies
-RUN apt-get update \
-    && apt-get install -y nginx openssl \
-    && mkdir -p /var/www/ /etc/nginx/ssl/ /run/nginx
+# Install OpenSSL
+RUN apk add --no-cache openssl
+
+# Create the directory for the SSL certificates
+RUN mkdir -p /etc/nginx/ssl
 
 # Generate self-signed SSL certificate
 RUN openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
@@ -15,17 +16,10 @@ RUN openssl req -newkey rsa:4096 -x509 -sha256 -days 365 -nodes \
 RUN chmod 644 /etc/nginx/ssl/transcendence.key
 RUN chmod 644 /etc/nginx/ssl/transcendence.crt
 
-# Expose port 443 for HTTPS
-EXPOSE 443
+#config
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
-# Copy custom nginx configuration into container
-COPY ./conf/nginx.conf /etc/nginx/conf.d/nginx.conf
-
-# Copy frontend static files to the appropriate Nginx directory
-COPY ./static/html /usr/share/nginx/html
-COPY ./static/css /usr/share/nginx/html/css
-COPY ./static/js /usr/share/nginx/html/js
-COPY ./static/pages /usr/share/nginx/html/pages
-
-# Start Nginx in the foreground (important for Docker containers)
-CMD ["nginx", "-g", "daemon off;"]
+#content, comment out the ones you dont need!
+COPY ./static/html /usr/share/nginx/html/
+# COPY ./*.css /usr/share/nginx/html/
+# COPY ./*.js /usr/share/nginx/html/
