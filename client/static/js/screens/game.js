@@ -599,12 +599,12 @@ class Game {
         if (!this.DOMloaded)
             return;
         document.getElementById('score').textContent = `${this.scoreLeft} : ${this.scoreRight}`;
-        document.getElementById('position').textContent = `Rotation: (x: ${this.group.rotation.x.toFixed(2)}, y: ${this.group.rotation.y.toFixed(2)}, z: ${this.group.rotation.z.toFixed(2)})`;
-        document.getElementById('scale').textContent = `Camera: (z: ${this.camera.position.z.toFixed(2)})`;
-        document.getElementById('leftPaddlePosition').textContent = `Left Paddle (y: ${this.leftPaddle.position.y.toFixed(2)})`;
-        document.getElementById('rightPaddlePosition').textContent = `Right Paddle (y: ${this.rightPaddle.position.y.toFixed(2)})`;
+        document.getElementById('position').textContent = `${this.group.rotation.x.toFixed(2)}, ${this.group.rotation.y.toFixed(2)}, ${this.group.rotation.z.toFixed(2)}`;
+        document.getElementById('scale').textContent = `${this.camera.position.z.toFixed(2)})`;
+        document.getElementById('leftPaddlePosition').textContent = `${this.leftPaddle.position.y.toFixed(2)}`;
+        document.getElementById('rightPaddlePosition').textContent = `${this.rightPaddle.position.y.toFixed(2)}`;
         // document.getElementById('ballPosition').textContent = `Ball (x: ${this.ball.position.x.toFixed(2)}, y: ${this.ball.position.y.toFixed(2)})`;
-        document.getElementById('ballSpeed').textContent = `Ball Speed (x: ${this.ballSpeedX.toFixed(4)}, y: ${this.ballSpeedY.toFixed(4)})`;
+        document.getElementById('ballSpeed').textContent = `${this.ballSpeedX.toFixed(4)}, ${this.ballSpeedY.toFixed(4)}`;
 
         // info
         if (this.gameState != "Tourney") {

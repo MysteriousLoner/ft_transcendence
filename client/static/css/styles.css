@@ -160,6 +160,7 @@ body {
     padding: 20px;
     border-radius: 10px;
     font-family: Arial, sans-serif;
+    width: auto;
 }
 .scoreboard {
     position: absolute;
@@ -180,4 +181,5 @@ body {
     padding: 20px;
     border-radius: 10px;
     font-family: Arial, sans-serif;
+    width: auto;
 }
