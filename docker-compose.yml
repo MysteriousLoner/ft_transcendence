@@ -9,6 +9,8 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
     ports:
       - "5432:5432"
+    networks:
+      - transcendence-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -27,6 +29,29 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    networks:
+      - transcendence-network
+
+  nginx-server:
+    build: ./client
+    image: nginx-server
+    container_name: ft_transcendence-nginx-1
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./client/static/html:/usr/share/nginx/html/
+      - ./client/static/css:/usr/share/nginx/html/css/
+      - ./client/static/js:/usr/share/nginx/html/js/
+      - ./client/conf:/etc/nginx/conf.d
+    networks:
+      - transcendence-network
+    restart: on-failure
+
+networks:
+  transcendence-network:
+    driver: bridge
+  
   # client:
   #   build:
   #     context: ./client
