@@ -318,6 +318,10 @@ class Game {
             console.log("Game not running, return to menu");
             this.sceneRouterCallback("menuScene");
             return;
+        } else if (gameState.game_mode === "Tourney" && gameState.winner === this.username && !gameState.running && gameState.roomName.includes("final")) {
+            console.log("Tournament mode, winner of final, return to menu");
+            this.sceneRouterCallback("menuScene");
+            return;
         }
     
         [this.cuboidWidth, this.cuboidHeight, this.cuboidDepth] = gameState.cuboid.split(',').map(Number);
