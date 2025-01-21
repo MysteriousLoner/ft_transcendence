@@ -95,38 +95,31 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
 
             # If the game mode is vanilla, only allow messages from channel1
             if self.game_mode == 'vanilla' and sender_channel in [game.channel1_name]:
-                # print("message received!")
-                # print("sender: " + sender_channel)
-                # print(content)
-                # If the sender channel matches either player's channel name, pass the content to the game
                 await game.receive_json(content, self)
                 break
 
             # If the game mode is not vanilla, allow messages from both channel1 and channel2
             if self.game_mode != 'vanilla' and sender_channel in [game.channel1_name, game.channel2_name]:
-                # print("message received!")
-                # print("sender: " + sender_channel)
-                # print(content)
-                # If the sender channel matches either player's channel name, pass the content to the game
                 await game.receive_json(content, self)
                 break
 
     # remove players from que when they disconnect
     async def disconnect(self, code):
-        if self in BPSlaveMaster.que_solo:
-            BPSlaveMaster.que_solo.remove(self)
-        if self in BPSlaveMaster.que_tourney:
-            BPSlaveMaster.que_tourney.remove(self)
-        if self in BPSlaveMaster.que_vanilla:
-            BPSlaveMaster.que_vanilla.remove(self)
+        print(f"Disconnected with code: {code}")
+        
+        # Remove the player from the appropriate queue
+        for queue in [BPSlaveMaster.que_solo, BPSlaveMaster.que_tourney, BPSlaveMaster.que_vanilla]:
+            for player in queue:
+                if player['self'] == self:
+                    queue.remove(player)
+        
+        # Find the game room this player is a part of
+        for game in BPSlaveMaster.rooms:
+            if self in [game.player1, game.player2]:
+                # Notify the game about the disconnection
+                await game.handle_player_disconnect(self)
+                break
 
-        # # Find and remove from the room 
-        # for game in BPSlaveMaster.rooms: 
-        #     if self.channel_name in [game.channel1_name, game.channel2_name]: 
-        #         await game.handle_player_disconnect(self) 
-        #         break 
-        # print(f"Disconnected: {self.channel_name}") 
-        # await self.close()
 
     # room management functions--------------------------------------------------------------------------
 

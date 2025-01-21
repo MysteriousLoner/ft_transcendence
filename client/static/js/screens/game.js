@@ -31,7 +31,7 @@ class Game {
             this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
         }
         else if (game_mode == 'tourney') {
-            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=tourney&username=${this.username}&displayName=${this.displayName}`;
+            this.ws_url = `ws://localhost:8000/ws/game/tourney?username=${this.username}`;
         }
         // else if (game_mode == 'demo') {
         //     this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo&username=${username}';
@@ -308,9 +308,14 @@ class Game {
         const gameStateString = JSON.stringify(gameState);
         console.log(gameStateString);
         // console.log(gameState.running);
-        if (gameState.running == false) {
-            console.log('Game Over');
-            this.cleanup();
+        // tournament mode, not the winner, return to menu
+        if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
+            console.log("Tournament mode, not the winner, return to menu");
+            this.sceneRouterCallback("menuScene");
+            return;
+        }
+        else if (gameState.game_mode != "Tourney" && !gameState.running) {
+            console.log("Game not running, return to menu");
             this.sceneRouterCallback("menuScene");
             return;
         }
