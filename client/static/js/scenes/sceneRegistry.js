@@ -58,9 +58,20 @@ class SceneRegistry {
     }
 
     handlePopState(event) {
-        if (this.history.length <= 1) { 
-            return; 
-        } 
+        // if (this.history.length <= 1) { 
+        //     return; 
+        // } 
+        let eventScene;
+        if (!event.state.scene) {
+            eventScene = "homeScene";
+        } else {
+            eventScene = event.state.scene;
+        }
+        console.log("from event: ", eventScene);
+        if (!this.history.includes(eventScene)) {
+            this.sceneRouterCallback(eventScene);
+            return;
+        }
         const previousScene = this.history.length >= 2 ? this.history[this.history.length - 2] : this.history[0]; 
         this.history.pop(); 
         console.log('Handling pop state:', previousScene); 
