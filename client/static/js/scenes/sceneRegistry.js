@@ -7,6 +7,7 @@ import GameScene from "./gameScene.js";
 class SceneRegistry {
     constructor() {
         this.currentScene = null;
+        this.pastScenes = [];
         this.history = [];
         this.globalVars = {
             username: null,
@@ -15,7 +16,9 @@ class SceneRegistry {
             ai_lvl: null,
             game_outcome: null,
         }
+        this.initialLoad = true;
         window.addEventListener('popstate', this.handlePopState.bind(this));
+        this.len = 0;
     }
 
     sceneRouterCallback(scene) {
@@ -48,16 +51,27 @@ class SceneRegistry {
 
         // Push new state to browser history
         if (this.history[this.history.length - 1] !== scene) { 
-            window.history.pushState({ scene }, '', window.location.pathname); 
+            window.history.pushState({ scene }, '', scene); 
             this.history.push(scene); 
         } 
         console.log('Current history stack:', this.history);
     }
 
     handlePopState(event) {
-        if (this.history.length <= 1) { 
-            return; 
-        } 
+        // if (this.history.length <= 1) { 
+        //     return; 
+        // } 
+        let eventScene;
+        if (!event.state.scene) {
+            eventScene = "homeScene";
+        } else {
+            eventScene = event.state.scene;
+        }
+        console.log("from event: ", eventScene);
+        if (!this.history.includes(eventScene)) {
+            this.sceneRouterCallback(eventScene);
+            return;
+        }
         const previousScene = this.history.length >= 2 ? this.history[this.history.length - 2] : this.history[0]; 
         this.history.pop(); 
         console.log('Handling pop state:', previousScene); 
@@ -68,7 +82,7 @@ class SceneRegistry {
         const initialScene = 'homeScene';
         this.currentScene = new HomeScene(this.sceneRouterCallback.bind(this));
         this.history.push(initialScene);
-        window.history.replaceState({ scene: initialScene }, '', window.location.pathname);
+        window.history.pushState({ initialScene }, '', initialScene);
     }
 }
 
