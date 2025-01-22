@@ -11,23 +11,24 @@ COPY dependencies/requirements.txt /app/
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
-# Install PostgreSQL client
-RUN apt-get update && apt-get install -y postgresql-client
+# Install PostgreSQL client and OpenSSL
+RUN apt-get update && apt-get install -y postgresql-client openssl
 
-# Copy the project files into the container at /app
+# Create directory for certificates
+RUN mkdir -p /etc/certs
+
+# Ensure the init.sh script is executable
+
+# Copy the project files and the init script into the container
 COPY . /app/
 
-# Copy the entrypoint script
-# COPY entrypoint.sh /entrypoint.sh
-
-# Make the entrypoint script executable
-# RUN chmod +x /entrypoint.sh
-
-# Expose the port that the application will run on
+RUN chmod +x init.sh
+# Expose the ports that the application will run on
 EXPOSE 8000
+EXPOSE 8001
 
 # Use the entrypoint script
-# ENTRYPOINT ["/entrypoint.sh", "db"]
+# ENTRYPOINT ["bash", "init.sh"]
 
 # Command to run the migration and then start the application
-CMD ["bash", "-c", "python BeatsPongServer/manage.py makemigrations && python BeatsPongServer/manage.py migrate && python BeatsPongServer/manage.py runserver 0.0.0.0:8000"]
+CMD ["bash", "-c", "python BeatsPongServer/manage.py makemigrations && python BeatsPongServer/manage.py migrate && python BeatsPongServer/manage.py runserver 0.0.0.0:8000 && init.sh"]
