@@ -20,7 +20,13 @@ class MenuScene {
 
             set game_mode(value) {
                 globalVars.game_mode = value;
-            }
+            },
+            get displayName() {
+                return globalVars.displayName;
+            },
+            set displayName(value) {
+                globalVars.displayName = value;
+            },
 
         //     get profilePicture() {
         //         return profileData.profilePicture;

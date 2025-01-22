@@ -62,7 +62,6 @@ async function initPage(inputUser) {
 	document.getElementById('closeModalBtn').addEventListener('click', closeEditProfileModal);
 	document.getElementById('profileImageUpload').addEventListener('change', handleImageUpload);
 	document.getElementById('uploadImageBtn').addEventListener('click', () => document.getElementById('profileImageUpload').click());
-	document.getElementById('saveUsernameBtn').addEventListener('click', saveUsername);
 
 	document.getElementById('addNewFriend').addEventListener('click', addNewFriend);
 	document.getElementById('searchFriends').addEventListener('click', searchFriends);
@@ -321,25 +320,6 @@ function handleImageUpload(event) {
 	} else {
 		console.log("No file selected, using default image."); // Log when no file is selected
 		profileImagePreview.src = defaultSrc; // Set to default image if no file is selected
-	}
-}
-
-
-async function saveUsername() {
-	const newUsername = document.getElementById('usernameInput').value;
-	if (newUsername) {
-		userData.displayName = newUsername;
-		document.getElementById('displaynameTitle').textContent = newUsername;
-		try {
-			const response = await makeRequest('POST', 'api/account/updateDisplayName/', { username: userData.username, displayName: newUsername });
-			console.log(response.message);
-		}
-		catch (error) {
-			console.error('Change Display name error:', error);
-		}
-		closeEditProfileModal();
-	} else {
-		alert('Please enter a valid display Name');
 	}
 }
 
