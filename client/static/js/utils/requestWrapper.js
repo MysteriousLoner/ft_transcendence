@@ -8,7 +8,7 @@
  * This is an async function, so you should always use await or other methods to wait for the output when calling this function and use them in an async funnction
  */
 let isRequestInProgress = false;
-const verbose = true;
+const verbose = false;
 
 async function makeRequest(method, url, jsonMessage) {
     if (verbose) { console.log('Making request'); }
@@ -173,6 +173,6 @@ const ProtectedEndpoints = {
     PROFILE: "",
 }
 
-const ServerIp = "http://localhost:8000/";
+const ServerIp = "https://localhost:8000/";
 
 export default makeRequest;

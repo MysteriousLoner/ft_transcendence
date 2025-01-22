@@ -7,7 +7,8 @@ import GameScene from "./gameScene.js";
 class SceneRegistry {
     constructor() {
         this.currentScene = null;
-        this.history = [];
+        this.pastScenes = [];
+        this.futureScenes = [];  
         this.globalVars = {
             username: null,
             displayName: null,
@@ -15,6 +16,7 @@ class SceneRegistry {
             ai_lvl: null,
             game_outcome: null,
         }
+        this.initialLoad = true;
         window.addEventListener('popstate', this.handlePopState.bind(this));
     }
 
@@ -46,29 +48,44 @@ class SceneRegistry {
                 return;
         }
 
+        if (!this.initialLoad) {
+            this.pastScenes.push(scene);
+            this.futureScenes.length = 0;  // Clear future scenes when navigating to a new scene
+        } else {
+            this.initialLoad = false;
+        }
+
         // Push new state to browser history
-        if (this.history[this.history.length - 1] !== scene) { 
-            window.history.pushState({ scene }, '', window.location.pathname); 
-            this.history.push(scene); 
-        } 
-        console.log('Current history stack:', this.history);
+        window.history.pushState({ scene }, '', scene);
+        console.log('Past scenes:', this.pastScenes);
+        console.log('Future scenes:', this.futureScenes);
     }
 
     handlePopState(event) {
-        if (this.history.length <= 1) { 
-            return; 
-        } 
-        const previousScene = this.history.length >= 2 ? this.history[this.history.length - 2] : this.history[0]; 
-        this.history.pop(); 
-        console.log('Handling pop state:', previousScene); 
+        if (this.pastScenes.length === 0) {
+            return;
+        }
+
+        const previousScene = this.pastScenes.pop();
+        this.futureScenes.push(this.currentScene.sceneName);
+
+        console.log('Navigating to previous scene:', previousScene);
         this.sceneRouterCallback(previousScene);
+
+        if (event.state) {
+            console.log('Handling pop state:', event.state.scene);
+            this.sceneRouterCallback(event.state.scene);
+        }
+
+        console.log('Past scenes:', this.pastScenes);
+        console.log('Future scenes:', this.futureScenes);
     }
 
     startApp() {
         const initialScene = 'homeScene';
         this.currentScene = new HomeScene(this.sceneRouterCallback.bind(this));
         this.history.push(initialScene);
-        window.history.replaceState({ scene: initialScene }, '', window.location.pathname);
+        window.history.replaceState({ scene: initialScene }, '', initialScene);
     }
 }
 
