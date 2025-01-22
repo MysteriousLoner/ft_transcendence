@@ -27,12 +27,12 @@ class Game {
         this.ws_url = null
         
         if (game_mode == 'vanilla')
-            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
+            this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
         else if (game_mode == 'solo') {
-            this.ws_url = `ws://localhost:8000/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
+            this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
         }
         else if (game_mode == 'tourney') {
-            this.ws_url = `ws://localhost:8000/ws/game/tourney?username=${this.username}`;
+            this.ws_url = `wss://localhost:8001/ws/game/tourney?username=${this.username}`;
         }
         // else if (game_mode == 'demo') {
         //     this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo&username=${username}';

@@ -25,6 +25,7 @@ services:
       - "8001:8001"
     volumes:
       - ./server:/app
+      - django-certs:/etc/certs
     depends_on:
       db:
         condition: service_healthy
@@ -50,6 +51,9 @@ services:
       - transcendence-network
     restart: on-failure
 
+volumes:
+  django-certs:
+  
 networks:
   transcendence-network:
     driver: bridge

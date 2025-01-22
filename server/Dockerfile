@@ -11,6 +11,8 @@ COPY dependencies/requirements.txt /app/
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
+ENV DJANGO_SETTINGS_MODULE=BeatsPongServer.settings
+
 # Install PostgreSQL client and OpenSSL
 RUN apt-get update && apt-get install -y postgresql-client openssl
 
@@ -22,13 +24,14 @@ RUN mkdir -p /etc/certs
 # Copy the project files and the init script into the container
 COPY . /app/
 
-RUN chmod +x init.sh
+RUN chmod +x wait-for-it.sh init.sh
 # Expose the ports that the application will run on
 EXPOSE 8000
 EXPOSE 8001
 
 # Use the entrypoint script
-# ENTRYPOINT ["bash", "init.sh"]
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]
 
 # Command to run the migration and then start the application
-CMD ["bash", "-c", "python BeatsPongServer/manage.py makemigrations && python BeatsPongServer/manage.py migrate && python BeatsPongServer/manage.py runserver 0.0.0.0:8000 && init.sh"]
+CMD ["./wait-for-it.sh", "db:5432", "--", "/bin/bash", "init.sh"]
+# CMD ["bash", "-c", "python BeatsPongServer/manage.py makemigrations && python BeatsPongServer/manage.py migrate && python BeatsPongServer/manage.py runserver 0.0.0.0:8000 && init.sh"]
