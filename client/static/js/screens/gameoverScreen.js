@@ -11,10 +11,11 @@ class GameOverScreen {
         document.getElementById('gameOverScreen').classList.remove('d-none');
     
         if (this.sceneVars.username == this.sceneVars.game_outcome.winner)
-            this.message = 'Congratulations ' + this.sceneVars.displayName + ', you won!'
+            this.message = 'Congratulations ' + this.sceneVars.displayName + ', you won!\nScore: '
+                + this.sceneVars.game_outcome.leftscore_info + ' : ' + this.sceneVars.game_outcome.rightscore_info;
         else
-            this.message = 'Sorry ' + this.sceneVars.displayName + ', you lost!'
-
+            this.message = 'Sorry ' + this.sceneVars.displayName + ', you lost!\nScore: '
+                + this.sceneVars.game_outcome.leftscore_info + ' : ' + this.sceneVars.game_outcome.rightscore_info;
         document.getElementById('gameOverText').textContent = this.message;
         document.getElementById('backToMenuButton_3').addEventListener('click', () => {
             this.screenRouterCallback("menuScreen");

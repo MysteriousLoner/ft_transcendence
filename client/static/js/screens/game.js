@@ -71,6 +71,8 @@ class Game {
             player1DisplayName: '',
             player2DisplayName: '',
             winner: '',
+            leftscore_info:'',
+            rightscore_info:'',
             game_mode: game_mode,
             message_received: false,
         }
@@ -91,7 +93,7 @@ class Game {
         console.log('Cleaning up game');
         // Remove the renderer's DOM element
         document.body.removeChild(this.renderer.domElement);
-    
+
         // Dispose of geometries, materials, and textures
         const disposeObject = (obj) => {
             if (obj.geometry) obj.geometry.dispose();
@@ -119,6 +121,9 @@ class Game {
         document.removeEventListener('keydown', this.boundHandleKeydown);
         document.removeEventListener('keyup', this.boundHandleKeyup);
         document.removeEventListener('click', this.boundHandleClick);
+
+        this.resetButton('Collision_Particles', 'Enable Collision Particles');
+        this.resetButton('Snowfall', 'Enable Snowfall');
 
         /*
         document.removeEventListener('keydown', (event) => {
@@ -151,6 +156,14 @@ class Game {
         this.ballTarget = null;
 
         console.log('Game cleaned up');
+    }
+
+    resetButton(buttonId, enableText) {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.classList.remove('active');  // Remove the active class
+            button.textContent = enableText;    // Reset the text content to the original state
+        }
     }
         
     initScene() {
@@ -358,6 +371,8 @@ class Game {
             [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
         }
         this.info.winner = gameState.winner;
+        this.info.leftscore_info = this.scoreLeft;
+        this.info.rightscore_info = this.scoreRight;
         
         if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
             console.log("Tournament mode, not the winner, return to menu");
@@ -495,7 +510,8 @@ class Game {
                 particleMaterial.opacity = 2 - t * 2; // Linearly interpolate from 1 to 0 over the second half
             } else {
                 // Remove particle system
-                this.group.remove(particleSystem);
+                if (this.group)
+                    this.group.remove(particleSystem);
                 return; // Stop animation
             }
     
@@ -506,14 +522,18 @@ class Game {
     }
 
     checkBallPaddleCollision() {
-        if (this.ball.position.x - this.ballRadius <= this.leftPaddle.position.x + this.paddleWidth/2 &&
+        if (this.ball.position.x - this.ballRadius <= this.leftPaddle.position.x + this.paddleWidth/2*1.2 &&
             this.ball.position.y - this.ballRadius <= this.leftPaddle.position.y + this.paddleHeight/2 &&
-            this.ball.position.y + this.ballRadius >= this.leftPaddle.position.y - this.paddleHeight/2) {
+            this.ball.position.y + this.ballRadius >= this.leftPaddle.position.y - this.paddleHeight/2 &&
+            this.ball.position.x - this.ballRadius >= -this.cuboidWidth/2) {
+            console.log('Collision with left paddle');
             return 'left';
         }
-        else if (this.ball.position.x + this.ballRadius >= this.rightPaddle.position.x - this.paddleWidth/2 &&
+        else if (this.ball.position.x + this.ballRadius >= this.rightPaddle.position.x - this.paddleWidth/2*1.2 &&
             this.ball.position.y - this.ballRadius <= this.rightPaddle.position.y + this.paddleHeight/2 &&
-            this.ball.position.y + this.ballRadius >= this.rightPaddle.position.y - this.paddleHeight/2) {
+            this.ball.position.y + this.ballRadius >= this.rightPaddle.position.y - this.paddleHeight/2 &&
+            this.ball.position.x + this.ballRadius <= this.cuboidWidth/2) {
+            console.log('Collision with right paddle');
             return 'right';
         }
         else if (this.ball.position.y + this.ballRadius >= this.cuboidHeight/2)
@@ -628,6 +648,29 @@ class Game {
         if (this.snowfallActive && this.snowfallFunctions) {
             this.snowfallFunctions.animateSnowfall(); // Animate snowfall if active
         }
+        this.hideBall();
+    }
+
+    hideBall() {
+        // Hide ball when ball is inside paddle
+        if (this.ball.position.x - this.ballRadius <= this.leftPaddle.position.x + this.paddleWidth/2 &&
+            this.ball.position.y - this.ballRadius <= this.leftPaddle.position.y + this.paddleHeight/2 &&
+            this.ball.position.y + this.ballRadius >= this.leftPaddle.position.y - this.paddleHeight/2 &&
+            this.ball.position.x - this.ballRadius >= -this.cuboidWidth/2) {
+            this.ball.visible = false;
+        }
+        else if (this.ball.position.x + this.ballRadius >= this.rightPaddle.position.x - this.paddleWidth/2 &&
+            this.ball.position.y - this.ballRadius <= this.rightPaddle.position.y + this.paddleHeight/2 &&
+            this.ball.position.y + this.ballRadius >= this.rightPaddle.position.y - this.paddleHeight/2 &&
+            this.ball.position.x + this.ballRadius <= this.cuboidWidth/2) {
+            this.ball.visible = false;
+        }
+        else if (this.ball.position.y + this.ballRadius >= this.cuboidHeight/2)
+            this.ball.visible = false;
+        else if (this.ball.position.y - this.ballRadius <= -this.cuboidHeight/2)
+            this.ball.visible = false;
+        else
+            this.ball.visible = true;
     }
 
     animate() {

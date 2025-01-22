@@ -22,7 +22,7 @@ class PongGame:
     cuboidWidth = 15
     cuboidHeight = 10
     cuboidDepth = 0.25
-    paddleWidth = 0.2
+    paddleWidth = 0.2 * 1.20 # add 20% to paddle width to prevent ball from passing through visually
     paddleHeight = 1.5
     paddleDepth = 0.25
     ballRadius = 0.125
@@ -64,6 +64,8 @@ class PongGame:
         self.ai_refresh_interval = 1
         self.AI_target = 0
         self.predicted_target = 0
+        self.before_paddle_hit = True
+        self.paddle_active = True
 
         # create group for websockets, add websockets from players to group
         self.channel_layer = get_channel_layer()
@@ -95,8 +97,8 @@ class PongGame:
         }
         self.ball = {
             'radius': PongGame.ballRadius,
-            'speedX': random.choice([-PongGame.ballSpeed, PongGame.ballSpeed]),
-            'speedY': random.choice([-PongGame.ballSpeed, PongGame.ballSpeed]),
+            'speedX': random.choice([-PongGame.ballSpeed * 0.5, PongGame.ballSpeed * 0.5]),
+            'speedY': random.choice([-PongGame.ballSpeed * 0.5, PongGame.ballSpeed * 0.5]),
             'x': 0,
             'y': 0,
             'z': 0
@@ -127,11 +129,11 @@ class PongGame:
 
             # AI Control for AI mode
             if self.game_mode == 'AI':
-                await self.AI_Control('Right')
+                await self.AI_Control('Right', self.keys['ai_lvl'])
 
             await self.send_game_state()
             elapsed_time = asyncio.get_event_loop().time() - start_time
-            sleep_time = target_interval - elapsed_time
+            sleep_time = max(0, target_interval - elapsed_time)
             await asyncio.sleep(sleep_time)
 
     async def receive_json(self, content, socket):
@@ -175,7 +177,7 @@ class PongGame:
         self.ball['y'] += self.ball['speedY']
         # self.move_paddles()
         self.update_ball_position()
-        self.predict_ball_position(self.keys['ai_lvl'])
+        self.predict_ball_position()
 
     def update_ball_position(self):
         steps = 10
@@ -186,13 +188,13 @@ class PongGame:
             self.ball['x'] += step_size_x
             self.ball['y'] += step_size_y
 
-            if self.wall_collision() or self.paddle_collision():
+            if self.paddle_collision() or self.wall_collision():
                 break
     
     # left side channel is self.channel1_name
     # right side channel is self.channel2_name
     def checkWinCondition(self):
-        if self.score['left'] == 5: 
+        if self.score['left'] == 5:
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
             self.winner = self.player1Username
@@ -216,33 +218,46 @@ class PongGame:
     def wall_collision(self):
         # Ball collision with cuboid top edges
         if self.ball['y'] + self.ball['radius'] > self.cuboid['height'] / 2 or self.ball['y'] - self.ball["radius"] < -self.cuboid['height'] / 2:
-            self.ball['speedY'] = -self.ball['speedY']
+            self.ball['speedY'] *= -1
             return True
-        # Ball collision with cuboid side edges
-        elif self.ball['x'] + self.ball['radius'] > self.cuboid['width'] / 2:
+        
+        # Ball passes the paddle without collision
+        elif self.ball['x'] + self.ball['radius'] > self.cuboid['width'] / 2 * 1.5:
             self.score['left'] += 1
             if not self.checkWinCondition():
                 self.reset_game()
             return True
-        elif self.ball['x'] - self.ball['radius'] < -self.cuboid['width'] / 2:
+        elif self.ball['x'] - self.ball['radius'] < -self.cuboid['width'] / 2 * 1.5:
             self.score['right'] += 1
             if not self.checkWinCondition():
                 self.reset_game()
             return True
+
+        # Let the ball pass the paddle until it reaches the end of the cuboid
+        elif self.ball['x'] + self.ball['radius'] > self.rightPaddle['x'] - self.rightPaddle['width'] / 2:
+            self.paddle_active = False
+            return True
+        elif self.ball['x'] - self.ball['radius'] < self.leftPaddle['x'] + self.leftPaddle['width'] / 2:
+            self.paddle_active = False
+            return True
         return False
+
 
 
     def paddle_collision(self):
         # Ball collision with paddles
-        if self.ball['x'] - self.ball['radius'] < self.leftPaddle['x'] + self.leftPaddle['width'] / 2 and \
-                self.leftPaddle['y'] - (self.leftPaddle['height'] / 2) < self.ball['y'] < self.leftPaddle['y'] + (self.leftPaddle['height'] / 2):
+        if self.paddle_active and self.ball['x'] - self.ball['radius'] < self.leftPaddle['x'] + self.leftPaddle['width'] / 2 and \
+        self.leftPaddle['y'] - self.leftPaddle['height'] / 2 < self.ball['y'] + self.ball['radius'] and \
+        self.ball['y'] - self.ball['radius'] < self.leftPaddle['y'] + self.leftPaddle['height'] / 2:
             self.ball_impact_physics()
             return True
 
-        elif self.ball['x'] + self.ball["radius"] > self.rightPaddle['x'] - self.rightPaddle['width'] / 2 and \
-                self.rightPaddle['y'] - (self.rightPaddle['height'] / 2) < self.ball['y'] < self.rightPaddle['y'] + (self.rightPaddle['height'] / 2):
+        elif self.paddle_active and self.ball['x'] + self.ball["radius"] > self.rightPaddle['x'] - self.rightPaddle['width'] / 2 and \
+            self.rightPaddle['y'] - self.rightPaddle['height'] / 2 < self.ball['y'] + self.ball['radius'] and \
+            self.ball['y'] - self.ball['radius'] < self.rightPaddle['y'] + self.rightPaddle['height'] / 2:
             self.ball_impact_physics()
             return True
+
         return False
     
     def ball_impact_physics(self):
@@ -254,6 +269,13 @@ class PongGame:
         else:
             paddle_movement = 'none'
 
+        self.ball['speedX'] *= -1
+
+        if self.before_paddle_hit is True:
+            self.ball['speedX'] /= 0.5
+            self.ball['speedY'] /= 0.5
+            self.before_paddle_hit = False
+
         # If padddle is moving in the direction of the ball, decrease vertical, increase horizontal speed of the ball.
         if (paddle_movement == 'up' and self.ball['speedY'] > 0) or (paddle_movement == 'down' and self.ball['speedY'] < 0):
             self.adjust_ball_speed(-0.005, 'y')
@@ -264,7 +286,6 @@ class PongGame:
             self.adjust_ball_speed(0.005, 'y')
             self.adjust_ball_speed(-0.005, 'x')
 
-        self.ball['speedX'] = -self.ball['speedX']
 
     def adjust_ball_speed(self, change, vector):
         if vector == 'x':
@@ -281,33 +302,33 @@ class PongGame:
 # End of Game State Functions Set ------------------------------------------------------------------------------------------------------------
 
 # AI Functions Set ---------------------------------------------------------------------------------------------------------------------------
-    def predict_ball_position(self, mode):
+    def predict_ball_position(self):
+        if self.ball['speedX'] > 0:
+            ball_distance_to_wall = (self.cuboid['width'] / 2) - self.ball['x']
+        else:
+            ball_distance_to_wall = -(self.cuboid['width'] / 2) - self.ball['x']
+        time_to_wall = ball_distance_to_wall / (self.ball['speedX'])
+
+        # print(f"Distance to wall: {ball_distance_to_wall:.2f} Time to wall: {time_to_wall:.2f}", end='\r')
+
+        predicted_y = self.ball['y'] + (time_to_wall * self.ball['speedY'])
+
+        # Modify when prediction is out of bounds
+        if predicted_y > self.cuboid['height'] / 2:
+            predicted_y = (self.cuboid['height'] / 2) - (predicted_y - self.cuboid['height'] / 2)
+        elif predicted_y < -self.cuboid['height'] / 2:
+            predicted_y = (-self.cuboid['height'] / 2) + (-self.cuboid['height'] / 2 - predicted_y)
+
+        self.predicted_target = predicted_y
+
+    async def AI_Control(self, side, mode):
+
         if mode == 'easy':
-            self.predicted_target = self.ball['y']
-            return
-        
-        if mode == 'hard':
-            if self.ball['speedX'] > 0:
-                ball_distance_to_wall = (self.cuboid['width'] / 2) - self.ball['x']
-            else:
-                ball_distance_to_wall = -(self.cuboid['width'] / 2) - self.ball['x']
-            time_to_wall = ball_distance_to_wall / (self.ball['speedX'])
-
-            # print(f"Distance to wall: {ball_distance_to_wall:.2f} Time to wall: {time_to_wall:.2f}", end='\r')
-
-            predicted_y = self.ball['y'] + (time_to_wall * self.ball['speedY'])
-
-            # Modify when prediction is out of bounds
-            if predicted_y > self.cuboid['height'] / 2:
-                predicted_y = (self.cuboid['height'] / 2) - (predicted_y - self.cuboid['height'] / 2)
-            elif predicted_y < -self.cuboid['height'] / 2:
-                predicted_y = (-self.cuboid['height'] / 2) + (-self.cuboid['height'] / 2 - predicted_y)
-
-            self.predicted_target = predicted_y
-
-    async def AI_Control(self, side):
-
-        # Refresh AI target every 1 second
+            self.ai_refresh_interval = 1.5
+        elif mode == 'hard':
+            self.ai_refresh_interval = 1
+    
+        # Refresh AI target every interval
         current_time = asyncio.get_event_loop().time()
         if current_time - self.ai_last_refresh_time >= self.ai_refresh_interval:
             self.AI_target = self.predicted_target
@@ -354,10 +375,12 @@ class PongGame:
         await self.send_game_state()
 
     def reset_game(self):
+        self.before_paddle_hit = True
+        self.paddle_active = True
         self.ball['x'] = 0
         self.ball['y'] = 0
-        self.ball['speedX'] = random.choice([-PongGame.ballSpeed, PongGame.ballSpeed])
-        self.ball['speedY'] = random.choice([-PongGame.ballSpeed, PongGame.ballSpeed])
+        self.ball['speedX'] = random.choice([-PongGame.ballSpeed * 0.5, PongGame.ballSpeed * 0.5])
+        self.ball['speedY'] = random.choice([-PongGame.ballSpeed * 0.5, PongGame.ballSpeed * 0.5])
         self.leftPaddle['y'] = 0
         self.rightPaddle['y'] = 0
 
