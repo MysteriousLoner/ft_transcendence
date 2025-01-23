@@ -37,6 +37,9 @@ async function initPage(inputUser) {
 		userData = await makeRequest('POST', 'api/account/getProfileData/', req);
 		document.getElementById("usernameTitle1").textContent = userData.username;
 		document.getElementById("displaynameTitle").textContent = userData.displayName;
+		document.getElementById("totalMatch").textContent = userData.totalMatches;
+		document.getElementById("loseMatch").textContent = userData.matchesLost;
+		document.getElementById("winMatch").textContent = userData.matchesWon;
 		updateWinRate(userData.winRate);
 	}
 	catch (error) {
@@ -338,6 +341,9 @@ async function openFriendProfileModal(friend) {
 	const friendDisplayName = document.getElementById("friendDisplayName")
 	const friendWinRate = document.getElementById("friendWinRate")
 	const friendWinRateProgress = document.getElementById("friendWinRateProgress")
+	const totalMatches = document.getElementById("friendMatchPlayed")
+	const winMatches = document.getElementById("friendMatchWon")
+	const loseMatches = document.getElementById("friendMatchLost")
   
 
 	const friendData = await makeRequest('POST', 'api/account/getProfileData/', { username: friend })
@@ -348,6 +354,9 @@ async function openFriendProfileModal(friend) {
 	friendDisplayName.textContent = friendData.displayName
 	friendWinRate.textContent = friendData.winRate.toFixed(1)
   	friendWinRateProgress.style.width = `${friendData.winRate}%`
+	totalMatches.textContent = friendData.totalMatches
+	winMatches.textContent = friendData.matchesWon
+	loseMatches.textContent = friendData.matchesLost
   
 	modal.style.display = "block"
   }
