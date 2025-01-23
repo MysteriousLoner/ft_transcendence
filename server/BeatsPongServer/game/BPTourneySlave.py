@@ -172,8 +172,8 @@ class TourneyGame:
             self.tourneyWinnerChannel = self.channel1_name
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
-                self.player2.closeSockets()
-            self.player2.closeSockets()
+                self.player2.close()
+            self.player2.close()
             return True
         if self.score['right'] == 5:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
@@ -182,15 +182,11 @@ class TourneyGame:
             self.tourneyWinnerChannel = self.channel2_name
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
-                self.player1.closeSockets()
-            self.player1.closeSockets()
+                self.player1.close()
+            self.player1.close()
             return True
         print("no one wins", flush=True)
         return False
-    
-    def closeSockets(self):
-        self.player1.close()
-        self.player2.close()
     
     def run_in_thread(self, func, *args): 
         loop = asyncio.get_event_loop() 

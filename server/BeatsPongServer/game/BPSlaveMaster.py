@@ -79,12 +79,20 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
             
     # if enough players exist in the que, pop the first two players and put them into a room with a game.
     async def check_ques(self):
+        print("connected", flush=True)
+        print("que_solo", BPSlaveMaster.que_solo, flush=True)
+        print("que_tourney", BPSlaveMaster.que_tourney, flush=True)
+        print("ai", BPSlaveMaster.que_vanilla, flush=True)
+        print("que_solo len: ", len(BPSlaveMaster.que_solo), flush=True)
+        print("que_tourney len: ", len(BPSlaveMaster.que_tourney), flush=True)
+        print("ai len: ", len(BPSlaveMaster.que_vanilla), flush=True)
         print("checking que...")
         sys.stdout.flush() # Ensure the message is printed immediately
         if len(BPSlaveMaster.que_solo) >= 2:
+            print("enough players to start game", flush=True)
             player1 = BPSlaveMaster.que_solo.pop(0)
             player2 = BPSlaveMaster.que_solo.pop(0)
-            print("starting game")
+            print("starting game", flush=True)
             sys.stdout.flush()
             await self.start_game(player1.get("self"), player2.get("self"), player1.get("username"), player2.get("username"), player1.get("displayName"), player2.get("displayName"))
 
@@ -111,15 +119,25 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         for queue in [BPSlaveMaster.que_solo, BPSlaveMaster.que_tourney, BPSlaveMaster.que_vanilla]:
             for player in queue:
                 if player['self'] == self:
+                    player.get("self").close()
                     queue.remove(player)
+                    player['self'] = None
         
         # Find the game room this player is a part of
         for game in BPSlaveMaster.rooms:
             if self in [game.player1, game.player2]:
                 # Notify the game about the disconnection
                 await game.handle_player_disconnect(self)
+                game = None
                 break
-
+        
+        print("disconnected", flush=True)
+        print("que_solo", BPSlaveMaster.que_solo, flush=True)
+        print("que_tourney", BPSlaveMaster.que_tourney, flush=True)
+        print("ai", BPSlaveMaster.que_vanilla, flush=True)
+        print("que_solo len: ", len(BPSlaveMaster.que_solo), flush=True)
+        print("que_tourney len: ", len(BPSlaveMaster.que_tourney), flush=True)
+        print("ai len: ", len(BPSlaveMaster.que_vanilla), flush=True)
 
     # room management functions--------------------------------------------------------------------------
 
@@ -142,7 +160,7 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         BPSlaveMaster.rooms.append(game)
 
         # start game
-        asyncio.create_task(game.start_game())
+        task = asyncio.create_task(game.start_game())
 
 # Vanilla game mode -------------------------------------------------------------------------------------
 

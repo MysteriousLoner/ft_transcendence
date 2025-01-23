@@ -347,8 +347,8 @@ class Game {
 
     updateGameObjects(gameState) {
         // console.log("Game state received:", gameState);
-        const gameStateString = JSON.stringify(gameState);
-        console.log(gameStateString);
+        // const gameStateString = JSON.stringify(gameState);
+        // console.log(gameStateString);
         // console.log(gameState.running);
         // tournament mode, not the winner, return to menu
         
@@ -376,49 +376,25 @@ class Game {
         }
         
         if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
-            console.log("Tournament mode, not the winner, return to menu");
             this.sceneVars.game_outcome = this.returnInfo();
             this.cleanup();
+            console.log("Tournament mode, not the winner, return to menu");
             this.screenRouterCallback("gameOverScreen");
             return;
         }
         else if (gameState.game_mode != "Tourney" && !gameState.running) {
-            console.log("Game not running, return to menu");
             this.sceneVars.game_outcome = this.returnInfo();
             this.cleanup();
+            console.log("Game not running, return to menu");
             this.screenRouterCallback("gameOverScreen");
             return;
         } else if (gameState.game_mode === "Tourney" && gameState.winner === this.username && !gameState.running && gameState.roomName.includes("final")) {
-            console.log("Tournament mode, winner of final, return to menu");
             this.sceneVars.game_outcome = this.returnInfo();
             this.cleanup();
+            console.log("Tournament mode, winner of final, return to menu");
             this.screenRouterCallback("gameOverScreen");
             return;
         }
-
-        // if (gameState.countDown == 1) {
-        //     // Set the countdown duration in seconds
-        //     let countdownDuration = 3;
-
-        //     // Get the countdown element
-        //     let countdownElement = document.getElementById('countdown');
-        //     document.getElementById('countdown').classList.remove('d-none');
-
-        //     // Function to update the countdown
-        //     function updateCountdown() {
-        //         if (countdownDuration > 0) {
-        //             countdownElement.textContent = countdownDuration;
-        //             countdownDuration--;
-        //         } else {
-        //             countdownElement.textContent = 'Go!';
-        //             clearInterval(countdownInterval);
-        //         }
-        //     }
-
-        //     // Update the countdown every second
-        //     let countdownInterval = setInterval(updateCountdown, 1000);
-        //     document.getElementById('countdown').classList.add('d-none');
-        // }
     }
 
 

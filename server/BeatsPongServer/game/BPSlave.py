@@ -118,6 +118,10 @@ class PongGame:
         }
 
     async def start_game(self):
+        if self.player1Username == self.player2Username:
+            print("Player 1 and Player 2 are the same", flush=True)
+            self.running = False
+            return
         self.running = True
         await self.game_loop()
 
@@ -194,26 +198,28 @@ class PongGame:
     # left side channel is self.channel1_name
     # right side channel is self.channel2_name
     def checkWinCondition(self):
-        if self.score['left'] >= 5:
-            print(f"Player 1: {self.player1Username} wins!", flush=True)
-            self.running = False
-            self.winner = self.player1Username
-            if not self.game_mode == 'AI':
-                self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
-                self.closeSockets()
-            self.closeSockets()
-            return True
-        if self.score['right'] >= 5:
-            print(f"Player 2: {self.player2Username} wins!", flush=True)
-            self.running = False
-            self.winner = self.player2Username
-            if not self.game_mode == 'AI':
-                self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
-                self.closeSockets()
-            self.closeSockets()
-            return True
-        print("no one wins", flush=True)
-        return False
+        if self.running:
+            if self.score['left'] >= 5:
+                print(f"Player 1: {self.player1Username} wins!", flush=True)
+                self.running = False
+                self.winner = self.player1Username
+                if not self.game_mode == 'AI':
+                    self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
+                    self.closeSockets()
+                self.player1.close()
+            if self.score['right'] >= 5:
+                print(f"Player 2: {self.player2Username} wins!", flush=True)
+                self.running = False
+                self.winner = self.player2Username
+                if not self.game_mode == 'AI':
+                    self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
+                    self.closeSockets()
+                self.player2.close()
+            print("no one wins", flush=True)
+    
+    def destroy_self(self):
+        self.__class__.instances.remove(self)  # Remove reference from the class list
+        del self 
     
     def closeSockets(self):
         self.player1.close()
@@ -370,12 +376,14 @@ class PongGame:
     async def handle_player_disconnect(self, player):
         if player.channel_name == self.channel1_name:
             print(f"Player 1: {self.player1Username} disconnected", flush=True)
+            player.close()
             self.running = False
             self.winner = self.player2Username
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
         elif player.channel_name == self.channel2_name:
             print(f"Player 2: {self.player2Username} disconnected", flush=True)
+            player.close()
             self.running = False
             self.winner = self.player1Username
             if not self.game_mode == 'AI':
@@ -423,4 +431,4 @@ class PongGame:
                 'message': game_state
             }
         )
-        print("Game state sent", game_state, flush=True)
+        # print("Game state sent", game_state, flush=True)
