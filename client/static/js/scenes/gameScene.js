@@ -54,8 +54,10 @@ class GameScene {
     }
     
     cleanScreens() {
-        this.currentScreen.clean();
-        this.currentScreen = null;
+        if (this.currentScreen) {
+            this.currentScreen.clean();
+            this.currentScreen = null;
+        }
     }
     
     screenRouterCallback(screen) {

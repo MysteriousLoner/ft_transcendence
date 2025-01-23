@@ -194,22 +194,30 @@ class PongGame:
     # left side channel is self.channel1_name
     # right side channel is self.channel2_name
     def checkWinCondition(self):
-        if self.score['left'] == 5:
+        if self.score['left'] >= 5:
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
             self.winner = self.player1Username
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
+                self.closeSockets()
+            self.closeSockets()
             return True
-        if self.score['right'] == 5:
+        if self.score['right'] >= 5:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
             self.running = False
             self.winner = self.player2Username
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
+                self.closeSockets()
+            self.closeSockets()
             return True
         print("no one wins", flush=True)
         return False
+    
+    def closeSockets(self):
+        self.player1.close()
+        self.player2.close()
     
     def run_in_thread(self, func, *args): 
         loop = asyncio.get_event_loop() 

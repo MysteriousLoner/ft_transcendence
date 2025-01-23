@@ -32,7 +32,7 @@ class Game {
             this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
         }
         else if (game_mode == 'tourney') {
-            this.ws_url = `wss://localhost:8001/ws/game/tourney?username=${this.username}`;
+            this.ws_url = `wss://localhost:8001/ws/game/tourney?username=${this.username}&displayName=${this.displayName}`;
         }
         // else if (game_mode == 'demo') {
         //     this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo&username=${username}';
@@ -121,6 +121,7 @@ class Game {
         document.removeEventListener('keydown', this.boundHandleKeydown);
         document.removeEventListener('keyup', this.boundHandleKeyup);
         document.removeEventListener('click', this.boundHandleClick);
+        document.getElementById('loadingScreen').classList.add('d-none');
 
         this.resetButton('Collision_Particles', 'Enable Collision Particles');
         this.resetButton('Snowfall', 'Enable Snowfall');
@@ -366,13 +367,13 @@ class Game {
         // new info
         [this.info.player1] = gameState.player1.split(',').map(String);
         [this.info.player2] = gameState.player2.split(',').map(String);
+        this.info.winner = gameState.winner;
+        this.info.leftscore_info = this.scoreLeft;
+        this.info.rightscore_info = this.scoreRight;
         if (gameState.game_mode != "Tourney") {
             [this.info.player1DisplayName] = gameState.player1DisplayName.split(',').map(String);
             [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
         }
-        this.info.winner = gameState.winner;
-        this.info.leftscore_info = this.scoreLeft;
-        this.info.rightscore_info = this.scoreRight;
         
         if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
             console.log("Tournament mode, not the winner, return to menu");
