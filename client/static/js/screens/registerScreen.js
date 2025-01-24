@@ -8,6 +8,7 @@ class RegisterScreen {
         this.sceneRouterCallback = sceneRouterCallback;
         this.screenRouterCallback = screenRouterCallback;
 
+		this.clean();
         this.submitFormHandler = this.submitForm.bind(this);
         this.backToHomeHandler = this.backToHome.bind(this);
 
