@@ -24,6 +24,7 @@ class GameScreen {
         console.log('closing gameScreen');
         if (this.game) {
             document.getElementById('loadingScreen').classList.add('d-none');
+            this.game.cleanup();
             this.game = null;
         }
         document.getElementById('gameContainer').classList.add('d-none');

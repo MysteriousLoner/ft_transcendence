@@ -10,27 +10,40 @@ class FriendsModeSelectScreen {
 
         // class specific event listeners
         document.getElementById('friendsModeSelectScreen').classList.remove('d-none');
-        document.getElementById('soloButton').addEventListener('click', () => {
+
+        // Add event listeners
+        this.soloCallback = () => {
             this.sceneVars.game_mode = 'solo';
             console.log("Game Mode: " + this.sceneVars.game_mode);
             this.clean();
             this.screenRouterCallback("gameScreen");
-        });
-        document.getElementById('tournamentButton').addEventListener('click', () => {
+        };
+
+        this.tournamentCallback = () => {
             this.sceneVars.game_mode = 'tourney';
             console.log("Game Mode: " + this.sceneVars.game_mode);
             this.clean();
             this.screenRouterCallback("gameScreen");
-        });
-        document.getElementById('backToMenuButton_2').addEventListener('click', () => {
+        };
+
+        this.backToMenu2Callback = () => {
             console.log('backToMenuButton clicked');
             this.clean();
             this.screenRouterCallback("menuScreen");
-        });
+        };
+
+        // Add event listeners
+        document.getElementById('soloButton').addEventListener('click', this.soloCallback);
+        document.getElementById('tournamentButton').addEventListener('click', this.tournamentCallback);
+        document.getElementById('backToMenuButton_2').addEventListener('click', this.backToMenu2Callback);
     }
     
     clean() {
         console.log('closing AILvlSelectScreen');
+        // Remove event listener
+        document.getElementById('soloButton').removeEventListener('click', this.soloCallback);
+        document.getElementById('tournamentButton').removeEventListener('click', this.tournamentCallback);
+        document.getElementById('backToMenuButton_2').removeEventListener('click', this.backToMenu2Callback);
         document.getElementById('friendsModeSelectScreen').classList.add('d-none');
     }
 }

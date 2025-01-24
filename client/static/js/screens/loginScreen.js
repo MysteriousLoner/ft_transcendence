@@ -7,14 +7,19 @@ class LoginScreen {
         this.sceneVars = sceneVars;
         // class specific event listeners
         this.clean();
-        document.getElementById('loginForm').addEventListener('submit', (event) => this.submitForm(event));
-		document.getElementById('backbtn').addEventListener('click', () => this.backToHome());
         document.getElementById('loginScreen').classList.remove('d-none');
+        
+        // Add event listeners
+        this.submitFormCallback = (event) => this.submitForm(event);
+        this.backToHomeCallback = () => this.backToHome();
+        document.getElementById('loginForm').addEventListener('submit', this.submitFormCallback);
+        document.getElementById('backbtn').addEventListener('click', this.backToHomeCallback);
     }
 
     clean() {
-        document.getElementById('loginForm').removeEventListener('submit', (event) => this.submitForm(event));
-		document.getElementById('backbtn').removeEventListener('click', () => this.backToHome());
+        // Remove event listener
+        document.getElementById('loginForm').removeEventListener('submit', this.submitFormCallback);
+        document.getElementById('backbtn').removeEventListener('click', this.backToHomeCallback);
         document.getElementById('loginScreen').classList.add('d-none');
 		document.getElementById('errorMessage').classList.add('d-none');
     }

@@ -136,6 +136,9 @@ class PongGame:
             sleep_time = max(0, target_interval - elapsed_time)
             await asyncio.sleep(sleep_time)
 
+        # Ensure game stops running
+        self.running = False
+
     async def receive_json(self, content, socket):
         sender_channel = socket.channel_name
         # print(f"Data received from WebSocket with channel name: {sender_channel}")
@@ -200,7 +203,6 @@ class PongGame:
             self.winner = self.player1Username
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
-                self.closeSockets()
             self.closeSockets()
             return True
         if self.score['right'] >= 5:
@@ -209,7 +211,6 @@ class PongGame:
             self.winner = self.player2Username
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
-                self.closeSockets()
             self.closeSockets()
             return True
         print("no one wins", flush=True)
@@ -217,7 +218,8 @@ class PongGame:
     
     def closeSockets(self):
         self.player1.close()
-        self.player2.close()
+        if self.game_mode == 'PvP':
+            self.player2.close()
     
     def run_in_thread(self, func, *args): 
         loop = asyncio.get_event_loop() 
@@ -381,6 +383,7 @@ class PongGame:
             if not self.game_mode == 'AI':
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
         await self.send_game_state()
+        self.closeSockets()
 
     def reset_game(self):
         self.before_paddle_hit = True

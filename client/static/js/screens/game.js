@@ -305,50 +305,65 @@ class Game {
 
     connectWebSocket() {
         this.socket = new WebSocket(this.ws_url);
+    
         this.socket.onopen = function () {
             console.log('WebSocket connection established');
             
             if (this.info.message_received == false) {
-                document.getElementById('gameContainer').classList.add('d-none');
-                document.getElementById('loadingScreen').classList.remove('d-none');
-                this.scene.visible = false;
-                if (this.renderer && this.renderer.domElement)
-                    document.body.removeChild(this.renderer.domElement);
+                this.showLoadingScreen();
             }
-
+    
             this.socket.onmessage = function (event) {
                 if (this.info.message_received == false) {
-                    document.getElementById('loadingScreen').classList.add('d-none');
-                    document.getElementById('gameContainer').classList.remove('d-none');
-                    if (this.renderer && this.renderer.domElement)
-                        document.body.appendChild(this.renderer.domElement);
-                    this.scene.visible = true;
+                    this.showGameContainer();
                     this.info.message_received = true;
                 } // Hide loading screen and show game container when first message is received
-
+    
                 const gameState = JSON.parse(event.data);
                 this.updateGameObjects(gameState);
             }.bind(this);
-        
+    
             this.socket.onclose = function (event) {
                 console.error('WebSocket closed:', event);
             }.bind(this);
         }.bind(this);
-        
+    
         this.socket.onerror = function (error) {
             console.error('WebSocket error:', error);
         }.bind(this);
-        
     }
-
+    
     disconnectWebSocket() {
-        this.socket.close();
+        if (this.socket) {
+            this.socket.onopen = null;
+            this.socket.onmessage = null;
+            this.socket.onclose = null;
+            this.socket.onerror = null;
+            this.socket.close(1000, 'Client disconnected');
+            this.socket = null;
+        }
     }
-
+    
+    showLoadingScreen() {
+        document.getElementById('gameContainer').classList.add('d-none');
+        document.getElementById('loadingScreen').classList.remove('d-none');
+        this.scene.visible = false;
+        if (this.renderer && this.renderer.domElement)
+            document.body.removeChild(this.renderer.domElement);
+    }
+    
+    showGameContainer() {
+        document.getElementById('loadingScreen').classList.add('d-none');
+        document.getElementById('gameContainer').classList.remove('d-none');
+        if (this.renderer && this.renderer.domElement)
+            document.body.appendChild(this.renderer.domElement);
+        this.scene.visible = true;
+    }
+    
     updateGameObjects(gameState) {
         // console.log("Game state received:", gameState);
         const gameStateString = JSON.stringify(gameState);
-        console.log(gameStateString);
+        // console.log(gameStateString);
         // console.log(gameState.running);
         // tournament mode, not the winner, return to menu
         
@@ -378,20 +393,20 @@ class Game {
         if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
             console.log("Tournament mode, not the winner, return to menu");
             this.sceneVars.game_outcome = this.returnInfo();
-            this.cleanup();
+            // this.cleanup();
             this.screenRouterCallback("gameOverScreen");
             return;
         }
         else if (gameState.game_mode != "Tourney" && !gameState.running) {
             console.log("Game not running, return to menu");
             this.sceneVars.game_outcome = this.returnInfo();
-            this.cleanup();
+            // this.cleanup();
             this.screenRouterCallback("gameOverScreen");
             return;
         } else if (gameState.game_mode === "Tourney" && gameState.winner === this.username && !gameState.running && gameState.roomName.includes("final")) {
             console.log("Tournament mode, winner of final, return to menu");
             this.sceneVars.game_outcome = this.returnInfo();
-            this.cleanup();
+            // this.cleanup();
             this.screenRouterCallback("gameOverScreen");
             return;
         }

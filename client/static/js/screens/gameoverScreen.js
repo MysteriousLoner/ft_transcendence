@@ -17,13 +17,19 @@ class GameOverScreen {
             this.message = 'Sorry ' + this.sceneVars.displayName + ', you lost!\nScore: '
                 + this.sceneVars.game_outcome.leftscore_info + ' : ' + this.sceneVars.game_outcome.rightscore_info;
         document.getElementById('gameOverText').textContent = this.message;
-        document.getElementById('backToMenuButton_3').addEventListener('click', () => {
+
+        // Add event listeners
+        this.backToMenu3Callback = () => {
             this.screenRouterCallback("menuScreen");
-        });
+        };
+
+        document.getElementById('backToMenuButton_3').addEventListener('click', this.backToMenu3Callback);
     }
 
     clean() {
         console.log('closing GameOverScreen');
+        // Remove event listener
+        document.getElementById('backToMenuButton_3').removeEventListener('click', this.backToMenu3Callback);
         document.getElementById('gameOverScreen').classList.add('d-none');
     }
 }

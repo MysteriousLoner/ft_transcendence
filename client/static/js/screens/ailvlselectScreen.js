@@ -13,23 +13,37 @@ class AILvlSelectScreen {
 
         // class specific event listeners
         document.getElementById('ailvlSelectScreen').classList.remove('d-none');
-        document.getElementById('easyAIButton').addEventListener('click', () => {
+
+        // Add event listeners
+        this.easyAICallback = () => {
             this.sceneVars.ai_lvl = 'easy';
             console.log("AI Level: " + this.sceneVars.ai_lvl);
             this.screenRouterCallback("gameScreen");
-        });
-        document.getElementById('hardAIButton').addEventListener('click', () => {
+        };
+
+        this.hardAICallback = () => {
             this.sceneVars.ai_lvl = 'hard';
             console.log("AI Level: " + this.sceneVars.ai_lvl);
             this.screenRouterCallback("gameScreen");
-        });
-        document.getElementById('backToMenuButton_1').addEventListener('click', () => {
+        };
+
+        this.backToMenuCallback = () => {
             this.screenRouterCallback("menuScreen");
-        });
+        };
+
+        // Add event listeners
+        document.getElementById('easyAIButton').addEventListener('click', this.easyAICallback);
+        document.getElementById('hardAIButton').addEventListener('click', this.hardAICallback);
+        document.getElementById('backToMenuButton_1').addEventListener('click', this.backToMenuCallback);
     }
 
     clean() {
+
         console.log('closing AILvlSelectScreen');
+        // Remove event listener
+        document.getElementById('easyAIButton').removeEventListener('click', this.easyAICallback);
+        document.getElementById('hardAIButton').removeEventListener('click', this.hardAICallback);
+        document.getElementById('backToMenuButton_1').removeEventListener('click', this.backToMenuCallback);
         document.getElementById('ailvlSelectScreen').classList.add('d-none');
     }
 

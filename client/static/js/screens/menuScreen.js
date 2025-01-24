@@ -15,10 +15,15 @@ class MenuScreen {
         document.getElementById('menuScreen').classList.remove('d-none');
         
         // Add event listeners for game buttons
-        document.getElementById("vanillaPong").addEventListener("click", this.playVanillaPong.bind(this));
-        document.getElementById("friendsPong").addEventListener("click", this.playFriendsPong.bind(this));
-        document.getElementById('saveUsernameBtn').addEventListener('click', this.saveUsername.bind(this));
-		document.getElementById("logoutButton").addEventListener("click", this.logout.bind(this));
+        this.boundPlayVanillaPong = this.playVanillaPong.bind(this);
+        this.boundPlayFriendsPong = this.playFriendsPong.bind(this);
+        this.boundSaveUsername = this.saveUsername.bind(this);
+        this.boundLogout = this.logout.bind(this);
+
+        document.getElementById("vanillaPong").addEventListener("click", this.boundPlayVanillaPong);
+        document.getElementById("friendsPong").addEventListener("click", this.boundPlayFriendsPong);
+        document.getElementById("saveUsernameBtn").addEventListener("click", this.boundSaveUsername);
+        document.getElementById("logoutButton").addEventListener("click", this.boundLogout);
 
         initPage(this.sceneVars.username);
 
@@ -26,6 +31,11 @@ class MenuScreen {
 
     clean() {
         console.log('closing menu screen');
+        // Remove event listener
+        document.getElementById("vanillaPong").removeEventListener("click", this.boundPlayVanillaPong);
+        document.getElementById("friendsPong").removeEventListener("click", this.boundPlayFriendsPong);
+        document.getElementById("saveUsernameBtn").removeEventListener("click", this.boundSaveUsername);
+        document.getElementById("logoutButton").removeEventListener("click", this.boundLogout);
         document.getElementById('menuScreen').classList.add('d-none');
     }
 
