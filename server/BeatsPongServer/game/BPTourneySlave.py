@@ -128,19 +128,23 @@ class TourneyGame:
             await asyncio.sleep(sleep_time)
 
     async def receive_json(self, content, socket):
+        # print("content received", content, flush=True)
         sender_channel = socket.channel_name
+        # print("message received from channe: ", sender_channel, flush=True)
         f_keys = content.get('keys')
 
         self.keys['w'] = f_keys['w']
         self.keys['s'] = f_keys['s']
 
         if sender_channel == self.channel1_name:
+            # print("message received from channel 1", flush=True)
             if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
                 self.leftPaddle['y'] += self.leftPaddleSpeed
             elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
                 self.leftPaddle['y'] -= self.leftPaddleSpeed
 
         elif sender_channel == self.channel2_name:
+            # print("message received from channel 2", flush=True)
             if self.keys['w'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
                 self.rightPaddle['y'] += self.rightPaddleSpeed
             elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
@@ -171,6 +175,8 @@ class TourneyGame:
     # left side channel is self.channel1_name
     # right side channel is self.channel2_name
     def checkWinCondition(self):
+        if self.winner:
+            return False
         if self.score['left'] == 5: 
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
@@ -191,7 +197,7 @@ class TourneyGame:
                 self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
             return True
-        print("no one wins", flush=True)
+        # print("no one wins", flush=True)
         return False
     
     def closeSockets(self):
@@ -381,6 +387,7 @@ class TourneyGame:
             "winnerDisplayName": self.winnerDisplayName,
             "roomName": self.room_name
         }
+        # print("room name", self.room_name, flush=True)
         await self.channelLayer.group_send(
             self.room_name,
             {

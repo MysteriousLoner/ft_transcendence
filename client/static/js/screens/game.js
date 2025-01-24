@@ -23,6 +23,7 @@ class Game {
 
         this.username = username;
         this.displayName = displayName;
+        this.roomName = null;
 
         this.ws_url = null
         
@@ -361,11 +362,8 @@ class Game {
     }
     
     updateGameObjects(gameState) {
-        // console.log("Game state received:", gameState);
+        console.log("Game state received:", gameState);
         const gameStateString = JSON.stringify(gameState);
-        // console.log(gameStateString);
-        // console.log(gameState.running);
-        // tournament mode, not the winner, return to menu
         
         [this.cuboidWidth, this.cuboidHeight, this.cuboidDepth] = gameState.cuboid.split(',').map(Number);
         [this.ballRadius, this.ball.position.x, this.ball.position.y, this.ball.position.z] = gameState.ball.split(',').map(Number);
@@ -378,6 +376,8 @@ class Game {
         if (gameState.game_mode == "AI") {
             [this.ballTarget.position.x, this.ballTarget.position.y, this.ballTarget.position.z] = gameState.ballTarget.split(',').map(Number);
         }
+        this.roomName = gameState.roomName;
+        // console.log("room name", this.roomName);
         
         // new info
         [this.info.player1] = gameState.player1.split(',').map(String);
@@ -408,30 +408,6 @@ class Game {
             this.screenRouterCallback("gameOverScreen");
             return;
         }
-
-        // if (gameState.countDown == 1) {
-        //     // Set the countdown duration in seconds
-        //     let countdownDuration = 3;
-
-        //     // Get the countdown element
-        //     let countdownElement = document.getElementById('countdown');
-        //     document.getElementById('countdown').classList.remove('d-none');
-
-        //     // Function to update the countdown
-        //     function updateCountdown() {
-        //         if (countdownDuration > 0) {
-        //             countdownElement.textContent = countdownDuration;
-        //             countdownDuration--;
-        //         } else {
-        //             countdownElement.textContent = 'Go!';
-        //             clearInterval(countdownInterval);
-        //         }
-        //     }
-
-        //     // Update the countdown every second
-        //     let countdownInterval = setInterval(updateCountdown, 1000);
-        //     document.getElementById('countdown').classList.add('d-none');
-        // }
     }
 
 
@@ -441,7 +417,8 @@ class Game {
 
     sendMessage() {
         if (this.socket.readyState == this.socket.OPEN)
-            this.socket.send(JSON.stringify({ 'keys': this.keys, 'paused': this.paused }));
+            this.socket.send(JSON.stringify({ 'keys': this.keys, 'paused': this.paused, 'roomName': this.roomName}));
+        console.log('roomName:', this.roomName);
     }
 
     rotateBoard() {
