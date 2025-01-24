@@ -31,6 +31,7 @@ class PongGame:
     rightPaddleSpeed = 0.1
     ballSpeed = 0.075
     waitTime = 3
+    winScore = 2
 
     def __init__(self, room_name, player1, player2, player1Username, player2Username, player1DisplayName, player2DisplayName):
         print("Game object created", flush=True)
@@ -66,6 +67,8 @@ class PongGame:
         self.predicted_target = 0
         self.before_paddle_hit = True
         self.paddle_active = True
+
+        self.dbUpdated = False
 
         # create group for websockets, add websockets from players to group
         self.channel_layer = get_channel_layer()
@@ -197,21 +200,23 @@ class PongGame:
     # left side channel is self.channel1_name
     # right side channel is self.channel2_name
     def checkWinCondition(self):
-        if self.score['left'] >= 5:
+        if self.score['left'] >= PongGame.winScore:
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
             self.winner = self.player1Username
-            if not self.game_mode == 'AI':
+            if not self.game_mode == 'AI' and not self.dbUpdated:
+                self.dbUpdated = True
+                print("Updating match data", flush=True)
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
-            self.closeSockets()
             return True
-        if self.score['right'] >= 5:
+        if self.score['right'] >= PongGame.winScore:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
             self.running = False
             self.winner = self.player2Username
-            if not self.game_mode == 'AI':
+            if not self.game_mode == 'AI' and not self.dbUpdated:
+                self.dbUpdated = True
+                print("Updating match data", flush=True)
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
-            self.closeSockets()
             return True
         print("no one wins", flush=True)
         return False
@@ -222,6 +227,7 @@ class PongGame:
             self.player2.close()
     
     def run_in_thread(self, func, *args): 
+        print("Running in thread", flush=True)
         loop = asyncio.get_event_loop() 
         return loop.run_in_executor(self.executor, func, *args)
     
@@ -374,13 +380,15 @@ class PongGame:
             print(f"Player 1: {self.player1Username} disconnected", flush=True)
             self.running = False
             self.winner = self.player2Username
-            if not self.game_mode == 'AI':
+            if not self.game_mode == 'AI' and self.winner and not self.dbUpdated:
+                self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
-        elif player.channel_name == self.channel2_name:
+        elif player.channel_name == self.channel2_name and self.winner:
             print(f"Player 2: {self.player2Username} disconnected", flush=True)
             self.running = False
             self.winner = self.player1Username
-            if not self.game_mode == 'AI':
+            if not self.game_mode == 'AI' and self.winner and not self.dbUpdated:
+                self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
         await self.send_game_state()
         self.closeSockets()
@@ -426,4 +434,4 @@ class PongGame:
                 'message': game_state
             }
         )
-        print("Game state sent", game_state, flush=True)
+        # print("Game state sent", game_state, flush=True)

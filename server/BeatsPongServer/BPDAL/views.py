@@ -120,8 +120,8 @@ def update_match_data(winnerUsername, loserUsername):
         loserProfileData.save()
 
         print(f"Updated match data for {winnerUsername} and {loserUsername}", flush=True)
-        print(f"Winner: {winnerProfileData.matchesPlayed} {winnerProfileData.matchesWon} {winnerProfileData.winRate}", flush=True)
-        print(f"Loser: {loserProfileData.matchesPlayed} {loserProfileData.matchesLost} {loserProfileData.winRate}", flush=True)
+        print(f"Winner: matches played: {winnerProfileData.matchesPlayed} matches won: {winnerProfileData.matchesWon} matches lost: {winnerProfileData.matchesLost} win rate: {winnerProfileData.winRate}", flush=True)
+        print(f"Loser: matches played: {loserProfileData.matchesPlayed} matches won: {winnerProfileData.matchesWon} matches lost: {loserProfileData.matchesLost} win rate: {loserProfileData.winRate}", flush=True)
         return
     except ObjectDoesNotExist:
         print(f"Error updating match data for {winnerUsername} and {loserUsername}", flush=True)
