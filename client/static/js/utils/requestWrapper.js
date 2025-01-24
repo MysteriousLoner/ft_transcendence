@@ -8,6 +8,7 @@
  * This is an async function, so you should always use await or other methods to wait for the output when calling this function and use them in an async funnction
  */
 let isRequestInProgress = false;
+// const verbose = true;  //changed it to true
 const verbose = false;
 
 async function makeRequest(method, url, jsonMessage) {
