@@ -24,14 +24,18 @@ class RegisterScreen {
         
         document.getElementById('registerScreen').classList.add('d-none');
         document.getElementById('errorMessage2').classList.add('d-none');
+
+		document.getElementById('username1').value = '';
+		document.getElementById('email').value = '';
+		document.getElementById('password').value = '';
     }
 
     backToHome(event) {
         event.preventDefault();
-        console.log('Back button pressed');
         this.clean();
         this.sceneRouterCallback('homeScene');
     }
+
 
     async submitForm(event) {
         event.preventDefault();

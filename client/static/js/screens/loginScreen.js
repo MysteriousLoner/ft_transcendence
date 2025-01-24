@@ -10,8 +10,8 @@ class LoginScreen {
         document.getElementById('loginScreen').classList.remove('d-none');
         
         // Add event listeners
-        this.submitFormCallback = (event) => this.submitForm(event);
-        this.backToHomeCallback = () => this.backToHome();
+        this.submitFormCallback = this.submitForm.bind(this);
+		this.backToHomeCallback = this.backToHome.bind(this);
         document.getElementById('loginForm').addEventListener('submit', this.submitFormCallback);
         document.getElementById('backbtn').addEventListener('click', this.backToHomeCallback);
     }
@@ -22,10 +22,15 @@ class LoginScreen {
         document.getElementById('backbtn').removeEventListener('click', this.backToHomeCallback);
         document.getElementById('loginScreen').classList.add('d-none');
 		document.getElementById('errorMessage').classList.add('d-none');
+
+		document.getElementById('username').value = '';
+		document.getElementById('userPassword').value = '';
+
+
     }
 
-	backToHome() {
-		// event.preventDefault();
+	backToHome(event) {
+		event.preventDefault();
 		this.clean();
 		this.sceneRouterCallback('homeScene');
 	}
