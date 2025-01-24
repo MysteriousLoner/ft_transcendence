@@ -385,10 +385,8 @@ class Game {
         this.info.winner = gameState.winner;
         this.info.leftscore_info = this.scoreLeft;
         this.info.rightscore_info = this.scoreRight;
-        if (gameState.game_mode != "Tourney") {
-            [this.info.player1DisplayName] = gameState.player1DisplayName.split(',').map(String);
-            [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
-        }
+        [this.info.player1DisplayName] = gameState.player1DisplayName.split(',').map(String);
+        [this.info.player2DisplayName] = gameState.player2DisplayName.split(',').map(String);
         
         if (gameState.game_mode === "Tourney" && gameState.winner != this.username && !gameState.running) {
             console.log("Tournament mode, not the winner, return to menu");

@@ -32,6 +32,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         # final round
         self.finalGame = None
 
+        self.finalistDisplayNameMap = {}
+
     # handles a new connection, put them into a que, pop them when enough players to start game
     async def connect(self):
         print("connecting")
@@ -71,6 +73,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 channelLayer=channelLayer1,
                 player1Username=player1.get("username"), 
                 player2Username=player2.get("username"),
+                player1DisplayName=player1.get("displayName"),
+                player2DisplayName=player2.get("displayName"),
             )
             asyncio.create_task(self.game1.start_game())
 
@@ -89,6 +93,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 channelLayer=channelLayer2,
                 player1Username=player3.get("username"), 
                 player2Username=player4.get("username"),
+                player1DisplayName=player3.get("displayName"),
+                player2DisplayName=player4.get("displayName"),
             )
             asyncio.create_task(self.game2.start_game())
 
@@ -122,6 +128,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 channelLayer=channelLayer,
                 player1Username=player1.get("username"), 
                 player2Username=player2.get("username"),
+                player1DisplayName=self.finalistDisplayNameMap.get(player1.get("username")),
+                player2DisplayName=self.finalistDisplayNameMap.get(player2.get("username")),
             )
             asyncio.create_task(self.finalGame.start_game())
 
@@ -164,5 +172,6 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 await self.send_json(message)
                 return
             print("winnerChannel", winnerChannel, flush=True)
+            self.finalistDisplayNameMap[winnerChannel.get("username")] = message.get("winnerDisplayName")
             await self.handle_game1_winner(winnerChannel, roomName=message.get("roomName"))
         await self.send_json(message)
