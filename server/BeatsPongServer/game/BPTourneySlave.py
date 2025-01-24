@@ -107,6 +107,9 @@ class TourneyGame:
             'ai_lvl': 'easy' # Default AI level is easy
         }
 
+        # flags for idempotency
+        self.dbUpdated = False
+
     async def start_game(self):
         self.running = True
         await self.game_loop()
@@ -170,20 +173,18 @@ class TourneyGame:
             self.running = False
             self.winner = self.player1Username
             self.tourneyWinnerChannel = self.channel1_name
-            if not self.game_mode == 'AI':
+            if not self.game_mode == 'AI' and not self.dbUpdated:
+                self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
-                self.player2.closeSockets()
-            self.player2.closeSockets()
             return True
         if self.score['right'] == 5:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
             self.running = False
             self.winner = self.player2Username
             self.tourneyWinnerChannel = self.channel2_name
-            if not self.game_mode == 'AI':
+            if not self.game_mode == 'AI' and not self.dbUpdated:
+                self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
-                self.player1.closeSockets()
-            self.player1.closeSockets()
             return True
         print("no one wins", flush=True)
         return False
@@ -327,12 +328,14 @@ class TourneyGame:
             self.running = False
             self.winner = self.player2Username
             if not self.game_mode == 'AI':
+                self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
         elif player.channel_name == self.channel2_name:
             print(f"Player 2: {self.player2Username} disconnected", flush=True)
             self.running = False
             self.winner = self.player1Username
             if not self.game_mode == 'AI':
+                self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
         await self.send_game_state()
 
