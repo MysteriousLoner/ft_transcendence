@@ -201,3 +201,25 @@ def decline_friend_request(username, friend_username):
         return profile
     except ProfileData.DoesNotExist:
         return None
+    
+def tourney_win(username):
+    try:
+        profile = ProfileData.objects.get(username=username)
+        profile.TourneyMatchesPlayed += 1
+        profile.TourneyMatchesWon += 1
+        profile.TourneyWinRate = profile.TourneyMatchesWon / profile.TourneyMatchesPlayed * 100
+        profile.save()
+        return profile
+    except ProfileData.DoesNotExist:
+        return None
+    
+def tourney_lose(username):
+    try:
+        profile = ProfileData.objects.get(username=username)
+        profile.TourneyMatchesPlayed += 1
+        profile.TourneyMatchesLost += 1
+        profile.TourneyWinRate = profile.TourneyMatchesWon / profile.TourneyMatchesPlayed * 100
+        profile.save()
+        return profile
+    except ProfileData.DoesNotExist:
+        return None
