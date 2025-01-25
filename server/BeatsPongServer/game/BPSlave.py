@@ -425,7 +425,7 @@ class PongGame:
             "player2": self.player2Username,
             "player1DisplayName": self.player1DisplayName,
             "player2DisplayName": self.player2DisplayName,
-            "winner": self.winner
+            "winner": self.winner,
         }
         await self.channel_layer.group_send(
             self.room_name,
