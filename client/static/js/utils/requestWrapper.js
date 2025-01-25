@@ -118,7 +118,7 @@ function isTokenExpired(token) {
 }
 
 // obtain new access token with refresh token
-function refreshAccessToken(refreshToken) {
+async function refreshAccessToken(refreshToken) {
     if (refreshToken === null) {
         return null;
     }
@@ -131,9 +131,9 @@ function refreshAccessToken(refreshToken) {
         body: JSON.stringify({ 'refresh': refreshToken })
     };
 
-    const response = fetch(ServerIp + PublicEndpoints.REFRESH, request);
+    const response = await fetch(ServerIp + PublicEndpoints.REFRESH, request);
     if (response.ok) {
-        const data = response.json();
+        const data = await response.json();
         return data.access;
     } else {
         return null;
