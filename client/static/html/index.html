@@ -130,37 +130,71 @@
 		<div class='Menu d-none' id="menuScreen">
 			<div class="container">
 				<div class="profile">
-					<div class="centered-container">
+					<div class="profile-container1">
+					  <!-- Left side: Profile Picture and Basic Information -->
+					  <div class="left-side">
 						<div class="profile-picture-container">
-							<img id="profilePictureMenu1" src="" alt="Profile Pic">
+						  <img id="profilePictureMenu1" src="" alt="Profile Pic">
 						</div>
-						<div style="display: flex; align-items: center;">
+						<div class="profile-info">
+						  <div style="display: flex; align-items: center;">
 							<h2>Username:&nbsp;</h2>
 							<h2 id="usernameTitle1">placeholder</h2>
-						</div>
-						<div style="display: flex; align-items: center;">
+						  </div>
+						  <div style="display: flex; align-items: center;">
 							<h2>Display name:&nbsp;</h2>
 							<h2 id="displaynameTitle">placeholder</h2>
+						  </div>
 						</div>
-						<div style="display: flex; align-items: center;">
+					  </div>
+				  
+					  <!-- Right side: Stats and Win Rates -->
+					  <div class="right-side">
+						<div class="stats">
+						  <div style="display: flex; align-items: center;">
 							<h2>Total Match Played:&nbsp;</h2>
 							<h2 id="totalMatch">-1</h2>
-						</div>
-						<div style="display: flex; align-items: center;">
+						  </div>
+						  <div style="display: flex; align-items: center;">
 							<h2>Matches Won:&nbsp;</h2>
 							<h2 id="winMatch">-1</h2>
-						</div>
-						<div style="display: flex; align-items: center;">
+						  </div>
+						  <div style="display: flex; align-items: center;">
 							<h2>Matches Lost:&nbsp;</h2>
 							<h2 id="loseMatch">-1</h2>
+						  </div>
+						  <div style="display: flex; align-items: center;">
+							<h2>Total Tourney Played&nbsp;</h2>
+							<h2 id="TourneyMatches">-1</h2>
+						  </div>
+						  <div style="display: flex; align-items: center;">
+							<h2>Tourney Matches Won:&nbsp;</h2>
+							<h2 id="TourneyMatchesWon">-1</h2>
+						  </div>
+						  <div style="display: flex; align-items: center;">
+							<h2>Tourney Matches Lost:&nbsp;</h2>
+							<h2 id="TourneyMatchesLost">-1</h2>
+						  </div>
 						</div>
+						<!-- Win Rate and Tourney Win Rate -->
+
 					</div>
+				  </div>
+				  <div class="centered-container">
 					<p class="win-rate">Win Rate: <span id="winRate">0.0</span>%</p>
-					<div class="win-rate-container center">
-						<div class="win-rate-bar">
-							<div id="winRateProgress"></div>
-						</div>
+					<div class="win-rate-container">
+					  <div class="win-rate-bar">
+						<div id="winRateProgress"></div>
+					  </div>
 					</div>
+			  
+					<p class="win-rate">Tourney Win Rate: <span id="tourneyWinRate">0.0</span>%</p>
+					<div class="win-rate-container">
+					  <div class="win-rate-bar">
+						<div id="tourneyProgress"></div>
+					  </div>
+					</div>
+				  </div>
 					<div class="game-buttons large-buttons">
 						<button id="vanillaPong">Play Vanilla Pong</button>
 						<button id="friendsPong">Play Friends Pong</button>
@@ -228,21 +262,33 @@
 					<span id="closeInfo" class="close">&times;</span>
 					<div class="friend-profile-info">
 						<img id="friendProfilePicture" src="" alt="Friend's Profile Picture" class="profile-picture">
-						<h2>Username</h2>
+						<h2>Username :</h2>
 						<h2 id="friendUsername"></h2>
-						<h2>Display Name</h2>
+						<h2>Display Name :</h2>
 						<p id="friendDisplayName"></p>
-						<h2>Matches Played</h2>
+						<h2>Matches Played :</h2>
 						<h2 id="friendMatchPlayed"></h2>
-						<h2>Matches Lost</h2>
-						<p id="friendMatchLost"></p>
-						<h2>Matches Won</h2>
+						<h2>Matches Won :</h2>
 						<p id="friendMatchWon"></p>
+						<h2>Matches Lost :</h2>
+						<p id="friendMatchLost"></p>
 						<div class="friend-win-rate-container">
 							<div class="friend-win-rate-bar">
 								<div id="friendWinRateProgress"></div>
 							</div>
 							<p class="friend-win-rate">Win Rate: <span id="friendWinRate">0.0</span>%</p>
+						</div>
+						<h2>Tourney Matches Played :</h2>
+						<p id="friendTourneyMatches"></p>
+						<h2>Tourney Matches Won :</h2>
+						<p id="friendTourneyMatchesWon"></p>
+						<h2>Tournet Matches Lost :</h2>
+						<p id="friendTourneyMatchesLost"></p>
+						<div class="friend-win-rate-container">
+							<div class="friend-win-rate-bar">
+								<div id="friendTourneyProgress"></div>
+							</div>
+							<p class="friend-win-rate">Tourney Win Rate: <span id="friendTourneyWinRate">0.0</span>%</p>
 						</div>
 					</div>
 				</div>

@@ -188,8 +188,16 @@
     transition: width 0.5s ease-in-out;
 }
 
+
+.Menu #tourneyProgress {
+    height: 100%;
+    background-color: #27ae60;
+    width: 0;
+    transition: width 0.5s ease-in-out;
+}
+
 .Menu .win-rate {
-    font-size: 24px;
+    font-size: 16px;
     font-weight: bold;
     margin: 10px 0;
 }
@@ -447,10 +455,11 @@
   }
 
   .friendProfile .friend-win-rate-container {
-	margin: 20px auto;
+	margin: 10px auto;
 	width: 80%;
 	max-width: 200px;
 	margin-top: 10px;
+    margin-bottom: 5px;
   }
   
   .friendProfile .friend-win-rate-bar {
@@ -475,3 +484,95 @@
 	margin: 10px 0;
 	text-align: center;
   }
+
+  .friendProfile #friendTourneyProgress {
+	height: 100%;
+	background-color: #27ae60;
+	width: 0;
+	transition: width 0.5s ease-in-out;
+  }
+
+  /* Profile container using Flexbox */
+    .profile-container1 {
+        display: flex;
+        justify-content: space-between;  /* Space between the left and right sides */
+        padding: 20px;
+    }
+  
+  /* Left Side - Profile Picture and Basic Info */
+  .left-side {
+    flex: 2;                 /* Makes this side take up 2 parts of the space */
+    padding-right: 10px;      /* Optional padding for spacing */
+    display: flex;            /* Use flexbox layout */
+    flex-direction: column;   /* Stack items vertically */
+    align-items: flex-end;    /* Align items to the right horizontally */
+    justify-content: flex-start; /* Align items to the top vertically */
+    position: relative;       /* Establish a positioning context */
+  }
+  
+  .profile-picture-container {
+    position: absolute;       /* Allow absolute positioning */
+    left: 80%;                 /* Center horizontally */
+    top: 10%;                  /* Adjust this value to position it vertically */
+    transform: translateX(-50%); /* Center the image exactly */
+  }
+  
+  .profile-picture-container img {
+    width: 120px;              /* Adjust image size */
+    height: 120px;             /* Adjust image size */
+    border-radius: 50%;        /* Make the profile picture circular */
+  }
+  
+  .profile-info {
+    margin-top: 150px;         /* Adjust this value to provide spacing below the profile picture */
+  }
+  
+  /* Right Side - Stats and Win Rates */
+  .right-side {
+    flex: 2;  /* This side will take up more space */
+  }
+  
+  .stats {
+    margin-bottom: 20px;
+  }
+  
+  .win-rate-container {
+    display: flex;             /* Use flexbox to align items */
+    justify-content: center;   /* Center the win-rate-bar horizontally */
+    align-items: center;       /* Center the win-rate-bar vertically */
+    width: 100%;               /* Ensure the container takes full width */
+    margin-top: 10px;          /* Optional spacing between elements */
+  }
+  
+  /* Style the win-rate-bar */
+  .win-rate-bar {
+    width: 80%;                /* Set a specific width, you can adjust this */
+    background-color: #e0e0e0; /* Light grey background for the progress bar */
+    height: 10px;              /* Set the height of the bar */
+    border-radius: 5px;        /* Optional: round corners for a smoother look */
+    position: relative;
+  }
+  
+  #winRateProgress, #tourneyProgress {
+    height: 100%;
+    background-color: #4CAF50;  /* Green for the progress bar */
+    width: 0%; /* Default width */
+    transition: width 0.5s ease; /* Smooth transition */
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .profile-container {
+      flex-direction: column;  /* Stack items on small screens */
+    }
+  
+    .left-side, .right-side {
+      padding-right: 0;
+      padding-left: 0;
+    }
+  
+    .win-rate-container {
+      width: 100%; /* Ensure it doesn't overflow */
+    }
+  }
+  

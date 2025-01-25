@@ -40,7 +40,13 @@ async function initPage(inputUser) {
 		document.getElementById("totalMatch").textContent = userData.totalMatches;
 		document.getElementById("loseMatch").textContent = userData.matchesLost;
 		document.getElementById("winMatch").textContent = userData.matchesWon;
-		updateWinRate(userData.winRate);
+		document.getElementById("TourneyMatches").textContent = userData.tourneyMatches;
+		document.getElementById("TourneyMatchesWon").textContent = userData.tourneyMatchesWon;
+		document.getElementById("TourneyMatchesLost").textContent = userData.tourneyMatchesLost;
+		document.getElementById("winRate").textContent = userData.winRate.toFixed(1);
+		document.getElementById("winRateProgress").style.width = `${userData.winRate}%`;
+		document.getElementById("tourneyWinRate").textContent = userData.tourneyWinRate.toFixed(1);
+		document.getElementById("tourneyProgress").style.width = `${userData.tourneyWinRate}%`;
 		console.log(userData);
 	}
 	catch (error) {
@@ -72,12 +78,6 @@ async function initPage(inputUser) {
 
 	document.getElementById('refresh').addEventListener('click', refresh);
 	document.getElementById('closeInfo').addEventListener('click', closeFriendProfileModal);
-}
-
-// Update win rate
-function updateWinRate(winRate) {
-	document.getElementById("winRate").textContent = winRate.toFixed(1);
-	document.getElementById("winRateProgress").style.width = `${winRate}%`;
 }
 
 // Update friend list
@@ -345,6 +345,11 @@ async function openFriendProfileModal(friend) {
 	const totalMatches = document.getElementById("friendMatchPlayed")
 	const winMatches = document.getElementById("friendMatchWon")
 	const loseMatches = document.getElementById("friendMatchLost")
+	const friendTourneyMatches = document.getElementById("friendTourneyMatches")
+	const friendTourneyMatchesWon = document.getElementById("friendTourneyMatchesWon")
+	const friendTourneyMatchesLost = document.getElementById("friendTourneyMatchesLost")
+	const tourneyWinRate = document.getElementById("friendTourneyWinRate")
+	const friendTourneyProgress = document.getElementById("friendTourneyProgress")
   
 
 	const friendData = await makeRequest('POST', 'api/account/getProfileData/', { username: friend })
@@ -358,6 +363,11 @@ async function openFriendProfileModal(friend) {
 	totalMatches.textContent = friendData.totalMatches
 	winMatches.textContent = friendData.matchesWon
 	loseMatches.textContent = friendData.matchesLost
+	friendTourneyMatches.textContent = friendData.tourneyMatches
+	friendTourneyMatchesLost.textContent = friendData.tourneyMatchesLost
+	friendTourneyMatchesWon.textContent = friendData.tourneyMatchesWon
+	tourneyWinRate.textContent = friendData.tourneyWinRate.toFixed(1)
+	friendTourneyProgress.style.width = `${friendData.tourneyWinRate}%`
   
 	modal.style.display = "block"
   }
