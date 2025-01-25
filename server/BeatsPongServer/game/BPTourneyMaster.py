@@ -30,6 +30,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
 
     onlinePlayers = []
 
+    disconnectedFirstRoom = {}
+
     def __init__(self, *args, **kwargs):
         # game mode
         super().__init__(*args, **kwargs)
@@ -88,6 +90,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 player2Username=player2.get("username"),
                 player1DisplayName=player1.get("displayName"),
                 player2DisplayName=player2.get("displayName"),
+                autoWinPlayer=None
             )
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
             # start first game
@@ -111,6 +114,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 player2Username=player4.get("username"),
                 player1DisplayName=player3.get("displayName"),
                 player2DisplayName=player4.get("displayName"),
+                autoWinPlayer=None
             )
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
             asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["game2_" + str(BPTourneyMaster.activeTourneys)].start_game())
@@ -140,11 +144,19 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         else:
             BPTourneyMaster.queForFinals[roomIndex].append(winnerChannel)
         # Find the game room this player is part of and handle the disconnect
-        if len(BPTourneyMaster.queForFinals.get(roomIndex)) >= 2:
+        if BPTourneyMaster.disconnectedFirstRoom[roomIndex] is not None:
+            print("AUTOWIN", flush=True)
             channelList = BPTourneyMaster.queForFinals.get(roomIndex)
             print("starting finals", flush=True)
             player1 = channelList.pop(0)
             player2 = channelList.pop(0)
+            if disconnectedPlayername in BPTourneyMaster.disconnectedFirstRoom.get(roomIndex):
+                if player1.get("username") == disconnectedPlayername:
+                    autoWinPlayer = player2.get("username")
+                if player2.get("username") == disconnectedPlayername:
+                    autoWinPlayer = player1.get("username")
+            else:
+                autoWinPlayer = None
             player1Profile = await self.run_in_thread(async_query_profile_data, player1.get("username"))
             player2Profile = await self.run_in_thread(async_query_profile_data, player2.get("username"))
             player1DisplayName = player1Profile.displayName
@@ -163,7 +175,43 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 player1Username=player1.get("username"), 
                 player2Username=player2.get("username"),
                 player1DisplayName=player1DisplayName,
-                player2DisplayName=player2DisplayName
+                player2DisplayName=player2DisplayName,
+                autoWinPlayer=autoWinPlayer,
+            )
+            print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
+            asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["finals_" + str(BPTourneyMaster.activeTourneys)].start_game())
+        if len(BPTourneyMaster.queForFinals.get(roomIndex)) >= 2:
+            channelList = BPTourneyMaster.queForFinals.get(roomIndex)
+            print("starting finals", flush=True)
+            player1 = channelList.pop(0)
+            player2 = channelList.pop(0)
+            if disconnectedPlayername in BPTourneyMaster.disconnectedFirstRoom.get(roomIndex):
+                if player1.get("username") == disconnectedPlayername:
+                    autoWinPlayer = player2.get("username")
+                if player2.get("username") == disconnectedPlayername:
+                    autoWinPlayer = player1.get("username")
+            else:
+                autoWinPlayer = None
+            player1Profile = await self.run_in_thread(async_query_profile_data, player1.get("username"))
+            player2Profile = await self.run_in_thread(async_query_profile_data, player2.get("username"))
+            player1DisplayName = player1Profile.displayName
+            player2DisplayName = player2Profile.displayName
+            BPTourneyMaster.queForFinals.pop(roomIndex)
+
+            channelLayer = get_channel_layer()
+            await channelLayer.group_add("finals_" + str(BPTourneyMaster.activeTourneys), player1.get("self"))
+            await channelLayer.group_add("finals_" + str(BPTourneyMaster.activeTourneys), player2.get("self"))
+
+            BPTourneyMaster.channelToRoomNameMap["finals_" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
+                room_name="finals_" + str(BPTourneyMaster.activeTourneys), 
+                player1=player1["self"],
+                player2=player2["self"],
+                channelLayer=channelLayer,
+                player1Username=player1.get("username"), 
+                player2Username=player2.get("username"),
+                player1DisplayName=player1DisplayName,
+                player2DisplayName=player2DisplayName,
+                autoWinPlayer=autoWinPlayer,
             )
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
             asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["finals_" + str(BPTourneyMaster.activeTourneys)].start_game())
@@ -201,6 +249,13 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         # Find the game room this player is part of and handle the disconnect
         for room in BPTourneyMaster.channelToRoomNameMap:
             if self in [BPTourneyMaster.channelToRoomNameMap[room].player1, BPTourneyMaster.channelToRoomNameMap[room].player2]:
+                if self.username == room.player1Username:
+                    room.player1Disconnect = True
+                if self.username == room.player2Username:
+                    room.player2Disconnect = True
+                roomIndex = roomName.split("_", 1)[1]
+                if room.player1Disconnect and room.player2Disconnect:
+                    BPTourneyMaster.disconnectedFirstRoom[roomIndex] = self.username
                 await BPTourneyMaster.channelToRoomNameMap[room].handle_player_disconnect(self)
                 BPTourneyMaster.channelToRoomNameMap.pop(room)
                 break

@@ -33,7 +33,7 @@ class TourneyGame:
     ballSpeed = 0.075
     waitTime = 3
 
-    def __init__(self, room_name, player1, player2, channelLayer, player1Username, player2Username, player1DisplayName, player2DisplayName):
+    def __init__(self, room_name, player1, player2, channelLayer, player1Username, player2Username, player1DisplayName, player2DisplayName, autoWinPlayer):
         if player1Username == player2Username:
             print("Player 1 and Player 2 are the same", flush=True)
             return
@@ -49,6 +49,7 @@ class TourneyGame:
         print(f"Player 1: {self.player1Username} vs Player 2: {self.player2Username}", flush=True)
         self.winner = None
         self.endMessageSent = False
+        self.autoWinPlayer = autoWinPlayer
 
         # identity of the room "I identify as a ......."
         self.room_name = room_name
@@ -60,6 +61,9 @@ class TourneyGame:
 
         self.player1 = player1
         self.player2 = player2
+
+        self.player1Disconnect = False
+        self.player2Disconnect = False
 
         self.before_paddle_hit = True
         self.paddle_active = True
@@ -122,6 +126,10 @@ class TourneyGame:
 
     async def start_game(self):
         self.running = True
+        if self.autoWinPlayer is not None:
+            self.winner = autoWinPlayer
+            await send_game_state()
+            self.run_in_thread(tourney_win, self.autoWinPlayer)
         await self.game_loop()
 
     async def game_loop(self):
