@@ -22,8 +22,8 @@ class PongGame:
     cuboidWidth = 15
     cuboidHeight = 10
     cuboidDepth = 0.25
-    paddleWidth = 0.2 * 1.20 # add 20% to paddle width to prevent ball from passing through visually
-    paddleHeight = 1.5
+    paddleWidth = 0.2 * 1.2
+    paddleHeight = 1.5 * 1.2
     paddleDepth = 0.25
     ballRadius = 0.125
     cameraZ = 10
@@ -153,26 +153,26 @@ class PongGame:
         self.keys['ai_lvl'] = f_keys['ai_lvl']
 
         if self.game_mode == 'AI' and sender_channel == self.channel1_name:
-            if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
+            if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 4):
                 self.leftPaddle['y'] += self.leftPaddleSpeed
-            elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
+            elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 4):
                 self.leftPaddle['y'] -= self.leftPaddleSpeed
         
-            if self.keys['ArrowUp'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
+            if self.keys['ArrowUp'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 4):
                 self.rightPaddle['y'] += PongGame.rightPaddleSpeed
-            elif self.keys['ArrowDown'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
+            elif self.keys['ArrowDown'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 4):
                 self.rightPaddle['y'] -= PongGame.rightPaddleSpeed
 
         elif self.game_mode == 'PvP' and sender_channel == self.channel1_name:
-            if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
+            if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 4):
                 self.leftPaddle['y'] += self.leftPaddleSpeed
-            elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
+            elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 4):
                 self.leftPaddle['y'] -= self.leftPaddleSpeed
 
         elif self.game_mode == 'PvP' and sender_channel == self.channel2_name:
-            if self.keys['w'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
+            if self.keys['w'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 4):
                 self.rightPaddle['y'] += self.rightPaddleSpeed
-            elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
+            elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 4):
                 self.rightPaddle['y'] -= self.rightPaddleSpeed
 
 # Game State Functions Set ------------------------------------------------------------------------------------------------------------
