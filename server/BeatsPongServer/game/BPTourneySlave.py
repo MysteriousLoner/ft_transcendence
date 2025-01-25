@@ -146,7 +146,8 @@ class TourneyGame:
         self.keys['w'] = f_keys['w']
         self.keys['s'] = f_keys['s']
 
-        if self.game_mode == 'AI' and sender_channel == self.channel1_name:
+        if sender_channel == self.channel1_name:
+            # print("message received from channel 1", flush=True)
             if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 4):
                 self.leftPaddle['y'] += self.leftPaddleSpeed
             elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 4):
