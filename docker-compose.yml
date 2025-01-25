@@ -41,7 +41,6 @@ services:
     ports:
       - "5500:5500"
       - "8080:8080"
-      - "443:443"
     volumes:
       - ./client/static/html:/usr/share/nginx/html/
       - ./client/static/css:/usr/share/nginx/html/css/
