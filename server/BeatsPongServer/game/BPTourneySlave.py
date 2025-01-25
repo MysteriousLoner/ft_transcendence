@@ -127,9 +127,13 @@ class TourneyGame:
     async def start_game(self):
         self.running = True
         if self.autoWinPlayer is not None:
-            self.winner = autoWinPlayer
-            await send_game_state()
+            print("autowin not none in slave", flush=True)
+            print("currentRoomName", self.room_name, flush=True)
+            self.winner = self.autoWinPlayer
+            self.running = False
+            await self.send_game_state()
             self.run_in_thread(tourney_win, self.autoWinPlayer)
+            return
         await self.game_loop()
 
     async def game_loop(self):
