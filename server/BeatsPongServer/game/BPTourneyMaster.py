@@ -186,6 +186,10 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         # Remove the player from the appropriate queue
         for player in BPTourneyMaster.que_tourney:
             if isinstance(player, dict) and player['self'] == self:
+                if self.username == player.get("username"):
+                    print("Removing player from online players list", flush=True)
+                    BPTourneyMaster.onlinePlayers = [player for player in BPTourneyMaster.onlinePlayers if player != self.username]
+                    break
                 BPTourneyMaster.que_tourney.remove(player)
         # Find the game room this player is part of and handle the disconnect
         for room in BPTourneyMaster.channelToRoomNameMap:
@@ -198,6 +202,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         
         for key, value in BPTourneyMaster.channelToRoomNameMap.items():
             if self.username in [value.player1Username, value.player2Username] and not room.running:
+                print("Removing player from online players list", flush=True)
                 BPTourneyMaster.onlinePlayers.remove(self.username)
                 break
         

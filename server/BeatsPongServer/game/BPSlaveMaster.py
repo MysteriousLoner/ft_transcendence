@@ -114,6 +114,12 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
     async def disconnect(self, code):
         print(f"Disconnected with code: {code}")
         
+        for player in BPSlaveMaster.que_solo:
+            print("player in que: ", player.get("username"), flush=True)
+            if self.username == player.get("username"):
+                print("Removing player from online players list", flush=True)
+                BPSlaveMaster.onlinePlayers = [player for player in BPSlaveMaster.onlinePlayers if player != self.username]
+                break
         # Remove the player from the appropriate queue
         for queue in [BPSlaveMaster.que_solo, BPSlaveMaster.que_tourney, BPSlaveMaster.que_vanilla]:
             for player in queue:
@@ -131,9 +137,12 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         print("disconnecting plater username: ", self.username, flush=True)
         print("Online Players (disconnect): ", BPSlaveMaster.onlinePlayers, flush=True)
         for room in BPSlaveMaster.rooms:
+            print("room running: ", room.running, flush=True)
             if self.username in [room.player1Username, room.player2Username] and not room.running:
                 print("Removing player from online players list", flush=True)
                 BPSlaveMaster.onlinePlayers = [player for player in BPSlaveMaster.onlinePlayers if player != self.username]
+        
+        print("solo_que contents: ", BPSlaveMaster.que_solo, flush=True)
         print("Online Players (disconnect, after clean): ", BPSlaveMaster.onlinePlayers, flush=True)
 
 
