@@ -37,7 +37,7 @@
 }
 
 .left-info, .right-info {
-	padding-top: 100px;
+	top:50px;
 	position: absolute;
     width: 250px; /* Adjust width as needed */
     padding: 20px;

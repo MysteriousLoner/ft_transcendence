@@ -10,6 +10,7 @@ class GameScreen {
 
         console.log('GameScreen constructor');
         // class specific event listeners
+		document.getElementById('googleTranslate').classList.add('d-none');
         document.getElementById('gameContainer').classList.remove('d-none');
         console.log("Creating Game ...");
         console.log('GameScreen username: ' + this.sceneVars.username);
@@ -27,6 +28,7 @@ class GameScreen {
             this.game.cleanup();
             this.game = null;
         }
+		document.getElementById('googleTranslate').classList.remove('d-none');
         document.getElementById('gameContainer').classList.add('d-none');
     }
 }
