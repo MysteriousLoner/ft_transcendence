@@ -34,6 +34,9 @@ class TourneyGame:
     waitTime = 3
 
     def __init__(self, room_name, player1, player2, channelLayer, player1Username, player2Username, player1DisplayName, player2DisplayName):
+        if player1Username == player2Username:
+            print("Player 1 and Player 2 are the same", flush=True)
+            return
         self.game_mode = "Tourney"
 
         # make usernames local
@@ -45,6 +48,7 @@ class TourneyGame:
         self.winnerDisplayName = None
         print(f"Player 1: {self.player1Username} vs Player 2: {self.player2Username}", flush=True)
         self.winner = None
+        self.endMessageSent = False
 
         # identity of the room "I identify as a ......."
         self.room_name = room_name
@@ -177,7 +181,7 @@ class TourneyGame:
     def checkWinCondition(self):
         if self.winner:
             return False
-        if self.score['left'] == 5: 
+        if self.score['left'] == 2: 
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
             self.winner = self.player1Username
@@ -187,7 +191,7 @@ class TourneyGame:
                 self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
             return True
-        if self.score['right'] == 5:
+        if self.score['right'] == 2:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
             self.running = False
             self.winner = self.player2Username
@@ -393,6 +397,17 @@ class TourneyGame:
             {
                 'type': 'game_message',
                 'message': game_state,
-                'tourneyWinnerChannel': {"self": self.tourneyWinnerChannel, "username": self.winner }
+                'tourneyWinnerChannel': {"self": None }
+
             }
         )
+        if self.winner and not self.endMessageSent:
+            self.endMessageSent = True
+            await self.channelLayer.group_send(
+            self.room_name,
+            {
+                'type': 'game_message',
+                'message': game_state,
+                'tourneyWinnerChannel': {"self": self.tourneyWinnerChannel, "username": self.winner }
+            }
+            )

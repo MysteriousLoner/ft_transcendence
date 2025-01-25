@@ -4,6 +4,9 @@ from urllib.parse import parse_qs
 from .BPTourneySlave import TourneyGame
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
+import time
+from BPDAL.views import async_query_profile_data
+from concurrent.futures import ThreadPoolExecutor
 
 """
 This class handles all game related traffic. Below is a high level abstract of it's workflow
@@ -16,11 +19,13 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
     # Players in que for tournamant
     que_tourney = []
 
-    queForFinals = []
+    queForFinals = {}
 
     activeTourneys = 0
 
     channelToRoomNameMap = {}
+
+    finalistUsernames = []
 
     def __init__(self, *args, **kwargs):
         # game mode
@@ -35,6 +40,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         self.finalGame = None
 
         self.finalistDisplayNameMap = {}
+        self.executor = ThreadPoolExecutor(max_workers=10)  # Initialize ThreadPoolExecutor
 
     # handles a new connection, put them into a que, pop them when enough players to start game
     async def connect(self):
@@ -64,11 +70,11 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             player1 = BPTourneyMaster.que_tourney.pop(0)
             player2 = BPTourneyMaster.que_tourney.pop(0)
             channelLayer1 = get_channel_layer()
-            await channelLayer1.group_add("game1" + str(BPTourneyMaster.activeTourneys), player1.get("self").channel_name)
-            await channelLayer1.group_add("game1" + str(BPTourneyMaster.activeTourneys), player2.get("self").channel_name)
+            await channelLayer1.group_add("game1_" + str(BPTourneyMaster.activeTourneys), player1.get("self").channel_name)
+            await channelLayer1.group_add("game1_" + str(BPTourneyMaster.activeTourneys), player2.get("self").channel_name)
 
-            BPTourneyMaster.channelToRoomNameMap["game1" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
-                room_name="game1" + str(BPTourneyMaster.activeTourneys), 
+            BPTourneyMaster.channelToRoomNameMap["game1_" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
+                room_name="game1_" + str(BPTourneyMaster.activeTourneys), 
                 player1=player1.get("self"),
                 player2=player2.get("self"),
                 channelLayer=channelLayer1,
@@ -80,18 +86,18 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
             # start first game
             
-            asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["game1" + str(BPTourneyMaster.activeTourneys)].start_game())
+            asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["game1_" + str(BPTourneyMaster.activeTourneys)].start_game())
 
             # create channel layer for second game
             player3 = BPTourneyMaster.que_tourney.pop(0)
             player4 = BPTourneyMaster.que_tourney.pop(0)
             channelLayer2 = get_channel_layer()
-            await channelLayer2.group_add("game2" + str(BPTourneyMaster.activeTourneys), player3.get("self").channel_name)
-            await channelLayer2.group_add("game2"+ str(BPTourneyMaster.activeTourneys), player4.get("self").channel_name)
+            await channelLayer2.group_add("game2_" + str(BPTourneyMaster.activeTourneys), player3.get("self").channel_name)
+            await channelLayer2.group_add("game2_"+ str(BPTourneyMaster.activeTourneys), player4.get("self").channel_name)
 
             # start second game
-            BPTourneyMaster.channelToRoomNameMap["game2" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
-                room_name="game2" + str(BPTourneyMaster.activeTourneys), 
+            BPTourneyMaster.channelToRoomNameMap["game2_" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
+                room_name="game2_" + str(BPTourneyMaster.activeTourneys), 
                 player1=player3.get("self"),
                 player2=player4.get("self"),
                 channelLayer=channelLayer2,
@@ -101,7 +107,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 player2DisplayName=player4.get("displayName"),
             )
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
-            asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["game2" + str(BPTourneyMaster.activeTourneys)].start_game())
+            asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["game2_" + str(BPTourneyMaster.activeTourneys)].start_game())
 
     # Function to search for a key in the list of dictionaries
     def find_index_by_key(self, search_key):
@@ -110,34 +116,51 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 return index 
         return -1
 
+    def run_in_thread(self, func, *args): 
+        loop = asyncio.get_event_loop() 
+        return loop.run_in_executor(self.executor, func, *args)
+   
     # called when the game message anounces a winner for the first game. Adds the winner's channel into a que for the final round. If there are 2 players in the que, create a new channel layyer and start the finals
     async def handle_game1_winner(self, winnerChannel, roomName):
-        print("handling finals winnerChannel", winnerChannel, flush=True)
-        index = self.find_index_by_key(roomName)
-        if index == -1:
-            BPTourneyMaster.queForFinals.append({roomName: [winnerChannel], })
+        username = winnerChannel.get("username")
+        if username in BPTourneyMaster.finalistUsernames:
+            print("User already in finals", flush=True)
+            return
+        print("queForFinals", BPTourneyMaster.queForFinals, flush=True)
+        roomIndex = roomName.split("_", 1)[1]
+        que = BPTourneyMaster.queForFinals.get(roomIndex)
+        if not que:
+            BPTourneyMaster.queForFinals[roomIndex] = [winnerChannel]
         else:
-            BPTourneyMaster.queForFinals[index][roomName].append(winnerChannel) 
-        if len(BPTourneyMaster.queForFinals[index][roomName]) >= 2:
+            BPTourneyMaster.queForFinals[roomIndex].append(winnerChannel)
+        # Find the game room this player is part of and handle the disconnect
+        if len(BPTourneyMaster.queForFinals.get(roomIndex)) >= 2:
+            channelList = BPTourneyMaster.queForFinals.get(roomIndex)
             print("starting finals", flush=True)
-            player1 = BPTourneyMaster.queForFinals[index][roomName].pop(0)
-            player2 = BPTourneyMaster.queForFinals[index][roomName].pop(0)
-            channelLayer = get_channel_layer()
-            await channelLayer.group_add("finals" + str(BPTourneyMaster.activeTourneys), player1.get("self"))
-            await channelLayer.group_add("finals" + str(BPTourneyMaster.activeTourneys), player2.get("self"))
+            player1 = channelList.pop(0)
+            player2 = channelList.pop(0)
+            player1Profile = await self.run_in_thread(async_query_profile_data, player1.get("username"))
+            player2Profile = await self.run_in_thread(async_query_profile_data, player2.get("username"))
+            player1DisplayName = player1Profile.displayName
+            player2DisplayName = player2Profile.displayName
+            BPTourneyMaster.queForFinals.pop(roomIndex)
 
-            BPTourneyMaster.channelToRoomNameMap["finals" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
-                room_name="finals" + str(BPTourneyMaster.activeTourneys), 
+            channelLayer = get_channel_layer()
+            await channelLayer.group_add("finals_" + str(BPTourneyMaster.activeTourneys), player1.get("self"))
+            await channelLayer.group_add("finals_" + str(BPTourneyMaster.activeTourneys), player2.get("self"))
+
+            BPTourneyMaster.channelToRoomNameMap["finals_" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
+                room_name="finals_" + str(BPTourneyMaster.activeTourneys), 
                 player1=player1["self"],
                 player2=player2["self"],
                 channelLayer=channelLayer,
                 player1Username=player1.get("username"), 
                 player2Username=player2.get("username"),
-                player1DisplayName=self.finalistDisplayNameMap.get(player1.get("username")),
-                player2DisplayName=self.finalistDisplayNameMap.get(player2.get("username")),
+                player1DisplayName=player1DisplayName,
+                player2DisplayName=player2DisplayName
             )
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
-            asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["finals" + str(BPTourneyMaster.activeTourneys)].start_game())
+            asyncio.create_task(BPTourneyMaster.channelToRoomNameMap["finals_" + str(BPTourneyMaster.activeTourneys)].start_game())
 
 
     async def receive_json(self, content):
@@ -147,7 +170,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         
         roomName = content.get("roomName")
         targetRoom = BPTourneyMaster.channelToRoomNameMap.get(roomName)
-        await targetRoom.receive_json(content, self)
+        if targetRoom:
+            await targetRoom.receive_json(content, self)
 
     # remove players from que when they disconnect
     async def disconnect(self, code):
@@ -161,6 +185,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         for room in BPTourneyMaster.channelToRoomNameMap:
             if self in [BPTourneyMaster.channelToRoomNameMap[room].player1, BPTourneyMaster.channelToRoomNameMap[room].player2]:
                 await BPTourneyMaster.channelToRoomNameMap[room].handle_player_disconnect(self)
+                BPTourneyMaster.channelToRoomNameMap.pop(room)
                 break
             if "finals" in room:
                 BPTourneyMaster.activeTourneys -= 1
@@ -175,12 +200,15 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         winnerChannel = event['tourneyWinnerChannel']
         if winnerChannel.get("username"):
             if "final" in message.get("roomName"):
+                BPTourneyMaster.finalistUsernames = [username for username in BPTourneyMaster.finalistUsernames if username != message.get("player1")]
+                BPTourneyMaster.finalistUsernames = [username for username in BPTourneyMaster.finalistUsernames if username != message.get("player2")]
                 BPTourneyMaster.activeTourneys -= 1
                 await self.send_json(message)
                 return
             print("winnerChannel", winnerChannel, flush=True)
             self.finalistDisplayNameMap[winnerChannel.get("username")] = message.get("winnerDisplayName")
             await self.handle_game1_winner(winnerChannel, roomName=message.get("roomName"))
+            BPTourneyMaster.finalistUsernames.append(winnerChannel.get("username"))
         try:
             await self.send_json(message)
         except Exception as e:
