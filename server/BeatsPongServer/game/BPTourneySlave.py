@@ -23,8 +23,8 @@ class TourneyGame:
     cuboidWidth = 15
     cuboidHeight = 10
     cuboidDepth = 0.25
-    paddleWidth = 0.2
-    paddleHeight = 1.5
+    paddleWidth = 0.2 * 1.2
+    paddleHeight = 1.5 * 1.2
     paddleDepth = 0.25
     ballRadius = 0.125
     cameraZ = 10
@@ -61,6 +61,9 @@ class TourneyGame:
         self.player1 = player1
         self.player2 = player2
 
+        self.before_paddle_hit = True
+        self.paddle_active = True
+
         # identifies the name of the websocket sending message
         if ("final" in room_name):
             self.channel1_name = player1
@@ -94,8 +97,8 @@ class TourneyGame:
         }
         self.ball = {
             'radius': TourneyGame.ballRadius,
-            'speedX': random.choice([-TourneyGame.ballSpeed, TourneyGame.ballSpeed]),
-            'speedY': random.choice([-TourneyGame.ballSpeed, TourneyGame.ballSpeed]),
+            'speedX': random.choice([-TourneyGame.ballSpeed * 0.5, TourneyGame.ballSpeed * 0.5]),
+            'speedY': random.choice([-TourneyGame.ballSpeed * 0.5, TourneyGame.ballSpeed * 0.5]),
             'x': 0,
             'y': 0,
             'z': 0
@@ -128,8 +131,11 @@ class TourneyGame:
             self.update_game_state()
             await self.send_game_state()
             elapsed_time = asyncio.get_event_loop().time() - start_time
-            sleep_time = target_interval - elapsed_time
+            sleep_time = max(0, target_interval - elapsed_time)
             await asyncio.sleep(sleep_time)
+
+        # Ensure game stops running
+        self.running = False
 
     async def receive_json(self, content, socket):
         # print("content received", content, flush=True)
@@ -142,16 +148,16 @@ class TourneyGame:
 
         if sender_channel == self.channel1_name:
             # print("message received from channel 1", flush=True)
-            if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 2):
+            if self.keys['w'] and self.leftPaddle['y'] < (self.cuboid['height'] / 2 - self.leftPaddle['height'] / 4):
                 self.leftPaddle['y'] += self.leftPaddleSpeed
-            elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 2):
+            elif self.keys['s'] and self.leftPaddle['y'] > (-self.cuboid['height'] / 2 + self.leftPaddle['height'] / 4):
                 self.leftPaddle['y'] -= self.leftPaddleSpeed
 
         elif sender_channel == self.channel2_name:
             # print("message received from channel 2", flush=True)
-            if self.keys['w'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 2):
+            if self.keys['w'] and self.rightPaddle['y'] < (self.cuboid['height'] / 2 - self.rightPaddle['height'] / 4):
                 self.rightPaddle['y'] += self.rightPaddleSpeed
-            elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 2):
+            elif self.keys['s'] and self.rightPaddle['y'] > (-self.cuboid['height'] / 2 + self.rightPaddle['height'] / 4):
                 self.rightPaddle['y'] -= self.rightPaddleSpeed
 
 # Game State Functions Set ------------------------------------------------------------------------------------------------------------
@@ -173,7 +179,7 @@ class TourneyGame:
             self.ball['x'] += step_size_x
             self.ball['y'] += step_size_y
 
-            if self.wall_collision() or self.paddle_collision():
+            if self.paddle_collision() or self.wall_collision():
                 break
     
     # left side channel is self.channel1_name
@@ -215,31 +221,42 @@ class TourneyGame:
     def wall_collision(self):
         # Ball collision with cuboid top edges
         if self.ball['y'] + self.ball['radius'] > self.cuboid['height'] / 2 or self.ball['y'] - self.ball["radius"] < -self.cuboid['height'] / 2:
-            self.ball['speedY'] = -self.ball['speedY']
+            self.ball['speedY'] *= -1
             return True
-        # Ball collision with cuboid side edges
-        elif self.ball['x'] + self.ball['radius'] > self.cuboid['width'] / 2:
+        
+        # Ball passes the paddle without collision
+        elif self.ball['x'] + self.ball['radius'] > self.cuboid['width'] / 2 * 1.5:
             self.score['left'] += 1
             if not self.checkWinCondition():
                 self.reset_game()
             return True
-        elif self.ball['x'] - self.ball['radius'] < -self.cuboid['width'] / 2:
+        elif self.ball['x'] - self.ball['radius'] < -self.cuboid['width'] / 2 * 1.5:
             self.score['right'] += 1
             if not self.checkWinCondition():
                 self.reset_game()
+            return True
+
+        # Let the ball pass the paddle until it reaches the end of the cuboid
+        elif self.ball['x'] + self.ball['radius'] > self.rightPaddle['x'] - self.rightPaddle['width'] / 2:
+            self.paddle_active = False
+            return True
+        elif self.ball['x'] - self.ball['radius'] < self.leftPaddle['x'] + self.leftPaddle['width'] / 2:
+            self.paddle_active = False
             return True
         return False
 
 
     def paddle_collision(self):
         # Ball collision with paddles
-        if self.ball['x'] - self.ball['radius'] < self.leftPaddle['x'] + self.leftPaddle['width'] / 2 and \
-                self.leftPaddle['y'] - (self.leftPaddle['height'] / 2) < self.ball['y'] < self.leftPaddle['y'] + (self.leftPaddle['height'] / 2):
+        if self.paddle_active and self.ball['x'] - self.ball['radius'] < self.leftPaddle['x'] + self.leftPaddle['width'] / 2 and \
+        self.leftPaddle['y'] - self.leftPaddle['height'] / 2 < self.ball['y'] + self.ball['radius'] and \
+        self.ball['y'] - self.ball['radius'] < self.leftPaddle['y'] + self.leftPaddle['height'] / 2:
             self.ball_impact_physics()
             return True
 
-        elif self.ball['x'] + self.ball["radius"] > self.rightPaddle['x'] - self.rightPaddle['width'] / 2 and \
-                self.rightPaddle['y'] - (self.rightPaddle['height'] / 2) < self.ball['y'] < self.rightPaddle['y'] + (self.rightPaddle['height'] / 2):
+        elif self.paddle_active and self.ball['x'] + self.ball["radius"] > self.rightPaddle['x'] - self.rightPaddle['width'] / 2 and \
+            self.rightPaddle['y'] - self.rightPaddle['height'] / 2 < self.ball['y'] + self.ball['radius'] and \
+            self.ball['y'] - self.ball['radius'] < self.rightPaddle['y'] + self.rightPaddle['height'] / 2:
             self.ball_impact_physics()
             return True
         return False
@@ -253,6 +270,13 @@ class TourneyGame:
         else:
             paddle_movement = 'none'
 
+        self.ball['speedX'] *= -1
+
+        if self.before_paddle_hit is True:
+            self.ball['speedX'] /= 0.5
+            self.ball['speedY'] /= 0.5
+            self.before_paddle_hit = False
+
         # If padddle is moving in the direction of the ball, decrease vertical, increase horizontal speed of the ball.
         if (paddle_movement == 'up' and self.ball['speedY'] > 0) or (paddle_movement == 'down' and self.ball['speedY'] < 0):
             self.adjust_ball_speed(-0.005, 'y')
@@ -263,7 +287,6 @@ class TourneyGame:
             self.adjust_ball_speed(0.005, 'y')
             self.adjust_ball_speed(-0.005, 'x')
 
-        self.ball['speedX'] = -self.ball['speedX']
 
     def adjust_ball_speed(self, change, vector):
         if vector == 'x':
@@ -355,10 +378,12 @@ class TourneyGame:
         await self.send_game_state()
 
     def reset_game(self):
+        self.before_paddle_hit = True
+        self.paddle_active = True
         self.ball['x'] = 0
         self.ball['y'] = 0
-        self.ball['speedX'] = random.choice([-TourneyGame.ballSpeed, TourneyGame.ballSpeed])
-        self.ball['speedY'] = random.choice([-TourneyGame.ballSpeed, TourneyGame.ballSpeed])
+        self.ball['speedX'] = random.choice([-TourneyGame.ballSpeed * 0.5, TourneyGame.ballSpeed * 0.5])
+        self.ball['speedY'] = random.choice([-TourneyGame.ballSpeed * 0.5, TourneyGame.ballSpeed * 0.5])
         self.leftPaddle['y'] = 0
         self.rightPaddle['y'] = 0
 

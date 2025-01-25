@@ -11,6 +11,7 @@ class Game {
         this.initEventListeners();
         this.snowfallActive = false;
         this.snowfallFunctions = null;
+        this.hideCollisionParticles = false;
         this.paused = false;
         this.sceneRouterCallback = sceneRouterCallback;
         this.screenRouterCallback = screenRouterCallback;
@@ -214,8 +215,8 @@ class Game {
         const paddleMaterial = new THREE.MeshBasicMaterial({ color: paddleColor });
         this.leftPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
         this.rightPaddle = new THREE.Mesh(paddleGeometry, paddleMaterial);
-        this.leftPaddle.position.set(-this.cuboidWidth / 2, 0, 0);
-        this.rightPaddle.position.set(this.cuboidWidth / 2, 0, 0);
+        this.leftPaddle.position.set((-this.cuboidWidth / 2) - (this.paddleWidth/2), 0, 0);
+        this.rightPaddle.position.set((this.cuboidWidth / 2) + (this.paddleWidth/2), 0, 0);
         this.group.add(this.leftPaddle);
         this.group.add(this.rightPaddle);
 
@@ -364,13 +365,21 @@ class Game {
     updateGameObjects(gameState) {
         console.log("Game state received:", gameState);
         const gameStateString = JSON.stringify(gameState);
+        let leftPaddleX, rightPaddleX;
+        // console.log(gameStateString);
+        // console.log(gameState.running);
+        // tournament mode, not the winner, return to menu
         
         [this.cuboidWidth, this.cuboidHeight, this.cuboidDepth] = gameState.cuboid.split(',').map(Number);
         [this.ballRadius, this.ball.position.x, this.ball.position.y, this.ball.position.z] = gameState.ball.split(',').map(Number);
-        
         [this.paddleWidth, this.paddleHeight, this.paddleDepth] = gameState.paddle_dimensions.split(',').map(Number);
-        [this.leftPaddle.position.x, this.leftPaddle.position.y, this.leftPaddle.position.z] = gameState.leftPaddle.split(',').map(Number);
-        [this.rightPaddle.position.x, this.rightPaddle.position.y, this.rightPaddle.position.z] = gameState.rightPaddle.split(',').map(Number);
+
+        // Offset paddles by half their width to avoid missing collisions
+        [leftPaddleX, this.leftPaddle.position.y, this.leftPaddle.position.z] = gameState.leftPaddle.split(',').map(Number);
+        [rightPaddleX, this.rightPaddle.position.y, this.rightPaddle.position.z] = gameState.rightPaddle.split(',').map(Number);
+        this.leftPaddle.position.x = leftPaddleX - this.paddleWidth/2;
+        this.rightPaddle.position.x = rightPaddleX + this.paddleWidth/2;
+
         [this.scoreLeft, this.scoreRight] = gameState.score.split(',').map(Number);
         [this.ballSpeedX, this.ballSpeedY] = gameState.ballSpeed.split(',').map(Number);
         if (gameState.game_mode == "AI") {
@@ -513,23 +522,28 @@ class Game {
     }
 
     checkBallPaddleCollision() {
-        if (this.ball.position.x - this.ballRadius <= this.leftPaddle.position.x + this.paddleWidth/2*1.2 &&
+        if (this.ball.position.x - this.ballRadius <= (this.leftPaddle.position.x + this.paddleWidth/2) + this.paddleWidth/2*1.2 &&
             this.ball.position.y - this.ballRadius <= this.leftPaddle.position.y + this.paddleHeight/2 &&
             this.ball.position.y + this.ballRadius >= this.leftPaddle.position.y - this.paddleHeight/2 &&
             this.ball.position.x - this.ballRadius >= -this.cuboidWidth/2) {
             console.log('Collision with left paddle');
             return 'left';
         }
-        else if (this.ball.position.x + this.ballRadius >= this.rightPaddle.position.x - this.paddleWidth/2*1.2 &&
+        else if (this.ball.position.x + this.ballRadius >= (this.rightPaddle.position.x - this.paddleWidth/2) - this.paddleWidth/2*1.2 &&
             this.ball.position.y - this.ballRadius <= this.rightPaddle.position.y + this.paddleHeight/2 &&
             this.ball.position.y + this.ballRadius >= this.rightPaddle.position.y - this.paddleHeight/2 &&
             this.ball.position.x + this.ballRadius <= this.cuboidWidth/2) {
             console.log('Collision with right paddle');
             return 'right';
         }
-        else if (this.ball.position.y + this.ballRadius >= this.cuboidHeight/2)
+        else if (this.ball.position.y + this.ballRadius >= this.cuboidHeight/2 &&
+            this.ball.position.x - this.ballRadius <= this.cuboidWidth/2 &&
+            this.ball.position.x + this.ballRadius >= -this.cuboidWidth/2)
             return 'top';
-        else if (this.ball.position.y - this.ballRadius <= -this.cuboidHeight/2)
+        else if (this.ball.position.y - this.ballRadius <= -this.cuboidHeight/2 &&
+            this.ball.position.x - this.ballRadius <= this.cuboidWidth/2 &&
+            this.ball.position.x + this.ballRadius >= -this.cuboidWidth/2
+        )
             return 'bottom';
         else {
             return 'none';
@@ -628,7 +642,7 @@ class Game {
 
     visualToogle() {
         let ballCollision = this.checkBallPaddleCollision();
-        if (ballCollision != 'none' && this.keys['Collision_Particles'])
+        if (ballCollision != 'none' && this.keys['Collision_Particles'] && !this.hideCollisionParticles)
             this.createExplosion(this.ball.position.x, this.ball.position.y, this.ball.position.z, ballCollision);
     
         if (this.keys['Ball_Predict_Point'])
@@ -643,25 +657,33 @@ class Game {
     }
 
     hideBall() {
-        // Hide ball when ball is inside paddle
-        if (this.ball.position.x - this.ballRadius <= this.leftPaddle.position.x + this.paddleWidth/2 &&
+        // Hide ball and collision particles when ball is inside paddle
+        if (this.ball.position.x - this.ballRadius <= (this.leftPaddle.position.x + this.paddleWidth/2) + this.paddleWidth/2 &&
             this.ball.position.y - this.ballRadius <= this.leftPaddle.position.y + this.paddleHeight/2 &&
             this.ball.position.y + this.ballRadius >= this.leftPaddle.position.y - this.paddleHeight/2 &&
             this.ball.position.x - this.ballRadius >= -this.cuboidWidth/2) {
             this.ball.visible = false;
+            this.hideCollisionParticles = true;
         }
-        else if (this.ball.position.x + this.ballRadius >= this.rightPaddle.position.x - this.paddleWidth/2 &&
+        else if (this.ball.position.x + this.ballRadius >= (this.rightPaddle.position.x - this.paddleWidth/2) - this.paddleWidth/2 &&
             this.ball.position.y - this.ballRadius <= this.rightPaddle.position.y + this.paddleHeight/2 &&
             this.ball.position.y + this.ballRadius >= this.rightPaddle.position.y - this.paddleHeight/2 &&
             this.ball.position.x + this.ballRadius <= this.cuboidWidth/2) {
             this.ball.visible = false;
+            this.hideCollisionParticles = true;
         }
-        else if (this.ball.position.y + this.ballRadius >= this.cuboidHeight/2)
+        else if (this.ball.position.y + this.ballRadius >= this.cuboidHeight/2){
             this.ball.visible = false;
-        else if (this.ball.position.y - this.ballRadius <= -this.cuboidHeight/2)
+            this.hideCollisionParticles;
+        }
+        else if (this.ball.position.y - this.ballRadius <= -this.cuboidHeight/2){
             this.ball.visible = false;
-        else
+            this.hideCollisionParticles = true;
+        }
+        else {
             this.ball.visible = true;
+            this.hideCollisionParticles = false;
+        }
     }
 
     animate() {
