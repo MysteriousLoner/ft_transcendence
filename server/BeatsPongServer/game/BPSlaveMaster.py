@@ -3,7 +3,7 @@ import sys
 from urllib.parse import parse_qs
 from .BPSlave import PongGame
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-
+from channels.exceptions import DenyConnection
 """
 This class handles all game related traffic. Below is a high level abstract of it's workflow
 1. accept traffic and insert it into a que
@@ -25,6 +25,8 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
     # Vanilla players
     que_vanilla = []
 
+    onlinePlayers = []
+
     # instance level variables-------------------------------------------------------------------------
     def __init__(self, *args, **kwargs):
         # game mode
@@ -37,13 +39,18 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
     # handles a new connection, put them into a que, pop them when enough players to start game
     async def connect(self):
         print("connecting")
+        print("Online Players: ", BPSlaveMaster.onlinePlayers, flush=True)
         print(self.channel_name, flush=True)
-        await self.accept()
-        # parse url parameter to determine which game mode the user is queing for.
         query_string = self.scope['query_string'].decode()
         query_params = parse_qs(query_string)
-        self.game_mode = query_params.get('gameMode', [None])[0]
         self.username = query_params.get('username', [None])[0]
+        if self.username in BPSlaveMaster.onlinePlayers:
+            raise DenyConnection("Username already online") 
+        BPSlaveMaster.onlinePlayers.append(self.username)
+        print("Online Players: ", BPSlaveMaster.onlinePlayers, flush=True)
+        await self.accept()
+        # parse url parameter to determine which game mode the user is queing for.
+        self.game_mode = query_params.get('gameMode', [None])[0]
         self.displayName = query_params.get('displayName', [None])[0]
         
         if self.game_mode == 'solo':
@@ -119,6 +126,15 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
                 # Notify the game about the disconnection
                 await game.handle_player_disconnect(self)
                 break
+        
+        # Remove the player from the list of online players
+        print("disconnecting plater username: ", self.username, flush=True)
+        print("Online Players (disconnect): ", BPSlaveMaster.onlinePlayers, flush=True)
+        for room in BPSlaveMaster.rooms:
+            if self.username in [room.player1Username, room.player2Username] and not room.running:
+                print("Removing player from online players list", flush=True)
+                BPSlaveMaster.onlinePlayers = [player for player in BPSlaveMaster.onlinePlayers if player != self.username]
+        print("Online Players (disconnect, after clean): ", BPSlaveMaster.onlinePlayers, flush=True)
 
 
     # room management functions--------------------------------------------------------------------------
