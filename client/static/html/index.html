@@ -67,7 +67,6 @@
 		<div id="loginScreen"
 			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
 			<div class="container d-flex flex-column justify-content-center align-items-center vh-80 margin-top">
-				<!-- <h1>LOGIN</h1> -->
 				<i class="fas fa-table-tennis"></i>
 				<br><br>
 				<form id="loginForm">
@@ -126,20 +125,6 @@
 				</div>
 			</div>
 		</div>
-
-
-		<!-- Profile Page -->
-		<!-- <div id="menuScreen"
-			class="container d-none flex-column flex-row justify-content-center align-items-center vh-100">
-			<div class="box top-left">Top Left</div>
-			<div class="box top-right">Top Right</div>
-			<div class="box bottom-left">Bottom Left
-				<div class="button-container">
-					<button class="btn btn-custom mx-3" id="startGameButton-vp">Vanila Pong</button>
-				</div>
-			</div>
-			<div class="box bottom-right">Bottom</div>
-		</div> -->
 
 		<!-- real profile page -->
 		<div class='Menu d-none' id="menuScreen">
@@ -314,10 +299,10 @@
 
 		<!-- Game Container -->
 		<div id="gameContainer" class="container d-none">
-			<div class="feature-buttons">
+			<!-- <div class="feature-buttons">
 				<button id="Collision_Particles">Enable Collision Particles</button>
 				<button id="Snowfall">Enable Snowfall</button>
-			</div>
+			</div> -->
 			<div class="scoreboard notranslate" id="score"></div>
 			<div class="info">
 				Rotation(x,y,z): <div id="position"></div>
@@ -329,8 +314,36 @@
 				Ball Speed(x,y): <div id="ballSpeed"></div>
 			</div>
 			<div class="gamemode notranslate" id="gameMode"></div>
-			<div class="leftplayer" id="leftPlayerName"></div>
-			<div class="rightplayer" id="rightPlayerName"></div>
+			<!-- <div class="leftplayer" id="leftPlayerName"></div>
+			<div class="rightplayer" id="rightPlayerName"></div> -->
+			<div class="left-info CN-font">
+				<h3>Controls</h3>
+				<p>Paddle Movement</p>
+				<p>Up: W</p>
+				<p>Down: S</p>
+				<p>Rotation (z-axis)</p>
+				<p>Clockwise: O</p>
+				<p>Anti-clockwise: U</p>
+				<p>Tilt (x-axis)</p>
+				<p>Up: I</p>
+				<p>Down: K</p>
+				<p>Tilt (y-axis)</p>
+				<p>Left: J</p>
+				<p>Right: L</p>
+				<p>Zoom</p>
+				<p>In: =</p>
+				<p>Out: -</p>
+				<p>Reset all: R</p>
+			</div>
+			<div class="right-info CN-font">
+				<h3>Game Info</h3>
+				<p>Player Left: <span class="notranslate" id="leftPlayerName"></span></p>
+				<p>Player Right: <span class="notranslate" id="rightPlayerName"></span></p>
+			</div>
+			<div class="feature-buttons">
+				<button id="Collision_Particles">Enable Collision Particles</button>
+				<button id="Snowfall">Enable Snowfall</button>
+			</div>
 		</div>
 
 		<!-- Game Over Screen -->

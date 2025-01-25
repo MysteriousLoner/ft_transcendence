@@ -31,7 +31,7 @@ class PongGame:
     rightPaddleSpeed = 0.1
     ballSpeed = 0.075
     waitTime = 3
-    winScore = 2
+    winScore = 20
 
     def __init__(self, room_name, player1, player2, player1Username, player2Username, player1DisplayName, player2DisplayName):
         print("Game object created", flush=True)
