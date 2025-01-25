@@ -5,6 +5,7 @@ from .BPTourneySlave import TourneyGame
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
 import time
+from channels.exceptions import DenyConnection
 from BPDAL.views import async_query_profile_data
 from concurrent.futures import ThreadPoolExecutor
 
@@ -27,6 +28,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
 
     finalistUsernames = []
 
+    onlinePlayers = []
+
     def __init__(self, *args, **kwargs):
         # game mode
         super().__init__(*args, **kwargs)
@@ -46,11 +49,14 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
     async def connect(self):
         print("connecting")
         print(self.channel_name, flush=True)
-        await self.accept()
-        # parse url parameter to determine which game mode the user is queing for.
         query_string = self.scope['query_string'].decode()
         query_params = parse_qs(query_string)
         self.username = query_params.get('username', [None])[0]
+        if self.username in BPTourneyMaster.onlinePlayers:
+            raise DenyConnection("Username already online") 
+        BPTourneyMaster.onlinePlayers.append(self.username)
+        await self.accept()
+        # parse url parameter to determine which game mode the user is queing for.
         self.displayName = query_params.get('displayName', [None])[0]
         
         BPTourneyMaster.que_tourney.append(
@@ -189,6 +195,12 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 break
             if "finals" in room:
                 BPTourneyMaster.activeTourneys -= 1
+        
+        for key, value in BPTourneyMaster.channelToRoomNameMap.items():
+            if self.username in [value.player1Username, value.player2Username] and not room.running:
+                BPTourneyMaster.onlinePlayers.remove(self.username)
+                break
+        
         print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
         print("Que: ", BPTourneyMaster.que_tourney, flush=True)
         print("Room length: ", len(BPTourneyMaster.channelToRoomNameMap), flush=True)

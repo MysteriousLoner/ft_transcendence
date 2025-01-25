@@ -27,17 +27,20 @@ class Game {
 
         this.ws_url = null
         
-        if (game_mode == 'vanilla')
-            this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
-        else if (game_mode == 'solo') {
-            this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
+        try {
+            if (game_mode == 'vanilla')
+                this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
+            else if (game_mode == 'solo') {
+                this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
+            }
+            else if (game_mode == 'tourney') {
+                this.ws_url = `wss://localhost:8001/ws/game/tourney?username=${this.username}&displayName=${this.displayName}`;
+            }
+        } catch (error) {
+            console.error('Error creating WebSocket URL:', error);
+            this.sceneRouterCallback('menuScene');
         }
-        else if (game_mode == 'tourney') {
-            this.ws_url = `wss://localhost:8001/ws/game/tourney?username=${this.username}&displayName=${this.displayName}`;
-        }
-        // else if (game_mode == 'demo') {
-        //     this.ws_url = 'ws://localhost:8000/ws/game/pong?gameMode=demo&username=${username}';
-        // }
+
         
         this.DOMloaded = true; // Set to true if DOMContentLoaded event is fired before starting
 
@@ -305,7 +308,18 @@ class Game {
     }
 
     connectWebSocket() {
-        this.socket = new WebSocket(this.ws_url);
+        if (!this.ws_url) {
+            console.error('WebSocket already connected');
+            return;
+        }
+        
+        try {
+            this.socket = new WebSocket(this.ws_url);
+        } catch (error) {
+            console.error('Error creating WebSocket:', error);
+            this.sceneRouterCallback('menuScene');
+        }
+
     
         this.socket.onopen = function () {
             console.log('WebSocket connection established');
@@ -316,21 +330,29 @@ class Game {
     
             this.socket.onmessage = function (event) {
                 if (this.info.message_received == false) {
-                    this.showGameContainer();
+                    const gameState = JSON.parse(event.data);
+                    if (gameState.running == true)
+                        this.showGameContainer();
                     this.info.message_received = true;
                 } // Hide loading screen and show game container when first message is received
-    
+                
                 const gameState = JSON.parse(event.data);
                 this.updateGameObjects(gameState);
             }.bind(this);
-    
+            this.socket.onerror = function (error) {
+                console.log('WebSocket error:', error);
+                this.sceneRouterCallback('menuScene');
+            }.bind(this);
+            
             this.socket.onclose = function (event) {
                 console.error('WebSocket closed:', event);
             }.bind(this);
+            
         }.bind(this);
     
         this.socket.onerror = function (error) {
-            console.error('WebSocket error:', error);
+            console.log('WebSocket error:', error);
+            this.sceneRouterCallback('menuScene');
         }.bind(this);
     }
     
@@ -418,7 +440,7 @@ class Game {
     sendMessage() {
         if (this.socket.readyState == this.socket.OPEN)
             this.socket.send(JSON.stringify({ 'keys': this.keys, 'paused': this.paused, 'roomName': this.roomName}));
-        console.log('roomName:', this.roomName);
+        // console.log('roomName:', this.roomName);
     }
 
     rotateBoard() {
