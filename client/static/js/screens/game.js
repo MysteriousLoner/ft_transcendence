@@ -92,10 +92,19 @@ class Game {
     
     cleanup() {
         this.disconnectWebSocket();
-        console.log('Cleaning up game');
-        // Remove the renderer's DOM element
-        document.body.removeChild(this.renderer.domElement);
 
+        // Remove loading screen when cleaning up game (if it is still visible)
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (!loadingScreen.classList.contains('d-none')) {
+            loadingScreen.classList.add('d-none');
+        }
+                console.log('Cleaning up game');
+
+        // Remove the renderer's DOM element
+        if (document.body.contains(this.renderer.domElement)) {
+            document.body.removeChild(this.renderer.domElement);
+        }
+        
         // Dispose of geometries, materials, and textures
         const disposeObject = (obj) => {
             if (obj.geometry) obj.geometry.dispose();
@@ -425,7 +434,7 @@ class Game {
     }
 
     sendMessage() {
-        if (this.socket.readyState == this.socket.OPEN)
+        if (this.socket && this.socket.readyState === this.socket.OPEN)
             this.socket.send(JSON.stringify({ 'keys': this.keys, 'paused': this.paused, 'roomName': this.roomName}));
         console.log('roomName:', this.roomName);
     }
