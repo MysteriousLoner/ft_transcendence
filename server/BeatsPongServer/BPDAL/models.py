@@ -21,6 +21,10 @@ class ProfileData(models.Model):
     matchesPlayed = models.IntegerField(default=0)
     matchesWon = models.IntegerField(default=0)
     matchesLost = models.IntegerField(default=0)
+    TourneyMatchesPlayed = models.IntegerField(default=0)
+    TourneyMatchesWon = models.IntegerField(default=0)
+    TourneyMatchesLost = models.IntegerField(default=0)
+    TourneyWinRate = models.FloatField(default=100)
     
     def save(self, *args, **kwargs): 
         self.displayName = self.displayName or self.username 

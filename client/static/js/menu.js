@@ -41,6 +41,7 @@ async function initPage(inputUser) {
 		document.getElementById("loseMatch").textContent = userData.matchesLost;
 		document.getElementById("winMatch").textContent = userData.matchesWon;
 		updateWinRate(userData.winRate);
+		console.log(userData);
 	}
 	catch (error) {
 		console.error('Error:', error);

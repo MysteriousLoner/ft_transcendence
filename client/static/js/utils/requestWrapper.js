@@ -9,7 +9,7 @@
  */
 let isRequestInProgress = false;
 // const verbose = true;  //changed it to true
-const verbose = false;
+const verbose = true;
 
 async function makeRequest(method, url, jsonMessage) {
     if (verbose) { console.log('Making request'); }

@@ -2,7 +2,7 @@ import asyncio, random
 from channels.layers import get_channel_layer
 from BPDAL.views import update_match_data
 from concurrent.futures import ThreadPoolExecutor
-from BPDAL.views import async_query_profile_data
+from BPDAL.views import async_query_profile_data, tourney_lose, tourney_win
 import threading
 
 
@@ -187,7 +187,7 @@ class TourneyGame:
     def checkWinCondition(self):
         if self.winner:
             return False
-        if self.score['left'] == 2: 
+        if self.score['left'] == 2 or self.winner == self.player1Username: 
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
             self.winner = self.player1Username
@@ -195,9 +195,12 @@ class TourneyGame:
             self.tourneyWinnerChannel = self.channel1_name
             if not self.game_mode == 'AI' and not self.dbUpdated:
                 self.dbUpdated = True
-                self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
+                # self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
+                if "final" in self.room_name:
+                    self.run_in_thread(tourney_win, self.player1Username)
+                self.run_in_thread(tourney_lose, self.player2Username)
             return True
-        if self.score['right'] == 2:
+        if self.score['right'] == 2 or self.winner == self.player2Username:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
             self.running = False
             self.winner = self.player2Username
@@ -205,7 +208,10 @@ class TourneyGame:
             self.tourneyWinnerChannel = self.channel2_name
             if not self.game_mode == 'AI' and not self.dbUpdated:
                 self.dbUpdated = True
-                self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
+                if "final" in self.room_name:
+                    self.run_in_thread(tourney_win, self.player2Username)
+                self.run_in_thread(tourney_lose, self.player1Username)
+                # self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
             return True
         # print("no one wins", flush=True)
         return False
@@ -365,6 +371,7 @@ class TourneyGame:
             print(f"Player 1: {self.player1Username} disconnected", flush=True)
             self.running = False
             self.winner = self.player2Username
+            self.tourneyWinnerChannel = self.channel2_name
             if not self.game_mode == 'AI' and not self.dbUpdated:
                 self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
@@ -372,6 +379,7 @@ class TourneyGame:
             print(f"Player 2: {self.player2Username} disconnected", flush=True)
             self.running = False
             self.winner = self.player1Username
+            self.tourneyWinnerChannel = self.channel1_name
             if not self.game_mode == 'AI' and not self.dbUpdated:
                 self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
@@ -436,3 +444,4 @@ class TourneyGame:
                 'tourneyWinnerChannel': {"self": self.tourneyWinnerChannel, "username": self.winner }
             }
             )
+            self.endMessageSent = True
