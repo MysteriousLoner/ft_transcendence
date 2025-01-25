@@ -160,15 +160,16 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             await channelLayer.group_add("finals_" + str(BPTourneyMaster.activeTourneys), player1.get("self"))
             await channelLayer.group_add("finals_" + str(BPTourneyMaster.activeTourneys), player2.get("self"))
             
-            # check if a player disconnected and make the connected one autowin
-            if player1.get("username") in BPTourneyMaster.disconnectedPlayers:
-                print("player1 disconnected from first game", flush=True)
-                autowinPlayer = player2.get("username")
-                BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player1.get("username")]
-            elif player2.get("username") in BPTourneyMaster.disconnectedPlayers:
-                print("player2 disconnected from first game", flush=True)
-                autowinPlayer = player1.get("username")
-                BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player2.get("username")]
+            if not "finals_" in roomName:
+                # check if a player disconnected and make the connected one autowin
+                if player1.get("username") in BPTourneyMaster.disconnectedPlayers:
+                    print("player1 disconnected from first game", flush=True)
+                    autowinPlayer = player2.get("username")
+                    BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player1.get("username")]
+                elif player2.get("username") in BPTourneyMaster.disconnectedPlayers:
+                    print("player2 disconnected from first game", flush=True)
+                    autowinPlayer = player1.get("username")
+                    BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player2.get("username")]
             
             print("autowinPLayer: ", autowinPlayer, flush=True)
             BPTourneyMaster.channelToRoomNameMap["finals_" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
