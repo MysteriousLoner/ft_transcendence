@@ -126,11 +126,27 @@ body {
 }
 
 /* Container for feature buttons */
+.feature-buttons1 {
+    display: flex;
+	/* Center vertically */
+    align-items: center; 
+    justify-content: center; 
+	 /* Center horizontally */
+    height:auto;  /* Full height of the viewport, adjust as needed */
+}
+
 .feature-buttons {
     display: flex;
-    align-items: center;  /* Center vertically */
-    justify-content: center;  /* Center horizontally */
-    height:auto;  /* Full height of the viewport, adjust as needed */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    position: absolute; /* Use absolute positioning */
+    bottom: 0; /* Stick to the bottom of the screen */
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust for exact centering */
+    width: auto; /* Adjust width as needed */
+    padding-bottom: 40px; /* Add some padding */ /* Optional: Add a background */
+    border-radius: 10px 10px 0 0; /* Optional: Rounded corners at the top */
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow */
 }
 
 /* Button styling */
@@ -154,31 +170,34 @@ body {
 
 .info {
     position: absolute;
-    bottom: 10px;
+    bottom: 130px;
     left: 10px;
     background: rgba(128, 255, 0, 0.8);
     padding: 20px;
+	padding-bottom: 10px;
     border-radius: 10px;
     font-family: Arial, sans-serif;
     width: auto;
 }
 .scoreboard {
     position: absolute;
-    top: 12.5%;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(255, 255, 255, 0.8);
-    padding: 20px 40px;
+    padding: 20px 30px;
     border-radius: 5px;
     font-family: Arial, sans-serif;
     font-size: 24px;
 }
+
 .position {
     position: absolute;
-    bottom: 10px;
+    bottom: 130px;
     right: 10px;
     background: rgba(128, 255, 0, 0.8);
     padding: 20px;
+	padding-bottom: 10px;
     border-radius: 10px;
     font-family: Arial, sans-serif;
     width: auto;

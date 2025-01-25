@@ -27,11 +27,45 @@
 }
 
 .gamemode {
-    top: 20%;      /* Position from the top */
+    top: 12%;      /* Position from the top */
     left: 50%;     /* Position from the left */
     transform: translateX(-50%); /* Center horizontally */
 }
 
 #countdown {
     font-size: 3em; text-align: center; margin-top: 20%;
+}
+
+.left-info, .right-info {
+	top:50px;
+	position: absolute;
+    width: 250px; /* Adjust width as needed */
+    padding: 20px;
+    background: rgba(73, 181, 91, 0.8); /* Semi-transparent background */
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Add a shadow */
+    font-family: Arial, sans-serif;
+    color: #fefefe;
+}
+
+.left-info {
+    margin-left: 20px; /* Add some space from the left edge */
+	left:10px;
+}
+
+.right-info {
+    margin-right: 20px; /* Add some space from the right edge */
+	right:10px;	
+}
+
+/* Optional: Style the headings and paragraphs */
+.left-info h3, .right-info h3 {
+    margin-bottom: 15px;
+    font-size: 20px;
+    color: #ffffff;
+}
+
+.left-info p, .right-info p {
+    margin: 5px 0;
+    font-size: 15px;
 }
