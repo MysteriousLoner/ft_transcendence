@@ -38,7 +38,10 @@ def getProfileData(request):
 		"pendingRequests": profileData.pendingRequests,
         "totalMatches": profileData.matchesPlayed,
         "matchesWon": profileData.matchesWon,
-        "matchesLost": profileData.matchesLost
+        "matchesLost": profileData.matchesLost,
+        "tourneyMatches": profileData.TourneyMatchesPlayed,
+        "tourneyMatchesWon": profileData.TourneyMatchesWon,
+        "tourneyMatchesLost": profileData.TourneyMatchesLost,
 		}, status=200)
 
 # request body should contain username and displayName

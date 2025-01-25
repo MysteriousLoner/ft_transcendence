@@ -200,7 +200,7 @@ class PongGame:
     # left side channel is self.channel1_name
     # right side channel is self.channel2_name
     def checkWinCondition(self):
-        if self.score['left'] >= PongGame.winScore:
+        if self.score['left'] >= PongGame.winScore or self.winner == self.player1Username:
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
             self.winner = self.player1Username
@@ -209,7 +209,7 @@ class PongGame:
                 print("Updating match data", flush=True)
                 self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
             return True
-        if self.score['right'] >= PongGame.winScore:
+        if self.score['right'] >= PongGame.winScore or self.winner == self.player2Username:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
             self.running = False
             self.winner = self.player2Username
@@ -383,7 +383,7 @@ class PongGame:
             if not self.game_mode == 'AI' and self.winner and not self.dbUpdated:
                 self.dbUpdated = True
                 self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
-        elif player.channel_name == self.channel2_name and self.winner:
+        elif player.channel_name == self.channel2_name:
             print(f"Player 2: {self.player2Username} disconnected", flush=True)
             self.running = False
             self.winner = self.player1Username
