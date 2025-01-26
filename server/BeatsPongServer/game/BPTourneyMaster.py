@@ -73,6 +73,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
     # if enough players exist in the que, pop the first two players and put them into a room with a game.
     async def check_ques(self):
         if len(BPTourneyMaster.que_tourney) >= 4:
+            BPTourneyMaster.disconnectedPlayers = None
+            BPTourneyMaster.disconnectedPlayers = []
             BPTourneyMaster.activeTourneys += 1
             # create channel layer for first game
             player1 = BPTourneyMaster.que_tourney.pop(0)
@@ -163,12 +165,28 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             
             if not "finals_" in roomName:
                 # check if a player disconnected and make the connected one autowin
+                print("not final disconnetedPlayer list: ", BPTourneyMaster.disconnectedPlayers)
                 if player1.get("username") in BPTourneyMaster.disconnectedPlayers:
                     print("player1 disconnected from first game", flush=True)
+                    print("player1 discon:", player1.get("username"))
                     autowinPlayer = player2.get("username")
                     BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player1.get("username")]
                 elif player2.get("username") in BPTourneyMaster.disconnectedPlayers:
                     print("player2 disconnected from first game", flush=True)
+                    print("player2 discon:", player1.get("username"))
+                    autowinPlayer = player1.get("username")
+                    BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player2.get("username")]
+            else:
+                print("-- final disconnetedPlayer list: ", BPTourneyMaster.disconnectedPlayers[4:])
+                # to skip the first round game players
+                if player1.get("username") in BPTourneyMaster.disconnectedPlayers[BPTourneyMaster.que_tourney:]:
+                    print("player1 disconnected from first game", flush=True)
+                    print("player1 discon:", player1.get("username"))
+                    autowinPlayer = player2.get("username")
+                    BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player1.get("username")]
+                elif player2.get("username") in BPTourneyMaster.disconnectedPlayers[BPTourneyMaster.que_tourney:]:
+                    print("player2 disconnected from first game", flush=True)
+                    print("player2 discon:", player1.get("username"))
                     autowinPlayer = player1.get("username")
                     BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player2.get("username")]
             
