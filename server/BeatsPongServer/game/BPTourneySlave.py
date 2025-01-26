@@ -24,7 +24,7 @@ class TourneyGame:
     cuboidHeight = 10
     cuboidDepth = 0.25
     paddleWidth = 0.2 * 1.2
-    paddleHeight = 1.5 * 1.2
+    paddleHeight = 1.5 * 1.5
     paddleDepth = 0.25
     ballRadius = 0.125
     cameraZ = 10
