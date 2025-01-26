@@ -165,7 +165,6 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             
             if not "finals_" in roomName:
                 # check if a player disconnected and make the connected one autowin
-                print("not final disconnetedPlayer list: ", BPTourneyMaster.disconnectedPlayers)
                 if player1.get("username") in BPTourneyMaster.disconnectedPlayers:
                     print("player1 disconnected from first game", flush=True)
                     print("player1 discon:", player1.get("username"))
@@ -177,7 +176,6 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                     autowinPlayer = player1.get("username")
                     BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player2.get("username")]
             else:
-                print("-- final disconnetedPlayer list: ", BPTourneyMaster.disconnectedPlayers[4:])
                 # to skip the first round game players
                 if player1.get("username") in BPTourneyMaster.disconnectedPlayers[BPTourneyMaster.que_tourney:]:
                     print("player1 disconnected from first game", flush=True)
