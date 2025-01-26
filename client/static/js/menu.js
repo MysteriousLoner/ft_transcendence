@@ -23,6 +23,8 @@ let profilePicture = {};
 // Initialize the page
 async function initPage(inputUser) {
 
+
+
 	document.getElementById("prevPage").addEventListener("click", () => changePage(-1));
 	document.getElementById("nextPage").addEventListener("click", () => changePage(1));
 	document.getElementById("prevNewPage").addEventListener("click", () => changeNewPage(-1));
@@ -78,6 +80,8 @@ async function initPage(inputUser) {
 
 	document.getElementById('refresh').addEventListener('click', refresh);
 	document.getElementById('closeInfo').addEventListener('click', closeFriendProfileModal);
+
+	initHistoryModal();
 }
 
 // Update friend list
@@ -100,11 +104,13 @@ async function updateFriendList() {
 			li.innerHTML = `
             <span>${friend}</span>
             <div>
+				<button class="history-button">History</button>
 				<button class="info-button">Info</button>
                 <button class="delete-friend">Delete</button>
             </div>
         `;
 			friendsList.appendChild(li);
+			li.querySelector(".history-button").addEventListener("click", () => populateMatchHistory(friend));
 			li.querySelector(".info-button").addEventListener("click", () => openFriendProfileModal(friend));
 			li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 		});
@@ -196,11 +202,13 @@ function searchFriends() {
 		li.innerHTML = `
             <span>${friend}</span>
             <div>
+				<button class="history-button">History</button>
 				<button class="info-button">Info</button>
                 <button class="delete-friend">Delete</button>
             </div>
         `;
 		friendsList.appendChild(li);
+		li.querySelector(".history-button").addEventListener("click", () => populateMatchHistory(friend));
 		li.querySelector(".info-button").addEventListener("click", () => openFriendProfileModal(friend));
 		li.querySelector(".delete-friend").addEventListener("click", () => deleteFriend(friend));
 	});
@@ -376,4 +384,38 @@ async function openFriendProfileModal(friend) {
 	const modal = document.getElementById("friendProfileModal")
 	modal.style.display = "none"
   }
+
+  function initHistoryModal() {
+	  // Modal functionality
+	  const modal = document.getElementById("historyModal")
+	  const btn = document.getElementById("showHistory")
+	  const span = document.getElementsByClassName("close")[0]
+	  
+	  btn.onclick = () => {
+		populateMatchHistory(userData.username)
+	  }
+	  
+	  span.onclick = () => {
+		modal.style.display = "none"
+	  }
+	  
+	  window.onclick = (event) => {
+		if (event.target == modal) {
+		  modal.style.display = "none"
+		}
+	  }
+  }
+
+async function populateMatchHistory(name) {
+	document.getElementById("historyModal").style.display = "block"
+	const userHistory = await makeRequest('POST', 'api/account/getProfileData/', { username: name });
+	const historyList = document.querySelector(".history-list")
+	historyList.innerHTML = ""
+	userHistory.history.reverse().forEach((match) => {
+		const listItem = document.createElement("div");
+		listItem.className = "history-item";
+		listItem.textContent = match;
+		historyList.appendChild(listItem);
+	  });
+	}
 export default initPage;

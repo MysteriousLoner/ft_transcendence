@@ -131,73 +131,74 @@
 			<div class="container">
 				<div class="profile">
 					<div class="profile-container1">
-					  <!-- Left side: Profile Picture and Basic Information -->
-					  <div class="left-side">
-						<div class="profile-picture-container">
-						  <img id="profilePictureMenu1" src="" alt="Profile Pic">
+						<!-- Left side: Profile Picture and Basic Information -->
+						<div class="left-side">
+							<div class="profile-picture-container">
+								<img id="profilePictureMenu1" src="" alt="Profile Pic">
+							</div>
+							<div class="profile-info">
+								<div style="display: flex; align-items: center;">
+									<h2>Username:&nbsp;</h2>
+									<h2 id="usernameTitle1">placeholder</h2>
+								</div>
+								<div style="display: flex; align-items: center;">
+									<h2>Display name:&nbsp;</h2>
+									<h2 id="displaynameTitle">placeholder</h2>
+								</div>
+							</div>
 						</div>
-						<div class="profile-info">
-						  <div style="display: flex; align-items: center;">
-							<h2>Username:&nbsp;</h2>
-							<h2 id="usernameTitle1">placeholder</h2>
-						  </div>
-						  <div style="display: flex; align-items: center;">
-							<h2>Display name:&nbsp;</h2>
-							<h2 id="displaynameTitle">placeholder</h2>
-						  </div>
-						</div>
-					  </div>
-				  
-					  <!-- Right side: Stats and Win Rates -->
-					  <div class="right-side">
-						<div class="stats">
-						  <div style="display: flex; align-items: center;">
-							<h2>Total Match Played:&nbsp;</h2>
-							<h2 id="totalMatch">-1</h2>
-						  </div>
-						  <div style="display: flex; align-items: center;">
-							<h2>Matches Won:&nbsp;</h2>
-							<h2 id="winMatch">-1</h2>
-						  </div>
-						  <div style="display: flex; align-items: center;">
-							<h2>Matches Lost:&nbsp;</h2>
-							<h2 id="loseMatch">-1</h2>
-						  </div>
-						  <div style="display: flex; align-items: center;">
-							<h2>Total Tourney Played&nbsp;</h2>
-							<h2 id="TourneyMatches">-1</h2>
-						  </div>
-						  <div style="display: flex; align-items: center;">
-							<h2>Tourney Matches Won:&nbsp;</h2>
-							<h2 id="TourneyMatchesWon">-1</h2>
-						  </div>
-						  <div style="display: flex; align-items: center;">
-							<h2>Tourney Matches Lost:&nbsp;</h2>
-							<h2 id="TourneyMatchesLost">-1</h2>
-						  </div>
-						</div>
-						<!-- Win Rate and Tourney Win Rate -->
 
+						<!-- Right side: Stats and Win Rates -->
+						<div class="right-side">
+							<div class="stats">
+								<div style="display: flex; align-items: center;">
+									<h2>Total Match Played:&nbsp;</h2>
+									<h2 id="totalMatch">-1</h2>
+								</div>
+								<div style="display: flex; align-items: center;">
+									<h2>Matches Won:&nbsp;</h2>
+									<h2 id="winMatch">-1</h2>
+								</div>
+								<div style="display: flex; align-items: center;">
+									<h2>Matches Lost:&nbsp;</h2>
+									<h2 id="loseMatch">-1</h2>
+								</div>
+								<div style="display: flex; align-items: center;">
+									<h2>Total Tourney Played&nbsp;</h2>
+									<h2 id="TourneyMatches">-1</h2>
+								</div>
+								<div style="display: flex; align-items: center;">
+									<h2>Tourney Matches Won:&nbsp;</h2>
+									<h2 id="TourneyMatchesWon">-1</h2>
+								</div>
+								<div style="display: flex; align-items: center;">
+									<h2>Tourney Matches Lost:&nbsp;</h2>
+									<h2 id="TourneyMatchesLost">-1</h2>
+								</div>
+							</div>
+							<!-- Win Rate and Tourney Win Rate -->
+
+						</div>
 					</div>
-				  </div>
-				  <div class="centered-container">
-					<p class="win-rate">Win Rate: <span id="winRate">0.0</span>%</p>
-					<div class="win-rate-container">
-					  <div class="win-rate-bar">
-						<div id="winRateProgress"></div>
-					  </div>
+					<div class="centered-container">
+						<p class="win-rate">Win Rate: <span id="winRate">0.0</span>%</p>
+						<div class="win-rate-container">
+							<div class="win-rate-bar">
+								<div id="winRateProgress"></div>
+							</div>
+						</div>
+
+						<p class="win-rate">Tourney Win Rate: <span id="tourneyWinRate">0.0</span>%</p>
+						<div class="win-rate-container">
+							<div class="win-rate-bar">
+								<div id="tourneyProgress"></div>
+							</div>
+						</div>
 					</div>
-			  
-					<p class="win-rate">Tourney Win Rate: <span id="tourneyWinRate">0.0</span>%</p>
-					<div class="win-rate-container">
-					  <div class="win-rate-bar">
-						<div id="tourneyProgress"></div>
-					  </div>
-					</div>
-				  </div>
 					<div class="game-buttons large-buttons">
 						<button id="vanillaPong">Play Vanilla Pong</button>
 						<button id="friendsPong">Play Friends Pong</button>
+						<button id="showHistory">Match History</button>
 						<!-- <button id="demoPong">Demo Pong</button> -->
 					</div>
 				</div>
@@ -237,6 +238,17 @@
 				</div>
 				<div class="logout">
 					<button id="logoutButton">Logout</button>
+				</div>
+			</div>
+
+			<!-- Match History Modal -->
+			<div id="historyModal" class="modal">
+				<div class="modal-content">
+					<span class="close">&times;</span>
+					<h2>Match History</h2>
+					<div class="history-list">
+						<!-- List items will be dynamically added here -->
+					</div>
 				</div>
 			</div>
 			<!-- <script src="../js/menu.js"></script> -->
@@ -396,27 +408,29 @@
 		<div id="gameOverScreen"
 			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
 			<br><br>
-		<div class="centered-container">
-			<div class="margin-top login">
-				<h1>Match Results</h1>
-				<h2  class="CN-font" id="gameOverText"></h2>
-				<br><br>
-				<button id="backToMenuButton_3" class="btn btn-custom mx-3 Scifi">MENU</button>
+			<div class="centered-container">
+				<div class="margin-top login">
+					<h1>Match Results</h1>
+					<h2 class="CN-font" id="gameOverText"></h2>
+					<br><br>
+					<button id="backToMenuButton_3" class="btn btn-custom mx-3 Scifi">MENU</button>
+				</div>
 			</div>
-		</div>
 		</div>
 
 		<!-- Loading Screen -->
-		<div id="loadingScreen" class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
+		<div id="loadingScreen"
+			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
 			<div class="centered-container">
-			<div class="margin-top login">
-				<h1 class="CN-font">PREPARING MATCH ...</h1>
+				<div class="margin-top login">
+					<h1 class="CN-font">PREPARING MATCH ...</h1>
+				</div>
 			</div>
-		</div>
 		</div>
 
 		<!-- Countdown -->
-		<div id="countdownDisplay" class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
+		<div id="countdownDisplay"
+			class="container d-none flex-column justify-content-center align-items-center vh-100 Scifi">
 			<div class="countdown">
 				<div id="countdown">3</div>
 			</div>
