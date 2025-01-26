@@ -25,6 +25,7 @@ class ProfileData(models.Model):
     TourneyMatchesWon = models.IntegerField(default=0)
     TourneyMatchesLost = models.IntegerField(default=0)
     TourneyWinRate = models.FloatField(default=100)
+    history = ArrayField(models.CharField(max_length=500), blank=True, default=list)
     
     def save(self, *args, **kwargs): 
         self.displayName = self.displayName or self.username 

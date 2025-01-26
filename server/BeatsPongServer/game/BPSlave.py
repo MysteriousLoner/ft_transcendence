@@ -207,7 +207,7 @@ class PongGame:
             if not self.game_mode == 'AI' and not self.dbUpdated:
                 self.dbUpdated = True
                 print("Updating match data", flush=True)
-                self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
+                self.run_in_thread(update_match_data, self.player1Username, self.player2Username, self.score['left'], self.score['right'])
             return True
         if self.score['right'] >= PongGame.winScore or self.winner == self.player2Username:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
@@ -216,7 +216,7 @@ class PongGame:
             if not self.game_mode == 'AI' and not self.dbUpdated:
                 self.dbUpdated = True
                 print("Updating match data", flush=True)
-                self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
+                self.run_in_thread(update_match_data, self.player2Username, self.player1Username, self.score['right'], self.score['left'])
             return True
         print("no one wins", flush=True)
         return False

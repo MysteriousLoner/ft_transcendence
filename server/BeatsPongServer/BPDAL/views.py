@@ -101,7 +101,7 @@ def async_query_profile_data(username):
         return None
 
 # @sync_to_async
-def update_match_data(winnerUsername, loserUsername):
+def update_match_data(winnerUsername, loserUsername, winnerScore, loserScore):
     print(f"Updating match data for {winnerUsername} and {loserUsername}", flush=True)
     try:
         winnerProfileData = async_query_profile_data(winnerUsername)
@@ -111,13 +111,18 @@ def update_match_data(winnerUsername, loserUsername):
         winnerProfileData.matchesPlayed += 1
         winnerProfileData.matchesWon += 1
         winnerProfileData.winRate = winnerProfileData.matchesWon / winnerProfileData.matchesPlayed * 100
+        # update history for winner
+        winnerProfileData.history.append(f"{winnerUsername} aka {winnerProfileData.displayName} beat {loserUsername} aka {loserProfileData.displayName} with a score of {winnerScore} - {loserScore}")
         winnerProfileData.save()
 
         # update data for loser
         loserProfileData.matchesPlayed += 1
         loserProfileData.matchesLost += 1
         loserProfileData.winRate = loserProfileData.matchesWon / loserProfileData.matchesPlayed * 100
+        # update history for loser
+        loserProfileData.history.append(f"{loserUsername} aka {loserProfileData.displayName} lost to {winnerUsername} aka {winnerProfileData.displayName} with a score of {loserScore} - {winnerScore}")
         loserProfileData.save()
+
 
         print(f"Updated match data for {winnerUsername} and {loserUsername}", flush=True)
         print(f"Winner: matches played: {winnerProfileData.matchesPlayed} matches won: {winnerProfileData.matchesWon} matches lost: {winnerProfileData.matchesLost} win rate: {winnerProfileData.winRate}", flush=True)

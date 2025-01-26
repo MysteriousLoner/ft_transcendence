@@ -43,6 +43,7 @@ def getProfileData(request):
         "tourneyMatchesWon": profileData.TourneyMatchesWon,
         "tourneyMatchesLost": profileData.TourneyMatchesLost,
         "tourneyWinRate": profileData.TourneyWinRate,
+        "history": profileData.history,
 		}, status=200)
 
 # request body should contain username and displayName

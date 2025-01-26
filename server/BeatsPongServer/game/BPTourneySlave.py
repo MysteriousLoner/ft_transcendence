@@ -68,6 +68,8 @@ class TourneyGame:
         self.before_paddle_hit = True
         self.paddle_active = True
 
+        self.winningScore = 5
+
         # identifies the name of the websocket sending message
         if ("final" in room_name):
             self.channel1_name = player1
@@ -199,7 +201,7 @@ class TourneyGame:
     def checkWinCondition(self):
         if self.winner:
             return False
-        if self.score['left'] == 2 or self.winner == self.player1Username: 
+        if self.score['left'] == self.winningScore or self.winner == self.player1Username: 
             print(f"Player 1: {self.player1Username} wins!", flush=True)
             self.running = False
             self.winner = self.player1Username
@@ -212,7 +214,7 @@ class TourneyGame:
                     self.run_in_thread(tourney_win, self.player1Username)
                 self.run_in_thread(tourney_lose, self.player2Username)
             return True
-        if self.score['right'] == 2 or self.winner == self.player2Username:
+        if self.score['right'] == self.winningScore or self.winner == self.player2Username:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
             self.running = False
             self.winner = self.player2Username
