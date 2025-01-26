@@ -381,15 +381,17 @@ class PongGame:
             self.running = False
             self.winner = self.player2Username
             if not self.game_mode == 'AI' and self.winner and not self.dbUpdated:
+                print("Updating match data after disconnect", flush=True)
                 self.dbUpdated = True
-                self.run_in_thread(update_match_data, self.player2Username, self.player1Username)
+                self.run_in_thread(update_match_data, self.player2Username, self.player1Username, self.score['right'], self.score['left'])
         elif player.channel_name == self.channel2_name:
             print(f"Player 2: {self.player2Username} disconnected", flush=True)
             self.running = False
             self.winner = self.player1Username
             if not self.game_mode == 'AI' and self.winner and not self.dbUpdated:
+                print("Updating match data after disconnect", flush=True)
                 self.dbUpdated = True
-                self.run_in_thread(update_match_data, self.player1Username, self.player2Username)
+                self.run_in_thread(update_match_data, self.player1Username, self.player2Username, self.score['left'], self.score['right'])
         await self.send_game_state()
         self.closeSockets()
 
