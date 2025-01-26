@@ -575,4 +575,75 @@
       width: 100%; /* Ensure it doesn't overflow */
     }
   }
+
+
+  .modal {
+	display: none;
+	position: fixed;
+	z-index: 1;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	overflow: auto;
+	background-color: rgba(0, 0, 0, 0.4);
+  }
+  
+  .modal-content {
+	background-color: #2a2a2a;
+	margin: 15% auto;
+	padding: 20px;
+	border: 1px solid #888;
+	width: 80%;
+	max-width: 600px;
+	border-radius: 10px;
+  }
+  
+  .close {
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+	cursor: pointer;
+  }
+  
+  .close:hover,
+  .close:focus {
+	color: #fff;
+	text-decoration: none;
+	cursor: pointer;
+  }
+  
+  .history-list {
+	max-height: 350px;
+	overflow-y: auto;
+	margin-top: 20px;
+  }
+  
+  .history-item {
+	background-color: #3a3a3a;
+	padding: 10px;
+	margin-bottom: 10px;
+	border-radius: 5px;
+  }
+  
+  #showHistory {
+	background-color: #3498db;
+  }
+  
+  #showHistory:hover {
+	background-color: #2980b9;
+  }
+  
+  @media (max-width: 600px) {
+	.stats-grid {
+	  grid-template-columns: 1fr;
+	}
+  
+	.modal-content {
+	  width: 95%;
+	}
+  }
+  
+  
   
