@@ -8,7 +8,6 @@ import time
 from channels.exceptions import DenyConnection
 from BPDAL.views import async_query_profile_data
 from concurrent.futures import ThreadPoolExecutor
-import time
 
 """
 This class handles all game related traffic. Below is a high level abstract of it's workflow
@@ -144,7 +143,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             BPTourneyMaster.queForFinals[roomIndex] = [winnerChannel]
         else:
             BPTourneyMaster.queForFinals[roomIndex].append(winnerChannel)
-        time.sleep(1)
+        # time.sleep(1)
         # Find the game room this player is part of and handle the disconnect
         if len(BPTourneyMaster.queForFinals.get(roomIndex)) >= 2:
             channelList = BPTourneyMaster.queForFinals.get(roomIndex)
