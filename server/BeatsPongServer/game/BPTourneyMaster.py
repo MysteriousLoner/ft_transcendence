@@ -150,6 +150,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         if len(BPTourneyMaster.queForFinals.get(roomIndex)) >= 2:
             channelList = BPTourneyMaster.queForFinals.get(roomIndex)
             print("starting finals", flush=True)
+
             player1 = channelList.pop(0)
             player2 = channelList.pop(0)
             autowinPlayer = None
@@ -162,31 +163,20 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             channelLayer = get_channel_layer()
             await channelLayer.group_add("finals_" + str(BPTourneyMaster.activeTourneys), player1.get("self"))
             await channelLayer.group_add("finals_" + str(BPTourneyMaster.activeTourneys), player2.get("self"))
+
             
-            if not "finals_" in roomName:
-                # check if a player disconnected and make the connected one autowin
-                if player1.get("username") in BPTourneyMaster.disconnectedPlayers:
-                    print("player1 disconnected from first game", flush=True)
-                    print("player1 discon:", player1.get("username"))
-                    autowinPlayer = player2.get("username")
-                    BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player1.get("username")]
-                elif player2.get("username") in BPTourneyMaster.disconnectedPlayers:
-                    print("player2 disconnected from first game", flush=True)
-                    print("player2 discon:", player1.get("username"))
-                    autowinPlayer = player1.get("username")
-                    BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player2.get("username")]
-            else:
-                # to skip the first round game players
-                if player1.get("username") in BPTourneyMaster.disconnectedPlayers[BPTourneyMaster.que_tourney:]:
-                    print("player1 disconnected from first game", flush=True)
-                    print("player1 discon:", player1.get("username"))
-                    autowinPlayer = player2.get("username")
-                    BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player1.get("username")]
-                elif player2.get("username") in BPTourneyMaster.disconnectedPlayers[BPTourneyMaster.que_tourney:]:
-                    print("player2 disconnected from first game", flush=True)
-                    print("player2 discon:", player1.get("username"))
-                    autowinPlayer = player1.get("username")
-                    BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player2.get("username")]
+            # if not "finals_" in roomName:
+            # check if a player disconnected and make the connected one autowin
+            if player1.get("username") in BPTourneyMaster.disconnectedPlayers:
+                print("player1 disconnected from first game", flush=True)
+                print("player1 discon:", player1.get("username"))
+                autowinPlayer = player2.get("username")
+                BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player1.get("username")]
+            elif player2.get("username") in BPTourneyMaster.disconnectedPlayers:
+                print("player2 disconnected from first game", flush=True)
+                print("player2 discon:", player1.get("username"))
+                autowinPlayer = player1.get("username")
+                BPTourneyMaster.disconnectedPlayers = [player for player in BPTourneyMaster.disconnectedPlayers if player != player2.get("username")]
             
             print("autowinPLayer: ", autowinPlayer, flush=True)
             BPTourneyMaster.channelToRoomNameMap["finals_" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
@@ -238,6 +228,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 BPTourneyMaster.channelToRoomNameMap.pop(room)
                 break
             if "finals" in room:
+                await BPTourneyMaster.channelToRoomNameMap[room].handle_player_disconnect(self)
                 BPTourneyMaster.activeTourneys -= 1
         
         for key, value in BPTourneyMaster.channelToRoomNameMap.items():
@@ -268,7 +259,8 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 return
             print("winnerChannel", winnerChannel, flush=True)
             self.finalistDisplayNameMap[winnerChannel.get("username")] = message.get("winnerDisplayName")
-            await self.handle_game1_winner(winnerChannel, roomName=message.get("roomName"))
+            if "final" not in message.get("roomName"):
+                await self.handle_game1_winner(winnerChannel, roomName=message.get("roomName"))
             BPTourneyMaster.finalistUsernames.append(winnerChannel.get("username"))
         try:
             await self.send_json(message)
