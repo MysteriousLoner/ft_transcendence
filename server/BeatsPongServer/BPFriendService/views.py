@@ -54,6 +54,9 @@ def sendFriendRequest(request):
         return JsonResponse({"error": "Users does not exist."}, status=400)
     # get target profile data and self profile data
     targetProfileData = query_profile_data(targetUsername)
+    selfProfileData = query_profile_data(selfUsername)
+    if targetProfileData.username in selfProfileData.pendingRequests:
+        return JsonResponse({"error": "U already have a friend request from that user!"}, status=400)
     if selfUsername in targetProfileData.pendingRequests:
         return JsonResponse({"error": "Friend request already sent."}, status=400)
     if selfUsername in targetProfileData.friendList:
