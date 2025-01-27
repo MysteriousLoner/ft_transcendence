@@ -2,7 +2,7 @@ services:
   db:
     image: postgres
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USERNAME}
@@ -24,7 +24,7 @@ services:
       - "8000:8000"
       - "8001:8001"
     volumes:
-      - ./server:/app
+      - server-data:/app
       - django-certs:/etc/certs
     depends_on:
       db:
@@ -42,28 +42,24 @@ services:
       - "5500:5500"
       - "8080:8080"
     volumes:
-      - ./client/static/html:/usr/share/nginx/html/
-      - ./client/static/css:/usr/share/nginx/html/css/
-      - ./client/static/js:/usr/share/nginx/html/js/
-      - ./client/conf:/etc/nginx/conf.d
+      - nginx-html:/usr/share/nginx/html/
+      - nginx-css:/usr/share/nginx/html/css/
+      - nginx-js:/usr/share/nginx/html/js/
+      - nginx-conf:/etc/nginx/conf.d
       - django-certs:/etc/certs
     networks:
       - transcendence-network
     restart: on-failure
 
 volumes:
+  db-data:
+  server-data:
+  nginx-html:
+  nginx-css:
+  nginx-js:
+  nginx-conf:
   django-certs:
   
 networks:
   transcendence-network:
     driver: bridge
-  
-  # client:
-  #   build:
-  #     context: ./client
-  #   ports:
-  #     - "443:443"
-  #   volumes:
-  #     - ./client:/app
-  #   env_file:
-  #     - .env
