@@ -23,6 +23,9 @@ class Game {
         this.scoreLeft = 4;
         this.scoreRight = 2;
 
+        this.lastTick = performance.now();
+        this.tickInterval = 10;
+
         this.username = username;
         this.displayName = displayName;
         this.roomName = null;
@@ -720,7 +723,13 @@ class Game {
     }
 
     animate() {
-        this.sendMessage();
+        const now = performance.now();
+        const elapsed = now - this.lastTick;
+
+        if (elapsed >= this.tickInterval) {
+            this.sendMessage();
+            this.lastTick = now - (elapsed % this.tickInterval);
+        }
         this.rotateBoard();
         this.visualToogle();
 
