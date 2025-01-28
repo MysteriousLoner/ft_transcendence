@@ -7,6 +7,7 @@
  * IMPORTANT
  * This is an async function, so you should always use await or other methods to wait for the output when calling this function and use them in an async funnction
  */
+import GLOBAL_VARS from "./constants.js";
 let isRequestInProgress = false;
 // const verbose = true;  //changed it to true
 const verbose = true;
@@ -174,6 +175,6 @@ const ProtectedEndpoints = {
     PROFILE: "",
 }
 
-const ServerIp = "https://192.168.177.238:8000/";
+const ServerIp = GLOBAL_VARS.SERVER_IP_HTTPS;
 
 export default makeRequest;

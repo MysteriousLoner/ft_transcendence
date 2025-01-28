@@ -1,6 +1,7 @@
 // Creating class for new_design.js
 // Getting all variables and functions from new_design.js and putting them in this class
 import makeRequest from "../utils/requestWrapper.js";
+import GLOBAL_VARS from "../utils/constants.js";
 
 class Game {
     constructor(username, displayName, game_mode, ai_lvl, sceneRouterCallback, screenRouterCallback, sceneVars) {
@@ -31,12 +32,12 @@ class Game {
         try {
             if (game_mode == 'vanilla')
                 // this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
-                this.ws_url = `wss://192.168.177.238:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
+                this.ws_url = `${GLOBAL_VARS.SERVER_IP_WSS}ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
             else if (game_mode == 'solo') {
-                this.ws_url = `wss://192.168.177.238:8001/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
+                this.ws_url = `${GLOBAL_VARS.SERVER_IP_WSS}ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
             }
             else if (game_mode == 'tourney') {
-                this.ws_url = `wss://192.168.177.238:8001/ws/game/tourney?username=${this.username}&displayName=${this.displayName}`;
+                this.ws_url = `${GLOBAL_VARS.SERVER_IP_WSS}ws/game/tourney?username=${this.username}&displayName=${this.displayName}`;
             }
         } catch (error) {
             console.error('Error creating WebSocket URL:', error);

@@ -1,13 +1,14 @@
 import asyncio
+import time
 import sys
-from urllib.parse import parse_qs
-from .BPTourneySlave import TourneyGame
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.layers import get_channel_layer
-import time
 from channels.exceptions import DenyConnection
-from BPDAL.views import async_query_profile_data
 from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import parse_qs
+from BPDAL.views import async_query_profile_data
+from BPDAL.views import init_tourney_history
+from .BPTourneySlave import TourneyGame
 
 """
 This class handles all game related traffic. Below is a high level abstract of it's workflow
@@ -41,6 +42,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         # round 1
         self.game1 = None
         self.game2 = None
+        self.id = None
         # final round
         self.finalGame = None
 
@@ -55,6 +57,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         query_params = parse_qs(query_string)
         self.username = query_params.get('username', [None])[0]
         if self.username in BPTourneyMaster.onlinePlayers:
+            BPTourneyMaster.onlinePlayers.append(self.username)
             raise DenyConnection("Username already online") 
         BPTourneyMaster.onlinePlayers.append(self.username)
         await self.accept()
@@ -83,6 +86,11 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             await channelLayer1.group_add("game1_" + str(BPTourneyMaster.activeTourneys), player1.get("self").channel_name)
             await channelLayer1.group_add("game1_" + str(BPTourneyMaster.activeTourneys), player2.get("self").channel_name)
 
+            # initiate db entry for tournament history
+            tourneyHistory = await self.run_in_thread(init_tourney_history)
+            id = tourneyHistory.matchId
+            self.id = id
+
             BPTourneyMaster.channelToRoomNameMap["game1_" + str(BPTourneyMaster.activeTourneys)] = TourneyGame(
                 room_name="game1_" + str(BPTourneyMaster.activeTourneys), 
                 player1=player1.get("self"),
@@ -92,6 +100,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 player2Username=player2.get("username"),
                 player1DisplayName=player1.get("displayName"),
                 player2DisplayName=player2.get("displayName"),
+                gameId=id,
                 autoWinPlayer=None
             )
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
@@ -116,6 +125,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 player2Username=player4.get("username"),
                 player1DisplayName=player3.get("displayName"),
                 player2DisplayName=player4.get("displayName"),
+                gameId=id,
                 autoWinPlayer=None
             )
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
@@ -188,6 +198,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
                 player2Username=player2.get("username"),
                 player1DisplayName=player1DisplayName,
                 player2DisplayName=player2DisplayName,
+                gameId=self.id,
                 autoWinPlayer=autowinPlayer,
             )
             print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)
@@ -195,7 +206,6 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
 
 
     async def receive_json(self, content):
-        # print("content received", content, flush=True)
         if not content.get("roomName"):
             return
         
@@ -214,7 +224,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
             print("player in que: ", player.get("username"), flush=True)
             if self.username == player.get("username"):
                 print("Removing player from online players list", flush=True)
-                BPTourneyMaster.onlinePlayers = [player for player in BPTourneyMaster.onlinePlayers if player != self.username]
+                BPTourneyMaster.onlinePlayers.remove(self.username)
                 break
         
         # Remove the player from the appropriate queue
@@ -234,7 +244,7 @@ class BPTourneyMaster(AsyncJsonWebsocketConsumer):
         for key, value in BPTourneyMaster.channelToRoomNameMap.items():
             if self.username in [value.player1Username, value.player2Username] and not value.running:
                 print("Removing player from online players list", flush=True)
-                BPTourneyMaster.onlinePlayers = [player for player in BPTourneyMaster.onlinePlayers if player != self.username]
+                # BPTourneyMaster.onlinePlayers.remove(self.username)
                 break
         
         print("Rooms: ", BPTourneyMaster.channelToRoomNameMap, flush=True)

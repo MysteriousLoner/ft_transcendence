@@ -3,6 +3,7 @@ import LoginScene from "./loginScene.js";
 import HomeScene from "./homeScene.js";
 import MenuScene from "./menuScene.js";
 import GameScene from "./gameScene.js";
+import GLOBAL_VARS from "../utils/constants.js";
 
 class SceneRegistry {
     constructor() {

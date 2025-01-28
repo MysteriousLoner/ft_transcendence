@@ -17,15 +17,6 @@ class ProfileData(models.Model):
     displayName = models.CharField(max_length=100, blank=True)
     friendList = ArrayField(models.CharField(max_length=100), blank=True, default=list)
     pendingRequests = ArrayField(models.CharField(max_length=100), blank=True, default=list)
-    winRate = models.FloatField(default=100)
-    matchesPlayed = models.IntegerField(default=0)
-    matchesWon = models.IntegerField(default=0)
-    matchesLost = models.IntegerField(default=0)
-    TourneyMatchesPlayed = models.IntegerField(default=0)
-    TourneyMatchesWon = models.IntegerField(default=0)
-    TourneyMatchesLost = models.IntegerField(default=0)
-    TourneyWinRate = models.FloatField(default=100)
-    history = ArrayField(models.CharField(max_length=500), blank=True, default=list)
     
     def save(self, *args, **kwargs): 
         self.displayName = self.displayName or self.username 
@@ -33,6 +24,32 @@ class ProfileData(models.Model):
 
     def __str__(self): 
         return self.username
+
+# used to store user match history
+class MatchHistory(models.Model):
+    matchId = models.AutoField(primary_key=True)
+    winnerUsername = models.CharField(max_length=100)
+    loserUsername = models.CharField(max_length=100)
+    winnerScore = models.IntegerField()
+    loserScore = models.IntegerField()
+    username = models.CharField(max_length=100)
+    dateTime = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.winnerUsername} won against {self.loserUsername} with a score of {self.winnerScore} - {self.loserScore}"
+    
+# used to store user tourney history
+class TourneyHistory(models.Model):
+    matchId = models.AutoField(primary_key=True)
+    game1WinnerUsername = models.CharField(max_length=100)
+    game1LoserUsername = models.CharField(max_length=100)
+    game2WinnerUsername = models.CharField(max_length=100)
+    game2LoserUsername = models.CharField(max_length=100)
+    game3LoserUsername = models.CharField(max_length=100)
+    winnerUsername = models.CharField(max_length=100)
+
+    def __str__(self):
+        return
 
 # used to temporarily store verification code sent trough smtp.
 # Primary Key: username

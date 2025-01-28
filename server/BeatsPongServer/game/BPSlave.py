@@ -1,6 +1,6 @@
 import asyncio, random
 from channels.layers import get_channel_layer
-from BPDAL.views import update_match_data
+from BPDAL.views import add_match_history
 from concurrent.futures import ThreadPoolExecutor
 import threading
 
@@ -32,7 +32,7 @@ class PongGame:
     ballSpeed = 0.075
     waitTime = 3
     winScore = 5
-
+    
     def __init__(self, room_name, player1, player2, player1Username, player2Username, player1DisplayName, player2DisplayName):
         print("Game object created", flush=True)
         # print(f"Player 1: {player1Username} Player 2: {player2Username}", flush=True)
@@ -207,7 +207,7 @@ class PongGame:
             if not self.game_mode == 'AI' and not self.dbUpdated:
                 self.dbUpdated = True
                 print("Updating match data", flush=True)
-                self.run_in_thread(update_match_data, self.player1Username, self.player2Username, self.score['left'], self.score['right'])
+                self.run_in_thread(add_match_history, self.player1Username, self.player2Username, self.score['left'], self.score['right'])
             return True
         if self.score['right'] >= PongGame.winScore or self.winner == self.player2Username:
             print(f"Player 2: {self.player2Username} wins!", flush=True)
@@ -216,7 +216,7 @@ class PongGame:
             if not self.game_mode == 'AI' and not self.dbUpdated:
                 self.dbUpdated = True
                 print("Updating match data", flush=True)
-                self.run_in_thread(update_match_data, self.player2Username, self.player1Username, self.score['right'], self.score['left'])
+                self.run_in_thread(add_match_history, self.player2Username, self.player1Username, self.score['right'], self.score['left'])
             return True
         print("no one wins", flush=True)
         return False
@@ -383,7 +383,7 @@ class PongGame:
             if not self.game_mode == 'AI' and self.winner and not self.dbUpdated:
                 print("Updating match data after disconnect", flush=True)
                 self.dbUpdated = True
-                self.run_in_thread(update_match_data, self.player2Username, self.player1Username, self.score['right'], self.score['left'])
+                self.run_in_thread(add_match_history, self.player2Username, self.player1Username, self.score['right'], self.score['left'])
         elif player.channel_name == self.channel2_name:
             print(f"Player 2: {self.player2Username} disconnected", flush=True)
             self.running = False
@@ -391,7 +391,7 @@ class PongGame:
             if not self.game_mode == 'AI' and self.winner and not self.dbUpdated:
                 print("Updating match data after disconnect", flush=True)
                 self.dbUpdated = True
-                self.run_in_thread(update_match_data, self.player1Username, self.player2Username, self.score['left'], self.score['right'])
+                self.run_in_thread(add_match_history, self.player1Username, self.player2Username, self.score['left'], self.score['right'])
         await self.send_game_state()
         self.closeSockets()
 

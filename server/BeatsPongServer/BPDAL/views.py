@@ -1,8 +1,12 @@
-from django.views.decorators.csrf import csrf_exempt
-from .models import ProfileData, VerificationCode, FriendRequestList, ProfilePicture
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
-from asgiref.sync import sync_to_async
+from .models import ProfileData
+from .models import VerificationCode
+from .models import FriendRequestList
+from .models import ProfilePicture
+from .models import MatchHistory
+from .models import TourneyHistory
+from django.db.models import Q
+from django.core.exceptions import ObjectDoesNotExist
 
 
 '''
@@ -92,7 +96,6 @@ def query_profile_data(username):
     except ObjectDoesNotExist:
         return None
     
-# @sync_to_async
 def async_query_profile_data(username):
     try:
         profileData = ProfileData.objects.get(username=username)
@@ -100,7 +103,106 @@ def async_query_profile_data(username):
     except ObjectDoesNotExist:
         return None
 
-# @sync_to_async
+def add_match_history(winnerUsername, loserUsername, winnerScore, loserScore):
+    try:
+        matchHistory = MatchHistory.objects.create(
+            winnerUsername=winnerUsername,
+            loserUsername=loserUsername,
+            winnerScore=winnerScore,
+            loserScore=loserScore,
+        )
+        matchHistory.save()
+        return matchHistory
+    except ObjectDoesNotExist:
+        return None
+
+# Used to initiate tournament history, returns the match ID 
+def init_tourney_history():
+    try:
+        tourneyHistory = TourneyHistory.objects.create(
+            game1WinnerUsername="",
+            game1LoserUsername="",
+            game2WinnerUsername="",
+            game2LoserUsername="",
+            winnerUsername="",
+        )
+        tourneyHistory.save()
+        return tourneyHistory
+    except ObjectDoesNotExist:
+        return None
+    
+# Update game 1 players based on match id
+def update_game1_players(matchId, winnerUsername, loserUsername):
+    try:
+        tourneyHistory = TourneyHistory.objects.get(matchId=matchId)
+        tourneyHistory.game1WinnerUsername = winnerUsername
+        tourneyHistory.game1LoserUsername = loserUsername
+        tourneyHistory.save()
+        return tourneyHistory
+    except ObjectDoesNotExist:
+        return None
+    
+# Update game 2 players based on match id
+def update_game2_players(matchId, winnerUsername, loserUsername):
+    try:
+        tourneyHistory = TourneyHistory.objects.get(matchId=matchId)
+        tourneyHistory.game2WinnerUsername = winnerUsername
+        tourneyHistory.game2LoserUsername = loserUsername
+        tourneyHistory.save()
+        return tourneyHistory
+    except ObjectDoesNotExist:
+        return None
+
+# Update tournament winner based on match id
+def update_tourney_winner(matchId, winnerUsername, loserUsername):
+    try:
+        tourneyHistory = TourneyHistory.objects.get(matchId=matchId)
+        tourneyHistory.winnerUsername = winnerUsername
+        tourneyHistory.game3LoserUsername = loserUsername
+        tourneyHistory.save()
+        return tourneyHistory
+    except ObjectDoesNotExist:
+        return None
+
+def get_tourney_history_as_list(username):
+    tourney_history = TourneyHistory.objects.filter(
+        Q(game1WinnerUsername=username) | Q(game1LoserUsername=username) | Q(game2WinnerUsername=username) | Q(game2LoserUsername=username)
+    ).order_by('-matchId')
+    
+    tourney_history_list = list(tourney_history.values())
+    
+    return tourney_history_list
+
+def get_tourney_wins(username):
+    tourney_wins = TourneyHistory.objects.filter(winnerUsername=username).count()
+    return tourney_wins
+
+def get_tourney_losses(username):
+    tourney_losses = TourneyHistory.objects.filter(
+        Q(game1LoserUsername=username) | Q(game2LoserUsername=username) | Q(game3LoserUsername=username)
+    ).count()
+    return tourney_losses
+
+# Function to query match history for a specific username
+def get_match_history_as_list(username):
+    match_history = MatchHistory.objects.filter(
+        Q(winnerUsername=username) | Q(loserUsername=username)
+    ).order_by('-matchId')
+    
+    match_history_list = [str(record) for record in match_history]
+
+    return match_history_list
+
+# Function to query the number of matches won by a specific user
+def get_matches_won(username):
+    matches_won = MatchHistory.objects.filter(winnerUsername=username).count()
+    return matches_won
+
+# Function to query the number of matches lost by a specific user
+def get_matches_lost(username):
+    matches_lost = MatchHistory.objects.filter(loserUsername=username).count()
+    return matches_lost
+
 def update_match_data(winnerUsername, loserUsername, winnerScore, loserScore):
     print(f"Updating match data for {winnerUsername} and {loserUsername}", flush=True)
     try:

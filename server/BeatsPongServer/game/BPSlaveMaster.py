@@ -2,6 +2,7 @@ import asyncio
 import sys
 from urllib.parse import parse_qs
 from .BPSlave import PongGame
+import time
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
 from channels.exceptions import DenyConnection
 """
@@ -45,6 +46,7 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         query_params = parse_qs(query_string)
         self.username = query_params.get('username', [None])[0]
         if self.username in BPSlaveMaster.onlinePlayers:
+            BPSlaveMaster.onlinePlayers.append(self.username)
             raise DenyConnection("Username already online") 
         BPSlaveMaster.onlinePlayers.append(self.username)
         print("Online Players: ", BPSlaveMaster.onlinePlayers, flush=True)
@@ -114,11 +116,11 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
     async def disconnect(self, code):
         print(f"Disconnected with code: {code}")
         
+        BPSlaveMaster.onlinePlayers.remove(self.username)
         for player in BPSlaveMaster.que_solo:
             print("player in que: ", player.get("username"), flush=True)
             if self.username == player.get("username"):
                 print("Removing player from online players list", flush=True)
-                BPSlaveMaster.onlinePlayers = [player for player in BPSlaveMaster.onlinePlayers if player != self.username]
                 break
         # Remove the player from the appropriate queue
         for queue in [BPSlaveMaster.que_solo, BPSlaveMaster.que_tourney, BPSlaveMaster.que_vanilla]:
