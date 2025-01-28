@@ -30,12 +30,13 @@ class Game {
         
         try {
             if (game_mode == 'vanilla')
-                this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
+                // this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
+                this.ws_url = `wss://192.168.177.238:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
             else if (game_mode == 'solo') {
-                this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
+                this.ws_url = `wss://192.168.177.238:8001/ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
             }
             else if (game_mode == 'tourney') {
-                this.ws_url = `wss://localhost:8001/ws/game/tourney?username=${this.username}&displayName=${this.displayName}`;
+                this.ws_url = `wss://192.168.177.238:8001/ws/game/tourney?username=${this.username}&displayName=${this.displayName}`;
             }
         } catch (error) {
             console.error('Error creating WebSocket URL:', error);

@@ -47,8 +47,6 @@ services:
       - nginx-js:/usr/share/nginx/html/js/
       - nginx-conf:/etc/nginx/conf.d
       - django-certs:/etc/certs
-    networks:
-      - transcendence-network
     restart: on-failure
 
 volumes:

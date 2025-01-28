@@ -174,6 +174,6 @@ const ProtectedEndpoints = {
     PROFILE: "",
 }
 
-const ServerIp = "https://localhost:8000/";
+const ServerIp = "https://192.168.177.238:8000/";
 
 export default makeRequest;
