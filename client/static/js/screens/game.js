@@ -34,7 +34,6 @@ class Game {
         
         try {
             if (game_mode == 'vanilla')
-                // this.ws_url = `wss://localhost:8001/ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
                 this.ws_url = `${GLOBAL_VARS.SERVER_IP_WSS}ws/game/pong?gameMode=vanilla&username=${this.username}&displayName=${this.displayName}`;
             else if (game_mode == 'solo') {
                 this.ws_url = `${GLOBAL_VARS.SERVER_IP_WSS}ws/game/pong?gameMode=solo&username=${this.username}&displayName=${this.displayName}`;
@@ -332,6 +331,12 @@ class Game {
             this.socket = new WebSocket(this.ws_url);
         } catch (error) {
             console.error('Error creating WebSocket:', error);
+            Toastify({
+                text: "⚠️ Websocket already connected!",
+                duration: 3000,
+                position: "center", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+            }).showToast();
             this.sceneRouterCallback('menuScene');
         }
 
@@ -341,13 +346,21 @@ class Game {
             
             if (this.info.message_received == false) {
                 this.showLoadingScreen();
+            } else {
+                this.showGameContainer();
             }
     
             this.socket.onmessage = function (event) {
                 if (this.info.message_received == false) {
                     const gameState = JSON.parse(event.data);
-                    if (gameState.running == true)
-                        this.showGameContainer();
+                    if (gameState.running == true) {
+                        Toastify({
+                            text: "🎮 Game started!",
+                            duration: 3000,
+                            position: "center",
+                        }).showToast();
+                    }
+                    this.showGameContainer();
                     this.info.message_received = true;
                 } // Hide loading screen and show game container when first message is received
                 
@@ -356,6 +369,12 @@ class Game {
             }.bind(this);
             this.socket.onerror = function (error) {
                 console.log('WebSocket error:', error);
+                Toastify({
+                    text: "⚠️ Websocket already connected!",
+                    duration: 3000,
+                    position: "center", // `left`, `center` or `right`
+                    stopOnFocus: true, // Prevents dismissing of toast on hover
+                }).showToast();
                 this.sceneRouterCallback('menuScene');
             }.bind(this);
             
@@ -367,6 +386,12 @@ class Game {
     
         this.socket.onerror = function (error) {
             console.log('WebSocket error:', error);
+            Toastify({
+                text: "⚠️ Websocket already connected!",
+                duration: 3000,
+                position: "center", // `left`, `center` or `right`
+                stopOnFocus: true, // Prevents dismissing of toast on hover
+            }).showToast();
             this.sceneRouterCallback('menuScene');
         }.bind(this);
     }
@@ -399,6 +424,13 @@ class Game {
     }
     
     updateGameObjects(gameState) {
+        if (gameState.event == "game_start") {
+            Toastify({
+                text: "🎮 Game started!",
+                duration: 3000,
+                position: "center",
+            }).showToast();
+        }
         console.log("Game state received:", gameState);
         const gameStateString = JSON.stringify(gameState);
         let leftPaddleX, rightPaddleX;

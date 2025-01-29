@@ -223,10 +223,18 @@ async function acceptFriend(friend) {
 	try {
 		const response = await makeRequest('POST', 'api/friends/acceptFriendRequest/', { selfUsername: userName, targetUsername: friend });
 		if (response.error) {
-			alert(response.error);
+			Toastify({
+				text: "⚠️ "+response.error,
+				duration: 3000,
+				position: "center",
+			}).showToast();
 			return;
 		}
-		alert('Friend request from ' + friend + ' accepted');
+		Toastify({
+			text: "✅ Friend request from " + friend + " accepted",
+			duration: 3000,
+		}).showToast();
+		// alert('Friend request from ' + friend + ' accepted');
 		userData.friendList.push(friend);
 		userData.pendingRequests.splice(userData.pendingRequests.indexOf(friend), 1);
 		updateFriendList();
@@ -242,11 +250,21 @@ async function declineFriend(friend) {
 	try {
 		const response = await makeRequest('POST', 'api/friends/declineFriendRequest/', { selfUsername: userName, targetUsername: friend });
 		if (response.error) {
-			alert(response.error);
+			Toastify({
+				text: "⚠️ "+response.error,
+				duration: 3000,
+				position: "center",
+			}).showToast();
+			// alert(response.error);
 			return;
 		}
 		userData.pendingRequests.splice(userData.pendingRequests.indexOf(friend), 1);
-		alert('Friend request from ' + friend + ' declined');
+		Toastify({
+			text: "❌ Friend request from " + friend + " declined",
+			duration: 3000,
+			position: "center",
+		}).showToast();
+		// alert('Friend request from ' + friend + ' declined');
 		updateFriendRequests();
 	}
 	catch (error) {
@@ -259,10 +277,20 @@ async function deleteFriend(friend) {
 	try {
 		const response = await makeRequest('POST', 'api/friends/removeFriend/', { selfUsername: userName, targetUsername: friend });
 		if (response.error) {
-			alert(response.error);
+			Toastify({
+				text: "⚠️ "+response.error,
+				duration: 3000,
+				position: "center",
+			}).showToast();
+			// alert(response.error);
 			return;
 		}
-		alert('Friend: ' + friend + ' removed');
+		Toastify({
+			text: "✅ Friend: " + friend + " removed",
+			duration: 3000,
+			position: "center",
+		}).showToast();
+		// alert('Friend: ' + friend + ' removed');
 		const index = userData.friendList.indexOf(friend);
 		if (index > -1) {
 			userData.friendList.splice(index, 1);
@@ -279,21 +307,41 @@ async function addNewFriend() {
 	const searchTerm = document.getElementById("addFriendSearch").value;
 
 	if (searchTerm === "") {
-		alert("Please enter a username to search.");
+		Toastify({
+			text: "⚠️ Please enter a username to search.",
+			duration: 3000,
+			position: "center",
+		}).showToast();
+		// alert("Please enter a username to search.");
 		return;
 	}
 	try {
 		const response = await makeRequest('POST', 'api/friends/sendFriendRequest/', { selfUsername: userName, targetUsername: searchTerm });
 
 		if (response.error) {
-			alert(response.error);
+			Toastify({
+				text: "⚠️ "+response.error,
+				duration: 3000,
+				position: "center",
+			}).showToast();
+			// alert(response.error);
 		}
 		else {
-			alert('Friend request sent to ' + searchTerm);
+			Toastify({
+				text: "📧 Friend request sent to " + searchTerm,
+				duration: 3000,
+				position: "center",
+			}).showToast();
+			// alert('Friend request sent to ' + searchTerm);
 		}
 	}
 	catch (error) {
-		alert('Add Friend Error:', error);
+		Tosdtify({
+			text: "⚠️ Add Friend Error: " + error,
+			duration: 3000,
+			position: "center",
+		}).showToast();
+		// alert('Add Friend Error:', error);
 	}
 
 

@@ -22,11 +22,8 @@ class LoginScreen {
         document.getElementById('backbtn').removeEventListener('click', this.backToHomeCallback);
         document.getElementById('loginScreen').classList.add('d-none');
 		document.getElementById('errorMessage').classList.add('d-none');
-
-		document.getElementById('username').value = '';
-		document.getElementById('userPassword').value = '';
-
-
+		// document.getElementById('username').value = '';
+		// document.getElementById('userPassword').value = '';
     }
 
 	backToHome(event) {

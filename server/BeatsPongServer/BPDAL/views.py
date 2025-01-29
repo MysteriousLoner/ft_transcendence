@@ -156,6 +156,7 @@ def update_game2_players(matchId, winnerUsername, loserUsername):
 # Update tournament winner based on match id
 def update_tourney_winner(matchId, winnerUsername, loserUsername):
     try:
+        print(f"Updating tournament winner for match {matchId}", flush=True)
         tourneyHistory = TourneyHistory.objects.get(matchId=matchId)
         tourneyHistory.winnerUsername = winnerUsername
         tourneyHistory.game3LoserUsername = loserUsername

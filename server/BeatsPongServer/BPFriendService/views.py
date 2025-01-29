@@ -3,12 +3,10 @@ from BPDAL.views import query_profile_data
 from BPDAL.views import query_user
 
 # django rest framework dependencies
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 
 # formatting, data objects
-from django.core.serializers import serialize
 from django.http import JsonResponse
 import json
 import os

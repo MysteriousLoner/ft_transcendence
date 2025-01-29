@@ -39,16 +39,34 @@ class VerificationScreen {
         makeRequest('POST', 'api/auth/verify/', data)
             .then(response => {
                 if (response.error) {
-                    alert(response.error);
+                    Toastify({
+                        text: response.error,
+                        duration: 3000,
+                        position: "center",
+                        close: true
+                    }).showToast();
+                    // alert(response.error);
                     this.sceneRouterCallback("registerScene");
                 } else {
-                    alert('User registered successfully!');
+                    Toastify({
+                        text: '✅ User registered successfully!',
+                        duration: 3000,
+                        position: "center",
+                        close: true
+                    }).showToast();
+                    // alert('User registered successfully!');
                     this.sceneRouterCallback("homeScene");
                 }
             })
             .catch((error) => {
                 console.error('Error:', error);
-                alert('An unexpected error occurred. Please try again.');
+                Toastify({
+                    text: 'An unexpected error occurred. Please try again.',
+                    duration: 3000,
+                    position: "center",
+                    close: true
+                }).showToast();
+                // alert('An unexpected error occurred. Please try again.');
             });
     }
 }

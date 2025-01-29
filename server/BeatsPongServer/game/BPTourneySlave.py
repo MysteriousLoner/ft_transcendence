@@ -136,6 +136,14 @@ class TourneyGame:
         #     await self.send_game_state()
         #     self.run_in_thread(tourney_win, self.autoWinPlayer)
         #     return
+        await self.channelLayer.group_send(
+            self.room_name,
+            {
+                'type': 'game_message',
+                'message': {"event": "game_start"},
+                'tourneyWinnerChannel': {"self": None }
+            }
+        )
         await self.game_loop()
 
     async def game_loop(self):
@@ -450,8 +458,10 @@ class TourneyGame:
             "player2DisplayName": self.player2DisplayName,
             "winner": self.winner,
             "winnerDisplayName": self.winnerDisplayName,
-            "roomName": self.room_name
+            "roomName": self.room_name,
+            "gameId": self.gameId,
         }
+        # print("game state", game_state, flush=True)
         # print("room name", self.room_name, flush=True)
         await self.channelLayer.group_send(
             self.room_name,
@@ -469,7 +479,7 @@ class TourneyGame:
             {
                 'type': 'game_message',
                 'message': game_state,
-                'tourneyWinnerChannel': {"self": self.tourneyWinnerChannel, "username": self.winner }
+                'tourneyWinnerChannel': {"self": self.tourneyWinnerChannel, "username": self.winner, "gameId": self.gameId}
             }
             )
             self.endMessageSent = True

@@ -74,7 +74,17 @@ class MenuScreen {
             this.sceneVars.displayName = newUsername;
             this.closeEditProfileModal();
         } else {
-            alert('Please enter a valid display Name');
+            Toastify({
+                text: "Please enter a valid display Name",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: 'center',
+                backgroundColor: "linear-gradient(to right, #ff416c, #ff4b2b)",
+                stopOnFocus: true,
+                position: "center",
+            }).showToast();
+            // alert('Please enter a valid display Name');
         }
     }
 

@@ -47,6 +47,7 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         self.username = query_params.get('username', [None])[0]
         if self.username in BPSlaveMaster.onlinePlayers:
             BPSlaveMaster.onlinePlayers.append(self.username)
+            print("Already online", flush=True)
             raise DenyConnection("Username already online") 
         BPSlaveMaster.onlinePlayers.append(self.username)
         print("Online Players: ", BPSlaveMaster.onlinePlayers, flush=True)
@@ -137,12 +138,12 @@ class BPSlaveMaster(AsyncJsonWebsocketConsumer):
         
         # Remove the player from the list of online players
         print("disconnecting plater username: ", self.username, flush=True)
-        print("Online Players (disconnect): ", BPSlaveMaster.onlinePlayers, flush=True)
-        for room in BPSlaveMaster.rooms:
-            print("room running: ", room.running, flush=True)
-            if self.username in [room.player1Username, room.player2Username] and not room.running:
-                print("Removing player from online players list", flush=True)
-                BPSlaveMaster.onlinePlayers = [player for player in BPSlaveMaster.onlinePlayers if player != self.username]
+        # print("Online Players (disconnect): ", BPSlaveMaster.onlinePlayers, flush=True)
+        # for room in BPSlaveMaster.rooms:
+        #     print("room running: ", room.running, flush=True)
+        #     if self.username in [room.player1Username, room.player2Username] and not room.running:
+        #         print("Removing player from online players list", flush=True)
+        #         BPSlaveMaster.onlinePlayers = [player for player in BPSlaveMaster.onlinePlayers if player != self.username]
         
         print("solo_que contents: ", BPSlaveMaster.que_solo, flush=True)
         print("Online Players (disconnect, after clean): ", BPSlaveMaster.onlinePlayers, flush=True)
