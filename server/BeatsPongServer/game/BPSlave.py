@@ -2,7 +2,7 @@ import asyncio, random
 from channels.layers import get_channel_layer
 from BPDAL.views import add_match_history
 from concurrent.futures import ThreadPoolExecutor
-import threading
+import threading, math
 
 
 '''
@@ -47,6 +47,14 @@ class PongGame:
         self.player2DisplayName = player2DisplayName
         self.winner = None
         self.executor = ThreadPoolExecutor(max_workers=10)
+
+        self.temp_right_paddle = 0
+        self.ai_movement_start_time = 0
+        self.direction = 'None'
+        self.up_key = 'ArrowUp'
+        self.down_key = 'ArrowDown'
+        self.time_to_target = 0
+ 
 
         # identity of the room "I identify as a ......."
         self.room_name = room_name
@@ -347,31 +355,39 @@ class PongGame:
         # Refresh AI target every interval
         current_time = asyncio.get_event_loop().time()
         if current_time - self.ai_last_refresh_time >= self.ai_refresh_interval:
+            print("AI Right Refresh")
             self.AI_target = self.predicted_target
+            self.temp_right_paddle = self.rightPaddle['y']
             self.ai_last_refresh_time = current_time
+            # Calculate movement time, factoring in 1/60s frame updates
+            distance_to_target = abs(self.AI_target - self.temp_right_paddle)
+            frames_needed = math.ceil(distance_to_target / PongGame.rightPaddleSpeed)  # Round up to ensure enough frames
+            self.time_to_target = frames_needed * (1 / 60)  # Convert frames to seconds
+            if abs(self.AI_target - self.temp_right_paddle) < 0.1:
+                self.direction = 'None'  # Already at target
+            elif self.AI_target > self.temp_right_paddle:
+                self.direction = 'up'
+            elif self.AI_target < self.temp_right_paddle:
+                self.direction = 'down'
 
-        # Right side by default
-        paddle_side = self.rightPaddle
-        up_key = 'ArrowUp'
-        down_key = 'ArrowDown'
-        ball_towards_paddle = self.ball['speedX'] > 0
 
-        if side == 'Left':
-            paddle_side = self.leftPaddle
-            up_key = 'w'
-            down_key = 's'
-            ball_towards_paddle = self.ball['speedX'] < 0
+        # Start movement
+        if self.direction == 'up':
+            self.keys['ArrowUp'] = True
+            self.keys['ArrowDown'] = False
+            self.ai_movement_start_time = current_time  # Store movement start time
+        elif self.direction == 'down':
+            self.keys['ArrowUp'] = False
+            self.keys['ArrowDown'] = True
+            self.ai_movement_start_time = current_time  # Store movement start time
+        elif self.direction == 'None':
+            self.keys['ArrowUp'] = False
+            self.keys['ArrowDown'] = False
 
-        if ball_towards_paddle:
-            if abs(self.AI_target - paddle_side['y']) < 0.1:
-                self.keys[up_key] = False
-                self.keys[down_key] = False
-            elif self.AI_target > paddle_side['y']:
-                self.keys[up_key] = True
-                self.keys[down_key] = False
-            elif self.AI_target < paddle_side['y']:
-                self.keys[up_key] = False
-                self.keys[down_key] = True
+        # Stop movement when time_to_target expires
+        if current_time - self.ai_movement_start_time >= self.time_to_target or abs(self.AI_target - self.temp_right_paddle) < 0.1:
+            self.keys['ArrowUp'] = False
+            self.keys['ArrowDown'] = False
 
 # End of AI Functions Set --------------------------------------------------------------------------------------------------------------------------
 
